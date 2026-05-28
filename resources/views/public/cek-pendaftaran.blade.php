@@ -44,6 +44,20 @@
         @if(!empty($cari))
             <div class="mt-12">
                 @if($hasil)
+                @php
+                    $namaPublik = collect(preg_split('/\s+/', trim($hasil->nama)))
+                        ->filter()
+                        ->map(function ($bagian) {
+                            $panjang = mb_strlen($bagian);
+
+                            if ($panjang <= 1) {
+                                return '*';
+                            }
+
+                            return mb_substr($bagian, 0, 1) . str_repeat('*', min($panjang - 1, 6));
+                        })
+                        ->join(' ');
+                @endphp
                 <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 fade-up">
                     {{-- Status Banner --}}
                     <div class="px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 
@@ -60,8 +74,8 @@
                             </div>
                         </div>
                         <div class="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-center">
-                            <p class="text-white/70 text-[10px] font-bold uppercase">ID Pendaftar</p>
-                            <p class="font-mono font-black">#{{ str_pad($hasil->id, 5, '0', STR_PAD_LEFT) }}</p>
+                            <p class="text-white/70 text-[10px] font-bold uppercase">Data Pendaftaran</p>
+                            <p class="font-black">Ditemukan</p>
                         </div>
                     </div>
 
@@ -71,20 +85,22 @@
                             <div class="space-y-6">
                                 <div>
                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-2">
-                                        <i class="fas fa-user text-[var(--color-accent)]"></i> Identitas Pendaftar
+                                        <i class="fas fa-user-shield text-[var(--color-accent)]"></i> Ringkasan Pendaftar
                                     </span>
-                                    <h5 class="text-lg font-bold text-[var(--color-primary)]">{{ $hasil->nama }}</h5>
-                                    <p class="text-gray-400 text-xs">{{ $hasil->jenis_kelamin ?? 'Belum Diisi' }} | {{ $hasil->asal_sekolah ?? 'TK/PAUD Asal' }}</p>
+                                    <h5 class="text-lg font-bold text-[var(--color-primary)]">{{ $namaPublik ?: 'Data ditemukan' }}</h5>
+                                    <p class="text-gray-400 text-xs">Detail pribadi hanya dapat dikonfirmasi melalui panitia PPDB.</p>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                                        <span class="text-[9px] font-bold text-gray-400 uppercase block mb-1">NISN</span>
-                                        <span class="text-sm font-bold text-[var(--color-primary)]">{{ $hasil->nisn ?: '-' }}</span>
+                                        <span class="text-[9px] font-bold text-gray-400 uppercase block mb-1">Tanggal Daftar</span>
+                                        <span class="text-sm font-bold text-[var(--color-primary)]">{{ $hasil->tanggal_daftar?->format('d F Y') ?? '-' }}</span>
                                     </div>
                                     <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                                        <span class="text-[9px] font-bold text-gray-400 uppercase block mb-1">NIS</span>
-                                        <span class="text-sm font-bold text-[var(--color-primary)]">{{ $hasil->nis ?: '-' }}</span>
+                                        <span class="text-[9px] font-bold text-gray-400 uppercase block mb-1">Status Berkas</span>
+                                        <span class="text-sm font-bold text-[var(--color-primary)]">
+                                            @if($hasil->status_ppdb === 'diterima') Disetujui @elseif($hasil->status_ppdb === 'ditolak') Ditolak @else Menunggu @endif
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -96,12 +112,8 @@
                                     </span>
                                     <div class="space-y-3 mt-4">
                                         <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span class="text-xs text-gray-500">Tanggal Daftar</span>
-                                            <span class="text-xs font-bold text-[var(--color-primary)]">{{ $hasil->tanggal_daftar?->format('d F Y') ?? '-' }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span class="text-xs text-gray-500">Kontak (WA)</span>
-                                            <span class="text-xs font-bold text-[var(--color-primary)]">{{ $hasil->no_wa }}</span>
+                                            <span class="text-xs text-gray-500">Nomor Induk</span>
+                                            <span class="text-xs font-bold text-[var(--color-primary)]">Terverifikasi oleh sistem</span>
                                         </div>
                                         <div class="flex justify-between items-center py-2">
                                             <span class="text-xs text-gray-500">Terakhir Update</span>

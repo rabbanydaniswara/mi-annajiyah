@@ -105,10 +105,10 @@ class HomeController extends Controller
 
     public function cekPendaftaran()
     {
-        $cari = request('q', '');
+        $cari = trim((string) request('q', ''));
         $hasil = null;
 
-        if (!empty($cari)) {
+        if ($cari !== '' && mb_strlen($cari) <= 30) {
             $hasil = Siswa::where('nisn', $cari)
                 ->orWhere('no_wa', $cari)
                 ->orWhere('nis', $cari)

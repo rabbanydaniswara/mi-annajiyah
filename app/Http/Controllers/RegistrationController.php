@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DocumentHelper;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RegistrationController extends Controller
 {
@@ -39,11 +41,11 @@ class RegistrationController extends Controller
         ]);
 
         try {
-            $fileAkte = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('file_akte'), 'uploads', 'akte', 70, 1600, false);
-            $fileKk = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('file_kk'), 'uploads', 'kk', 70, 1600, false);
-            $fileKtp = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('file_ktp'), 'uploads', 'ktp', 70, 1600, false);
+            $fileAkte = DocumentHelper::uploadPrivate($request->file('file_akte'), 'akte');
+            $fileKk = DocumentHelper::uploadPrivate($request->file('file_kk'), 'kk');
+            $fileKtp = DocumentHelper::uploadPrivate($request->file('file_ktp'), 'ktp');
             $fileIjazah = $request->hasFile('file_ijazah')
-                ? \App\Helpers\ImageHelper::uploadAndOptimize($request->file('file_ijazah'), 'uploads', 'ijazah', 70, 1600, false)
+                ? DocumentHelper::uploadPrivate($request->file('file_ijazah'), 'ijazah')
                 : null;
 
             $siswa = Siswa::create([
@@ -69,20 +71,25 @@ class RegistrationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pendaftaran berhasil! File telah dioptimasi. Silahkan cek status pendaftaran Anda nanti.',
-                'id' => $siswa->id,
+                'message' => 'Pendaftaran berhasil! Silakan cek status pendaftaran Anda nanti.',
+                'card_url' => route('pendaftaran.print', $siswa->registration_token),
             ]);
         } catch (\Exception $e) {
+            Log::error('Public registration failed', [
+                'message' => $e->getMessage(),
+                'exception' => $e::class,
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan sistem. Silakan coba beberapa saat lagi atau hubungi panitia.',
             ], 500);
         }
     }
 
-    public function printCard($id)
+    public function printCard($token)
     {
-        $siswa = \App\Models\Siswa::findOrFail($id);
+        $siswa = Siswa::where('registration_token', $token)->firstOrFail();
         return view('public.cetak-kartu', compact('siswa'));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\DocumentHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
@@ -99,10 +100,7 @@ class SiswaController extends Controller
 
         // Hapus file dokumen jika ada
         foreach (['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'] as $field) {
-            if ($siswa->$field && file_exists(public_path($siswa->$field))) {
-                @unlink(public_path($siswa->$field));
-                \App\Helpers\ImageHelper::deleteThumbnail($siswa->$field);
-            }
+            DocumentHelper::delete($siswa->$field);
         }
 
         \App\Helpers\ActivityLogger::log('delete_siswa', null, "Menghapus data siswa {$namaSiswa}", ['data' => $siswa->toArray()]);

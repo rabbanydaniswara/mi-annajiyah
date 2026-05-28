@@ -24,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
             return \Illuminate\Cache\RateLimiting\Limit::perMinute(3)->by($request->ip());
         });
 
+        \Illuminate\Support\Facades\RateLimiter::for('cek-pendaftaran', function ($request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->ip());
+        });
+
         \Illuminate\Support\Facades\RateLimiter::for('admin-login', function ($request) {
             return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->ip());
         });

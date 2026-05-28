@@ -21,11 +21,11 @@ use App\Http\Controllers\Admin\FasilitasController;
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pendaftaran', [HomeController::class, 'pendaftaran'])->name('pendaftaran');
-Route::get('/pendaftaran/cetak/{id}', [RegistrationController::class, 'printCard'])->name('pendaftaran.print');
+Route::get('/pendaftaran/cetak/{token}', [RegistrationController::class, 'printCard'])->name('pendaftaran.print');
 Route::get('/tenaga-pendidik', [HomeController::class, 'tenagaPendidik'])->name('tenaga-pendidik');
 Route::get('/fasilitas', [HomeController::class, 'fasilitas'])->name('fasilitas');
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
-Route::get('/cek-pendaftaran', [HomeController::class, 'cekPendaftaran'])->name('cek-pendaftaran');
+Route::get('/cek-pendaftaran', [HomeController::class, 'cekPendaftaran'])->middleware('throttle:cek-pendaftaran')->name('cek-pendaftaran');
 Route::post('/api/pendaftaran', [RegistrationController::class, 'store'])->middleware('throttle:pendaftaran')->name('api.pendaftaran');
 
 /*
@@ -71,6 +71,9 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     // PPDB
     Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb');
     Route::post('/ppdb/update-status', [PpdbController::class, 'updateStatus'])->name('ppdb.updateStatus');
+    Route::get('/ppdb/{siswa}/document/{field}', [PpdbController::class, 'document'])
+        ->whereIn('field', ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'])
+        ->name('ppdb.document');
     Route::delete('/ppdb/{id}', [PpdbController::class, 'destroy'])->name('ppdb.destroy');
 
     // Konten

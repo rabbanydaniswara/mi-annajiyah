@@ -77,35 +77,41 @@ Tujuan: memilih dependency yang aman sebelum menyentuh fitur.
 
 Tujuan: menutup risiko terbesar sebelum aplikasi dipakai publik.
 
-- `[ ]` Ganti cetak kartu dari numeric ID ke token acak.
+- `[x]` Ganti cetak kartu dari numeric ID ke token acak.
   - Prioritas: P0
   - Target file: `routes/web.php`, `app/Http/Controllers/RegistrationController.php`, migration `siswa`, view pendaftaran.
   - Kriteria selesai: `/pendaftaran/cetak/{id}` tidak lagi membuka data berdasarkan ID berurutan; token invalid menghasilkan 404.
+  - Catatan: kolom `registration_token` ditambahkan, token otomatis dibuat di model `Siswa`, dan test token valid/ID lama sudah ditambahkan.
 
-- `[ ]` Pindahkan dokumen PPDB ke private storage.
+- `[x]` Pindahkan dokumen PPDB ke private storage.
   - Prioritas: P0
   - Target file: `app/Helpers/ImageHelper.php` atau helper/service baru, `RegistrationController`, controller admin dokumen.
   - Kriteria selesai: akte/KK/KTP/ijazah tidak bisa diakses langsung lewat URL publik.
+  - Catatan: upload baru masuk ke disk `local` private melalui `DocumentHelper`; path lama di `public/uploads` masih didukung untuk transisi; direct URL `/storage/ppdb/...` sudah ditutup oleh test.
 
-- `[ ]` Buat route khusus admin untuk melihat/mengunduh dokumen PPDB.
+- `[x]` Buat route khusus admin untuk melihat/mengunduh dokumen PPDB.
   - Prioritas: P0
   - Target file: `routes/web.php`, controller admin.
   - Kriteria selesai: hanya user login yang bisa membuka dokumen, operator/admin sesuai aturan.
+  - Catatan: route `admin.ppdb.document` berada di grup `auth`; preview/link dokumen admin diarahkan ke route ini.
 
-- `[ ]` Tambahkan throttle untuk cek status pendaftaran.
+- `[x]` Tambahkan throttle untuk cek status pendaftaran.
   - Prioritas: P1
   - Target file: `app/Providers/AppServiceProvider.php`, `routes/web.php`.
   - Kriteria selesai: request berlebihan ke `/cek-pendaftaran` dibatasi.
+  - Catatan: limiter `cek-pendaftaran` disetel 10 request/menit per IP.
 
-- `[ ]` Kurangi data yang tampil di cek status publik.
+- `[x]` Kurangi data yang tampil di cek status publik.
   - Prioritas: P1
   - Target file: `resources/views/public/cek-pendaftaran.blade.php`.
   - Kriteria selesai: hasil publik hanya menampilkan informasi seperlunya.
+  - Catatan: halaman publik hanya menampilkan status, nama tersamarkan, tanggal daftar, dan update status; NISN/NIS/WA/asal sekolah tidak ditampilkan.
 
-- `[ ]` Hapus detail exception dari response publik.
+- `[x]` Hapus detail exception dari response publik.
   - Prioritas: P0
   - Target file: `app/Http/Controllers/RegistrationController.php`.
   - Kriteria selesai: user mendapat pesan generik, detail error masuk log server.
+  - Catatan: detail exception dicatat ke log server, response publik memakai pesan generik.
 
 ## Fase 3 - Route Safety dan CSRF
 
@@ -126,10 +132,11 @@ Tujuan: memastikan aksi perubahan data memakai method yang benar.
   - Target file: view publik dan admin.
   - Kriteria selesai: semua link tab baru memiliki rel yang aman.
 
-- `[ ]` Ganti penggunaan `innerHTML` untuk pesan dinamis dari server.
+- `[x]` Ganti penggunaan `innerHTML` untuk pesan dinamis dari server.
   - Prioritas: P1
   - Target file: `resources/views/public/pendaftaran.blade.php`.
   - Kriteria selesai: pesan server ditampilkan dengan `textContent` atau escaping aman.
+  - Catatan: pesan sukses/error dinamis dari response pendaftaran sudah memakai DOM `textContent`; HTML yang tersisa bersifat statis untuk ikon/tombol.
 
 ## Fase 4 - Test dan Reliability
 
@@ -153,9 +160,10 @@ Tujuan: membuat perubahan bisa diverifikasi otomatis.
   - Prioritas: P1
   - Kriteria selesai: operator tidak bisa akses kelola admin.
 
-- `[ ]` Tambahkan test cetak kartu token.
+- `[x]` Tambahkan test cetak kartu token.
   - Prioritas: P0 setelah token dibuat.
   - Kriteria selesai: token valid 200, token invalid 404, numeric ID lama tidak valid.
+  - Catatan: tercakup di `tests/Feature/PpdbSecurityTest.php`.
 
 - `[ ]` Tambahkan test route toggle hanya menerima method aman.
   - Prioritas: P2

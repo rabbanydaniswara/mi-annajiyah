@@ -213,29 +213,59 @@ function registrationWizard() {
                 msgDiv.classList.remove('hidden');
                 if (data.success) {
                     msgDiv.className = 'p-5 rounded-3xl bg-green-50 text-green-800 font-bold border-2 border-green-200 animate-fade';
-                    msgDiv.innerHTML = `
-                        <div class="flex flex-col md:flex-row items-center gap-5">
-                            <i class="fas fa-check-circle text-4xl"></i>
-                            <div class="flex-1 text-center md:text-left">
-                                <p class="text-xl">Pendaftaran Berhasil!</p>
-                                <p class="text-sm font-normal">${data.message}</p>
-                            </div>
-                            <a href="/pendaftaran/cetak/${data.id}" target="_blank" class="px-6 py-3 bg-green-600 text-white rounded-xl text-sm font-black hover:bg-green-700 transition flex items-center gap-2 shadow-lg">
-                                <i class="fas fa-print"></i> CETAK KARTU
-                            </a>
-                        </div>
-                    `;
+                    msgDiv.replaceChildren();
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex flex-col md:flex-row items-center gap-5';
+
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-check-circle text-4xl';
+
+                    const textWrap = document.createElement('div');
+                    textWrap.className = 'flex-1 text-center md:text-left';
+                    const title = document.createElement('p');
+                    title.className = 'text-xl';
+                    title.textContent = 'Pendaftaran Berhasil!';
+                    const message = document.createElement('p');
+                    message.className = 'text-sm font-normal';
+                    message.textContent = data.message || 'Pendaftaran berhasil.';
+                    textWrap.append(title, message);
+
+                    const printLink = document.createElement('a');
+                    printLink.href = data.card_url || '#';
+                    printLink.target = '_blank';
+                    printLink.rel = 'noopener noreferrer';
+                    printLink.className = 'px-6 py-3 bg-green-600 text-white rounded-xl text-sm font-black hover:bg-green-700 transition flex items-center gap-2 shadow-lg';
+                    printLink.innerHTML = '<i class="fas fa-print"></i> CETAK KARTU';
+
+                    wrapper.append(icon, textWrap, printLink);
+                    msgDiv.appendChild(wrapper);
                     formEl.reset();
                     this.step = 1;
                     window.scrollTo({top: msgDiv.offsetTop - 100, behavior: 'smooth'});
                 } else {
                     msgDiv.className = 'p-5 rounded-3xl bg-red-50 text-red-800 font-bold border-2 border-red-200 animate-fade';
-                    msgDiv.innerHTML = '<div class="flex items-center gap-3"><i class="fas fa-times-circle text-2xl"></i><div><p class="text-lg">Gagal Mengirim</p><p class="text-sm font-normal">' + data.message + '</p></div></div>';
+                    msgDiv.replaceChildren();
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex items-center gap-3';
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-times-circle text-2xl';
+                    const textWrap = document.createElement('div');
+                    const title = document.createElement('p');
+                    title.className = 'text-lg';
+                    title.textContent = 'Gagal Mengirim';
+                    const message = document.createElement('p');
+                    message.className = 'text-sm font-normal';
+                    message.textContent = data.message || 'Pendaftaran gagal diproses.';
+                    textWrap.append(title, message);
+                    wrapper.append(icon, textWrap);
+                    msgDiv.appendChild(wrapper);
                 }
             } catch (e) {
                 msgDiv.classList.remove('hidden');
                 msgDiv.className = 'p-5 rounded-3xl bg-red-50 text-red-800 font-bold border-2 border-red-200 animate-fade';
-                msgDiv.innerHTML = 'Terjadi kesalahan sistem. Silakan coba beberapa saat lagi.';
+                msgDiv.textContent = 'Terjadi kesalahan sistem. Silakan coba beberapa saat lagi.';
             }
             this.loading = false;
         }

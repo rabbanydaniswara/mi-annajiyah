@@ -7,7 +7,7 @@
 <div x-data="{ 
         modalOpen: false, 
         selected: {}, 
-        baseUrl: '{{ asset('') }}',
+        documentRoute: '{{ route('admin.ppdb.document', ['siswa' => '__ID__', 'field' => '__FIELD__']) }}',
         filesMap: {
             'file_akte': 'Akte Kelahiran',
             'file_kk': 'Kartu Keluarga',
@@ -29,15 +29,9 @@
             if(status === 'ditolak') return 'text-red-600';
             return 'text-yellow-600';
         },
-        getThumb(path) {
-            if(!path) return '';
-            let p = path.startsWith('/') ? path.substring(1) : path;
-            return this.baseUrl + p.replace(/\.[^.]+$/, '_thumb.webp');
-        },
-        getFullUrl(path) {
-            if(!path) return '';
-            let p = path.startsWith('/') ? path.substring(1) : path;
-            return this.baseUrl + p;
+        getDocumentUrl(field) {
+            if(!this.selected.id || !field) return '';
+            return this.documentRoute.replace('__ID__', this.selected.id).replace('__FIELD__', field);
         },
         openDetail(p) {
             this.selected = JSON.parse(JSON.stringify(p));
@@ -165,10 +159,10 @@
                                 @foreach(['file_akte' => 'Akte', 'file_kk' => 'KK', 'file_ktp_ortu' => 'KTP', 'file_ijazah' => 'Ijazah'] as $field => $label)
                                     @if($p->$field)
                                     <div class="group/file relative">
-                                        <a href="{{ asset($p->$field) }}" target="_blank" class="block w-7 h-7 rounded-lg border border-gray-100 overflow-hidden hover:border-[var(--color-accent)] transition shadow-sm hover:scale-110 duration-200">
+                                        <a href="{{ route('admin.ppdb.document', ['siswa' => $p->id, 'field' => $field]) }}" target="_blank" rel="noopener noreferrer" class="block w-7 h-7 rounded-lg border border-gray-100 overflow-hidden hover:border-[var(--color-accent)] transition shadow-sm hover:scale-110 duration-200">
                                             @php $ext = pathinfo($p->$field, PATHINFO_EXTENSION); @endphp
                                             @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']))
-                                                <img src="{{ asset(\App\Helpers\ImageHelper::getThumbnail($p->$field)) }}" class="w-full h-full object-cover">
+                                                <img src="{{ route('admin.ppdb.document', ['siswa' => $p->id, 'field' => $field]) }}" class="w-full h-full object-cover">
                                             @else
                                                 <div class="w-full h-full bg-red-50 flex items-center justify-center text-[8px] text-red-500 font-black">PDF</div>
                                             @endif
@@ -313,7 +307,7 @@
                                     <p class="text-[10px] font-black text-green-700/50 uppercase mb-1">Nama Orang Tua/Wali</p>
                                     <p class="text-lg font-black text-green-900" x-text="selected.nama_ortu"></p>
                                 </div>
-                                <a :href="'https://wa.me/' + (selected.no_wa ? selected.no_wa.replace(/\D/g,'') : '')" target="_blank" class="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-transform">
+                                <a :href="'https://wa.me/' + (selected.no_wa ? selected.no_wa.replace(/\D/g,'') : '')" target="_blank" rel="noopener noreferrer" class="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-transform">
                                     <i class="fab fa-whatsapp text-xl"></i>
                                 </a>
                             </div>
@@ -325,9 +319,9 @@
                                             <p class="text-[9px] font-black text-gray-400 uppercase" x-text="label"></p>
                                             <i class="fas fa-check-circle text-green-400 text-[10px]"></i>
                                         </div>
-                                        <a :href="getFullUrl(selected[field])" target="_blank" class="relative block aspect-[4/3] rounded-2xl overflow-hidden border border-gray-50 bg-gray-50">
+                                        <a :href="getDocumentUrl(field)" target="_blank" rel="noopener noreferrer" class="relative block aspect-[4/3] rounded-2xl overflow-hidden border border-gray-50 bg-gray-50">
                                             <template x-if="isImage(selected[field])">
-                                                <img :src="getThumb(selected[field])" class="w-full h-full object-cover group-hover/doc:scale-110 transition duration-700">
+                                                <img :src="getDocumentUrl(field)" class="w-full h-full object-cover group-hover/doc:scale-110 transition duration-700">
                                             </template>
                                             <template x-if="!isImage(selected[field])">
                                                 <div class="w-full h-full flex flex-col items-center justify-center text-red-500 gap-2">

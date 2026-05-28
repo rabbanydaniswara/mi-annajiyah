@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\DocumentHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
@@ -57,6 +58,22 @@ class PpdbController extends Controller
         return redirect()->route('admin.ppdb')->with('success', 'Status berhasil diperbarui');
     }
 
+    public function document(Siswa $siswa, string $field)
+    {
+        abort_unless(in_array($field, ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'], true), 404);
+
+        $path = $siswa->{$field};
+        $absolutePath = DocumentHelper::absolutePath($path);
+
+        abort_unless($absolutePath && is_file($absolutePath), 404);
+
+        return response()->file($absolutePath, [
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function destroy($id)
     {
         $siswa = Siswa::findOrFail($id);
@@ -64,10 +81,7 @@ class PpdbController extends Controller
 
         // Hapus file
         foreach (['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'] as $field) {
-            if ($siswa->$field && file_exists(public_path($siswa->$field))) {
-                unlink(public_path($siswa->$field));
-                \App\Helpers\ImageHelper::deleteThumbnail($siswa->$field);
-            }
+            DocumentHelper::delete($siswa->$field);
         }
 
         \App\Helpers\ActivityLogger::log(
