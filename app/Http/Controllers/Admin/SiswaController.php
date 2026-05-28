@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\DocumentHelper;
+use App\Helpers\PhoneHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class SiswaController extends Controller
 {
@@ -71,7 +73,7 @@ class SiswaController extends Controller
             'nisn'         => 'nullable|string|max:20',
             'nis'          => 'nullable|string|max:20',
             'kelas'        => 'nullable|string|max:50',
-            'no_wa'        => 'nullable|string|max:20',
+            'no_wa'        => 'nullable|string|max:30',
             'nama_ortu'    => 'nullable|string|max:100',
             'alamat'       => 'nullable|string',
         ]);
@@ -80,6 +82,15 @@ class SiswaController extends Controller
             'nama', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
             'nisn', 'nis', 'kelas', 'no_wa', 'alamat', 'asal_sekolah', 'nama_ortu'
         ]);
+
+        if ($request->filled('no_wa')) {
+            $data['no_wa'] = PhoneHelper::normalizeIndonesianWhatsapp($request->no_wa);
+            if (!$data['no_wa']) {
+                throw ValidationException::withMessages([
+                    'no_wa' => 'Nomor WhatsApp harus berupa nomor Indonesia aktif, contoh: 081234567890.',
+                ]);
+            }
+        }
 
         if ($request->id) {
             $siswa = Siswa::findOrFail($request->id);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
@@ -48,5 +49,33 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('admin.login');
+    }
+
+    public function showPasswordForm()
+    {
+        return view('admin.change-password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'Password lama tidak sesuai.',
+            ])->onlyInput();
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        \App\Helpers\ActivityLogger::log('change_password', $user, "Mengganti password akun {$user->username}");
+
+        return redirect()->route('admin.password.edit')->with('success', 'Password berhasil diperbarui.');
     }
 }

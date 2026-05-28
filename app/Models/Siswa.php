@@ -16,7 +16,7 @@ class Siswa extends Model
         'nisn', 'nis', 'akte_kelahiran', 'file_akte',
         'no_kk', 'file_kk', 'alamat', 'asal_sekolah', 'nama_ortu',
         'file_ktp_ortu', 'no_wa', 'kelas', 'tanggal_daftar',
-        'status_ppdb', 'tgl_verifikasi', 'file_ijazah'
+        'status_ppdb', 'tgl_verifikasi', 'catatan_verifikasi', 'file_ijazah'
     ];
     protected $casts = [
         'tanggal_lahir' => 'date',

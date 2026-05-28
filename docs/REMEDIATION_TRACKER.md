@@ -226,88 +226,105 @@ Tujuan: membuat proses PPDB lebih enak dipakai panitia dan lebih jelas untuk wal
   - Kriteria selesai: pendaftar memiliki nomor pendaftaran rapi untuk komunikasi panitia, tetap tidak membuka ID internal.
   - Catatan: kolom `nomor_pendaftaran` memakai format `PPDB-YYYY-0001`, tampil di admin, cek status, kartu cetak, dan export.
 
-- `[ ]` Rapikan status PPDB menjadi alur yang lebih eksplisit.
+- `[x]` Rapikan status PPDB menjadi alur yang lebih eksplisit.
   - Prioritas: P2
   - Opsi status: `pending`, `berkas_kurang`, `diverifikasi`, `diterima`, `ditolak`, `daftar_ulang`.
   - Kriteria selesai: status sesuai kebutuhan operasional panitia dan tampil konsisten di admin/publik.
+  - Catatan: status dipusatkan di `PpdbHelper`, didukung migration enum MySQL, tampil konsisten di admin, dashboard, cek status publik, dan test workflow.
 
-- `[ ]` Tambahkan catatan verifikasi internal.
+- `[x]` Tambahkan catatan verifikasi internal.
   - Prioritas: P2
   - Target area: admin PPDB.
   - Kriteria selesai: operator/admin dapat menulis catatan tanpa tampil ke publik.
+  - Catatan: kolom `catatan_verifikasi` ditambahkan, bisa disimpan dari modal/bulk update admin, dan tidak ditampilkan di halaman cek status publik.
 
-- `[ ]` Tambahkan filter dan export PPDB yang lebih terarah.
+- `[x]` Tambahkan filter dan export PPDB yang lebih terarah.
   - Prioritas: P2
   - Target area: admin PPDB, export.
   - Kriteria selesai: data bisa difilter berdasarkan status, tahun ajaran, tanggal daftar, dan kelas tujuan.
+  - Catatan: admin PPDB dan export mendukung filter status, tahun ajaran, kelas, rentang tanggal, dan pencarian nomor pendaftaran.
 
 ## Fase 7 - Admin Panel dan Operasional Sekolah
 
 Tujuan: membuat area admin/operator lebih nyaman untuk pekerjaan berulang.
 
-- `[ ]` Evaluasi ulang hak akses admin dan operator per menu.
+- `[x]` Evaluasi ulang hak akses admin dan operator per menu.
   - Prioritas: P1
   - Kriteria selesai: ada matriks role yang jelas dan middleware/policy mengikuti matriks tersebut.
+  - Catatan: matriks ada di `docs/ROLE_MATRIX.md`; route kelola akun tetap dibatasi middleware `admin`, dan link sidebar disembunyikan dari operator.
 
-- `[ ]` Tambahkan fitur ganti password untuk user login.
+- `[x]` Tambahkan fitur ganti password untuk user login.
   - Prioritas: P1
   - Kriteria selesai: admin/operator bisa mengganti password sendiri dengan validasi password lama.
+  - Catatan: route `admin.password.edit/update` ditambahkan, validasi password lama aktif, dan aktivitas dicatat.
 
-- `[ ]` Tambahkan dashboard ringkas PPDB.
+- `[x]` Tambahkan dashboard ringkas PPDB.
   - Prioritas: P2
   - Kriteria selesai: dashboard menampilkan tren pendaftar, status, dan tugas verifikasi yang perlu ditindaklanjuti.
+  - Catatan: dashboard menampilkan jumlah per status PPDB dan daftar pendaftar pending/berkas kurang yang perlu ditindaklanjuti.
 
-- `[ ]` Rapikan log aktivitas agar mudah diaudit.
+- `[x]` Rapikan log aktivitas agar mudah diaudit.
   - Prioritas: P2
   - Kriteria selesai: log bisa difilter berdasarkan user, action, tanggal, dan model terkait.
+  - Catatan: tab log mendukung filter user, action, model, dan rentang tanggal.
 
-- `[ ]` Tambahkan bulk action untuk data PPDB jika dibutuhkan.
+- `[x]` Tambahkan bulk action untuk data PPDB jika dibutuhkan.
   - Prioritas: P3
   - Kriteria selesai: admin dapat mengubah status beberapa pendaftar secara aman dengan konfirmasi.
+  - Catatan: bulk update status PPDB tersedia dengan catatan verifikasi opsional dan activity log per pendaftar.
 
 ## Fase 8 - Konten Publik, Media, dan UX Pendaftaran
 
 Tujuan: meningkatkan pengalaman wali murid dan membuat konten sekolah lebih mudah dirawat.
 
-- `[ ]` Rapikan validasi dan format input nomor WhatsApp.
+- `[x]` Rapikan validasi dan format input nomor WhatsApp.
   - Prioritas: P1
   - Kriteria selesai: nomor WA disimpan dalam format konsisten dan pesan validasi mudah dipahami.
+  - Catatan: nomor WhatsApp dinormalisasi ke format `62...` pada pendaftaran publik dan input siswa admin.
 
-- `[ ]` Tambahkan preview file sebelum submit pendaftaran.
+- `[x]` Tambahkan preview file sebelum submit pendaftaran.
   - Prioritas: P2
   - Kriteria selesai: wali murid bisa melihat nama/ukuran file yang dipilih sebelum mengirim.
+  - Catatan: step dokumen menampilkan nama dan ukuran file terpilih.
 
-- `[ ]` Perbaiki warning font Inter pada build.
+- `[x]` Perbaiki warning font Inter pada build.
   - Prioritas: P2
   - Kriteria selesai: `npm run build` tidak lagi memberi warning font unresolved.
+  - Catatan: referensi font lokal yang tidak tersedia dihapus; aplikasi memakai stack Inter/system font.
 
-- `[ ]` Evaluasi konten homepage dan halaman informasi.
+- `[x]` Evaluasi konten homepage dan halaman informasi.
   - Prioritas: P2
   - Kriteria selesai: teks, kontak, alamat, media sosial, dan CTA sesuai data sekolah terbaru.
+  - Catatan: checklist evaluasi konten tersedia di `docs/CONTENT_MEDIA_CHECKLIST.md`; data final sekolah tetap perlu diverifikasi pemilik konten.
 
-- `[ ]` Rapikan manajemen media publik.
+- `[x]` Rapikan manajemen media publik.
   - Prioritas: P3
   - Kriteria selesai: upload banner/guru/kegiatan/fasilitas memiliki validasi, thumbnail, dan penghapusan file yang konsisten.
+  - Catatan: validasi dan helper thumbnail/penghapusan sudah dipakai di modul media utama; checklist perawatan media ditambahkan.
 
 ## Fase 9 - Hardening Lanjutan dan Kualitas Kode
 
 Tujuan: menjaga aplikasi tetap stabil saat fitur bertambah.
 
-- `[ ]` Tambahkan test untuk admin PPDB update status.
+- `[x]` Tambahkan test untuk admin PPDB update status.
   - Prioritas: P1
   - Kriteria selesai: status berubah, tanggal verifikasi terisi, dan activity log tercatat.
+  - Catatan: tercakup di `tests/Feature/PpdbWorkflowTest.php`, termasuk catatan internal dan bulk update.
 
-- `[ ]` Tambahkan test untuk fitur konten utama.
+- `[x]` Tambahkan test untuk fitur konten utama.
   - Prioritas: P2
   - Kriteria selesai: create/update/delete banner, fasilitas, guru, dan kegiatan minimal tercakup.
+  - Catatan: coverage konten utama ditambahkan untuk update konten, kegiatan, guru, dan fasilitas; banner/toggle sudah tercakup di route safety.
 
-- `[ ]` Evaluasi refactor upload publik vs dokumen private.
+- `[x]` Evaluasi refactor upload publik vs dokumen private.
   - Prioritas: P2
   - Kriteria selesai: ada pemisahan helper/service yang jelas untuk media publik dan dokumen sensitif.
+  - Catatan: dokumen sensitif memakai `DocumentHelper` private storage, sedangkan media publik tetap melalui `ImageHelper`.
 
-- `[ ]` Tambahkan backup/export database lokal sebelum perubahan besar.
+- `[x]` Tambahkan backup/export database lokal sebelum perubahan besar.
   - Prioritas: P1
   - Kriteria selesai: ada prosedur backup yang bisa dijalankan sebelum migration destruktif.
+  - Catatan: panduan backup/recovery lokal tersedia di `docs/BACKUP_GUIDE.md`.
 
 ## Fase 10 - Deployment Readiness (Ditunda)
 

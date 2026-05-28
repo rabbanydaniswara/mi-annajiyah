@@ -11,5 +11,8 @@ Isi dokumen:
 - `REMEDIATION_TRACKER.md`: task tracker bertahap untuk perbaikan audit dan kesiapan hosting.
 - `APP_IMPROVEMENT_ROADMAP.md`: roadmap pengembangan aplikasi sebelum hosting, termasuk PPDB, admin, UX publik, konten, dan hardening lanjutan.
 - `HOSTING_READINESS.md`: target runtime hosting, checklist paket hosting, dan strategi deploy asset.
+- `ROLE_MATRIX.md`: matriks hak akses admin dan operator.
+- `CONTENT_MEDIA_CHECKLIST.md`: checklist konten dan media publik sebelum publish.
+- `BACKUP_GUIDE.md`: panduan backup dan recovery lokal sebelum migration/perubahan besar.
 
 Catatan penting: hosting belum menjadi fokus langsung. Gunakan `APP_IMPROVEMENT_ROADMAP.md` dan `REMEDIATION_TRACKER.md` untuk menentukan perbaikan aplikasi berikutnya.

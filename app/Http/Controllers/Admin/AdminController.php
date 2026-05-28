@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,11 +14,36 @@ class AdminController extends Controller
     {
         $admins = User::orderByDesc('id')->get();
         $edit = request('edit') ? User::find(request('edit')) : null;
-        $logs = \App\Models\ActivityLog::with('user')
-            ->orderByDesc('created_at')
-            ->paginate(50);
+        $logsQuery = ActivityLog::with('user');
+
+        if (request()->filled('log_user')) {
+            request('log_user') === 'system'
+                ? $logsQuery->whereNull('user_id')
+                : $logsQuery->where('user_id', request('log_user'));
+        }
+
+        if (request()->filled('log_action')) {
+            $logsQuery->where('action', request('log_action'));
+        }
+
+        if (request()->filled('log_model')) {
+            $logsQuery->where('model_type', request('log_model'));
+        }
+
+        if (request()->filled('log_dari')) {
+            $logsQuery->whereDate('created_at', '>=', request('log_dari'));
+        }
+
+        if (request()->filled('log_sampai')) {
+            $logsQuery->whereDate('created_at', '<=', request('log_sampai'));
+        }
+
+        $logs = $logsQuery->orderByDesc('created_at')->paginate(50)->withQueryString();
+        $usersForFilter = User::orderBy('username')->get(['id', 'username']);
+        $actionList = ActivityLog::whereNotNull('action')->distinct()->orderBy('action')->pluck('action');
+        $modelList = ActivityLog::whereNotNull('model_type')->distinct()->orderBy('model_type')->pluck('model_type');
             
-        return view('admin.admin', compact('admins', 'edit', 'logs'));
+        return view('admin.admin', compact('admins', 'edit', 'logs', 'usersForFilter', 'actionList', 'modelList'));
     }
 
     public function store(Request $request)

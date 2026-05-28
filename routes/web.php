@@ -67,10 +67,13 @@ Route::get('sitemap.xml', function () {
 Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profile/password', [AuthController::class, 'showPasswordForm'])->name('password.edit');
+    Route::put('/profile/password', [AuthController::class, 'updatePassword'])->name('password.update');
 
     // PPDB
     Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb');
     Route::post('/ppdb/update-status', [PpdbController::class, 'updateStatus'])->name('ppdb.updateStatus');
+    Route::post('/ppdb/bulk-update-status', [PpdbController::class, 'bulkUpdateStatus'])->name('ppdb.bulkUpdateStatus');
     Route::get('/ppdb/{siswa}/document/{field}', [PpdbController::class, 'document'])
         ->whereIn('field', ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'])
         ->name('ppdb.document');

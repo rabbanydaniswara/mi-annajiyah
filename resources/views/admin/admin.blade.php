@@ -14,7 +14,7 @@
     <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
 </a>
 
-<div x-data="{ tab: '{{ request('page') ? 'logs' : 'admins' }}' }">
+<div x-data="{ tab: '{{ request('page') || request('tab') === 'logs' ? 'logs' : 'admins' }}' }">
     {{-- Tab Navigation --}}
     <div class="flex gap-1 bg-white p-1 rounded-2xl shadow-sm mb-6 w-fit border border-gray-100">
         <button @click="tab = 'admins'" 
@@ -125,6 +125,49 @@
     <div x-show="tab === 'logs'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4" style="display: none;">
         <div class="bg-white rounded-2xl p-6 shadow-sm animate-fade overflow-x-auto">
             <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-history mr-2"></i>Log Aktivitas Sistem</h3>
+            <form method="GET" action="{{ route('admin.admin') }}" class="grid grid-cols-1 md:grid-cols-6 gap-3 mb-5">
+                <input type="hidden" name="tab" value="logs">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">User</label>
+                    <select name="log_user" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                        <option value="">Semua</option>
+                        <option value="system" {{ request('log_user') === 'system' ? 'selected' : '' }}>System</option>
+                        @foreach($usersForFilter as $user)
+                            <option value="{{ $user->id }}" {{ (string) request('log_user') === (string) $user->id ? 'selected' : '' }}>{{ $user->username }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Action</label>
+                    <select name="log_action" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                        <option value="">Semua</option>
+                        @foreach($actionList as $action)
+                            <option value="{{ $action }}" {{ request('log_action') === $action ? 'selected' : '' }}>{{ str_replace('_', ' ', $action) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Model</label>
+                    <select name="log_model" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                        <option value="">Semua</option>
+                        @foreach($modelList as $model)
+                            <option value="{{ $model }}" {{ request('log_model') === $model ? 'selected' : '' }}>{{ $model }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Dari</label>
+                    <input type="date" name="log_dari" value="{{ request('log_dari') }}" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Sampai</label>
+                    <input type="date" name="log_sampai" value="{{ request('log_sampai') }}" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-[var(--color-primary)] text-white rounded-xl text-sm font-semibold"><i class="fas fa-filter"></i></button>
+                    <a href="{{ route('admin.admin', ['tab' => 'logs']) }}" class="px-4 py-2 bg-gray-100 text-gray-500 rounded-xl text-sm font-semibold"><i class="fas fa-rotate-left"></i></a>
+                </div>
+            </form>
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50 text-[var(--color-primary)] uppercase text-xs font-semibold">

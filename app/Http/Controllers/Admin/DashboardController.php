@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PpdbHelper;
 use App\Http\Controllers\Controller;
 use App\Models\{Banner, Guru, Jadwal, KegiatanSekolah, KontenWeb, Siswa};
 use Illuminate\Http\Request;
@@ -17,6 +18,14 @@ class DashboardController extends Controller
         $totalPendaftar = Siswa::where('status_ppdb', 'pending')->count();
         $totalDiterima = Siswa::where('status_ppdb', 'diterima')->count();
         $totalKegiatan = KegiatanSekolah::count();
+        $statusOptions = PpdbHelper::statusOptions();
+        $ppdbStatusCounts = Siswa::selectRaw('status_ppdb, COUNT(*) as total')
+            ->groupBy('status_ppdb')
+            ->pluck('total', 'status_ppdb');
+        $perluTindakLanjut = Siswa::whereIn('status_ppdb', ['pending', 'berkas_kurang'])
+            ->orderByDesc('tanggal_daftar')
+            ->limit(5)
+            ->get();
 
         // Chart data (7 hari terakhir)
         $chartData = [];
@@ -46,7 +55,8 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact(
             'totalSiswa', 'totalGuru', 'totalJadwal',
             'totalPendaftar', 'totalDiterima', 'totalKegiatan',
-            'chartData', 'chartLabels', 'jadwalHariIni'
+            'chartData', 'chartLabels', 'jadwalHariIni',
+            'statusOptions', 'ppdbStatusCounts', 'perluTindakLanjut'
         ));
     }
 

@@ -1,35 +1,4 @@
-/* 
-   Inter Font Face Definition
-   Note: Place your .woff2 files in public/fonts/ directory
+/*
+   Local font files are intentionally not referenced here.
+   The app uses the Inter stack when available and falls back to system UI fonts.
 */
-@font-face {
-  font-family: 'Inter';
-  font-style:  normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/inter-v12-latin-regular.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style:  normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/inter-v12-latin-600.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style:  normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/inter-v12-latin-700.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style:  normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url("/fonts/inter-v12-latin-800.woff2") format("woff2");
-}

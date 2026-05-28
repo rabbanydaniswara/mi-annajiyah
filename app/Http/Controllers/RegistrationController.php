@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DocumentHelper;
+use App\Helpers\PhoneHelper;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class RegistrationController extends Controller
 {
@@ -30,7 +32,7 @@ class RegistrationController extends Controller
             'kk' => 'required|string|max:50',
             'alamat' => 'required|string',
             'ortu' => 'required|string|max:100',
-            'wa' => 'required|string|max:15',
+            'wa' => 'required|string|max:30',
             'file_akte' => 'required|file|mimes:jpg,jpeg,png,pdf|mimetypes:image/jpeg,image/png,application/pdf|max:5120',
             'file_kk' => 'required|file|mimes:jpg,jpeg,png,pdf|mimetypes:image/jpeg,image/png,application/pdf|max:5120',
             'file_ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|mimetypes:image/jpeg,image/png,application/pdf|max:5120',
@@ -39,6 +41,13 @@ class RegistrationController extends Controller
             'nisn.unique' => 'NISN sudah terdaftar sebelumnya.',
             'nis.unique'  => 'NIS sudah terdaftar sebelumnya.',
         ]);
+
+        $normalizedWhatsapp = PhoneHelper::normalizeIndonesianWhatsapp($request->wa);
+        if (!$normalizedWhatsapp) {
+            throw ValidationException::withMessages([
+                'wa' => 'Nomor WhatsApp harus berupa nomor Indonesia aktif, contoh: 081234567890.',
+            ]);
+        }
 
         try {
             $fileAkte = DocumentHelper::uploadPrivate($request->file('file_akte'), 'akte');
@@ -63,7 +72,7 @@ class RegistrationController extends Controller
                 'asal_sekolah' => $request->asal_sekolah,
                 'nama_ortu' => $request->ortu,
                 'file_ktp_ortu' => $fileKtp,
-                'no_wa' => $request->wa,
+                'no_wa' => $normalizedWhatsapp,
                 'file_ijazah' => $fileIjazah,
             ]);
 

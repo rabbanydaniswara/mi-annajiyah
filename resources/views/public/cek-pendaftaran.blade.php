@@ -45,6 +45,22 @@
             <div class="mt-12">
                 @if($hasil)
                 @php
+                    $publicStatusLabel = \App\Helpers\PpdbHelper::publicStatusLabel($hasil->status_ppdb);
+                    $statusTone = \App\Helpers\PpdbHelper::statusTone($hasil->status_ppdb);
+                    $statusBannerClass = match ($statusTone) {
+                        'green' => 'bg-green-500',
+                        'red' => 'bg-red-500',
+                        'blue' => 'bg-blue-500',
+                        'orange' => 'bg-orange-500',
+                        default => 'bg-yellow-500',
+                    };
+                    $statusIcon = match ($statusTone) {
+                        'green' => 'fa-check-circle',
+                        'red' => 'fa-times-circle',
+                        'blue' => 'fa-clipboard-check',
+                        'orange' => 'fa-exclamation-circle',
+                        default => 'fa-clock',
+                    };
                     $namaPublik = collect(preg_split('/\s+/', trim($hasil->nama)))
                         ->filter()
                         ->map(function ($bagian) {
@@ -60,17 +76,14 @@
                 @endphp
                 <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 fade-up">
                     {{-- Status Banner --}}
-                    <div class="px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 
-                        @if($hasil->status_ppdb === 'diterima') bg-green-500 @elseif($hasil->status_ppdb === 'ditolak') bg-red-500 @else bg-yellow-500 @endif text-white">
+                    <div class="px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 {{ $statusBannerClass }} text-white">
                         <div class="flex items-center gap-4 text-center md:text-left">
                             <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">
-                                @if($hasil->status_ppdb === 'diterima') <i class="fas fa-check-circle"></i> @elseif($hasil->status_ppdb === 'ditolak') <i class="fas fa-times-circle"></i> @else <i class="fas fa-clock"></i> @endif
+                                <i class="fas {{ $statusIcon }}"></i>
                             </div>
                             <div>
                                 <p class="text-white/80 text-xs font-bold uppercase tracking-widest">Status Pendaftaran</p>
-                                <h4 class="text-xl font-black uppercase tracking-tight">
-                                    @if($hasil->status_ppdb === 'diterima') Lolos Seleksi @elseif($hasil->status_ppdb === 'ditolak') Tidak Lolos @else Sedang Diverifikasi @endif
-                                </h4>
+                                <h4 class="text-xl font-black uppercase tracking-tight">{{ $publicStatusLabel }}</h4>
                             </div>
                         </div>
                         <div class="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-center">
@@ -98,9 +111,7 @@
                                     </div>
                                     <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
                                         <span class="text-[9px] font-bold text-gray-400 uppercase block mb-1">Status Berkas</span>
-                                        <span class="text-sm font-bold text-[var(--color-primary)]">
-                                            @if($hasil->status_ppdb === 'diterima') Disetujui @elseif($hasil->status_ppdb === 'ditolak') Ditolak @else Menunggu @endif
-                                        </span>
+                                        <span class="text-sm font-bold text-[var(--color-primary)]">{{ $publicStatusLabel }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +137,7 @@
 
                         {{-- Action Note --}}
                         <div class="mt-10 pt-8 border-t border-gray-100">
-                            @if($hasil->status_ppdb === 'diterima')
+                            @if(in_array($hasil->status_ppdb, ['diterima', 'daftar_ulang'], true))
                                 <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl">
                                     <p class="text-green-800 text-sm leading-relaxed">
                                         <strong>Selamat!</strong> Pendaftaran Anda telah disetujui. Silahkan hubungi panitia PPDB atau datang langsung ke madrasah untuk proses daftar ulang.
@@ -136,6 +147,12 @@
                                 <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
                                     <p class="text-red-800 text-sm leading-relaxed">
                                         <strong>Mohon Maaf.</strong> Pendaftaran Anda belum dapat kami proses lebih lanjut. Silahkan hubungi panitia untuk informasi lebih detail.
+                                    </p>
+                                </div>
+                            @elseif($hasil->status_ppdb === 'berkas_kurang')
+                                <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-xl">
+                                    <p class="text-orange-800 text-sm leading-relaxed">
+                                        <strong>Perhatian:</strong> Berkas pendaftaran perlu dilengkapi. Silakan hubungi panitia PPDB untuk informasi detail.
                                     </p>
                                 </div>
                             @else

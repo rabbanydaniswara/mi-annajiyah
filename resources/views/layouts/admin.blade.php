@@ -57,8 +57,13 @@
                 <a href="{{ route('admin.siswa') }}" class="flex items-center gap-3 px-6 py-3 mx-3 rounded-xl text-gray-300 transition-all duration-300 relative overflow-hidden hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] hover:translate-x-1 {{ request()->routeIs('admin.siswa*') ? 'bg-[var(--color-accent)]/20 text-[var(--color-accent)]' : '' }}">
                     <i class="fas fa-user-graduate w-6"></i> Kelola Siswa
                 </a>
-                <a href="{{ route('admin.admin') }}" class="flex items-center gap-3 px-6 py-3 mx-3 rounded-xl text-gray-300 transition-all duration-300 relative overflow-hidden hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] hover:translate-x-1 {{ request()->routeIs('admin.admin*') ? 'bg-[var(--color-accent)]/20 text-[var(--color-accent)]' : '' }}">
-                    <i class="fas fa-user-shield w-6"></i> Kelola Admin
+                @if(Auth::user()?->role === 'admin')
+                    <a href="{{ route('admin.admin') }}" class="flex items-center gap-3 px-6 py-3 mx-3 rounded-xl text-gray-300 transition-all duration-300 relative overflow-hidden hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] hover:translate-x-1 {{ request()->routeIs('admin.admin*') ? 'bg-[var(--color-accent)]/20 text-[var(--color-accent)]' : '' }}">
+                        <i class="fas fa-user-shield w-6"></i> Kelola Admin
+                    </a>
+                @endif
+                <a href="{{ route('admin.password.edit') }}" class="flex items-center gap-3 px-6 py-3 mx-3 rounded-xl text-gray-300 transition-all duration-300 relative overflow-hidden hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] hover:translate-x-1 {{ request()->routeIs('admin.password.*') ? 'bg-[var(--color-accent)]/20 text-[var(--color-accent)]' : '' }}">
+                    <i class="fas fa-key w-6"></i> Ganti Password
                 </a>
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
@@ -80,10 +85,10 @@
                     <i class="fas fa-@yield('header_icon', 'home') text-[var(--color-accent)] mr-2"></i>
                     @yield('header_title', 'Dashboard')
                 </h2>
-                <div class="flex items-center gap-3 bg-gray-100 px-4 py-2 rounded-full text-sm">
+                <a href="{{ route('admin.password.edit') }}" class="flex items-center gap-3 bg-gray-100 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition">
                     <i class="fas fa-user-circle text-[var(--color-primary)]"></i>
                     <span class="font-medium text-gray-700">{{ Auth::user()->username }}</span>
-                </div>
+                </a>
             </div>
 
             @yield('content')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PpdbHelper;
 use App\Http\Controllers\Controller;
 use App\Models\{Siswa, Guru};
 
@@ -16,8 +17,17 @@ class ExportController extends Controller
             if ($type === 'ppdb' && request('tahun_ajaran')) {
                 $query->where('tahun_ajaran', request('tahun_ajaran'));
             }
-            if ($type === 'ppdb' && request('status')) {
+            if ($type === 'ppdb' && request('kelas')) {
+                $query->where('kelas', request('kelas'));
+            }
+            if ($type === 'ppdb' && request('status') && array_key_exists(request('status'), PpdbHelper::statusOptions())) {
                 $query->where('status_ppdb', request('status'));
+            }
+            if ($type === 'ppdb' && request('tanggal_dari')) {
+                $query->whereDate('tanggal_daftar', '>=', request('tanggal_dari'));
+            }
+            if ($type === 'ppdb' && request('tanggal_sampai')) {
+                $query->whereDate('tanggal_daftar', '<=', request('tanggal_sampai'));
             }
 
             $data = $query->orderBy('kelas')->orderBy('nama')->get();

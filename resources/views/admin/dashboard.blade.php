@@ -34,6 +34,49 @@
     @endforeach
 </div>
 
+<div class="bg-white rounded-2xl p-6 shadow-sm mb-6 animate-fade">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+        <h3 class="text-lg font-bold text-[var(--color-primary)] border-l-4 border-[var(--color-accent)] pl-3">
+            <i class="fas fa-clipboard-check mr-2"></i>Ringkasan Verifikasi PPDB
+        </h3>
+        <a href="{{ route('admin.ppdb', ['status' => 'pending']) }}" class="inline-flex items-center justify-center gap-2 bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[var(--color-primary-light)] transition">
+            <i class="fas fa-arrow-right"></i> Buka PPDB
+        </a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+        @foreach($statusOptions as $status => $label)
+            @php
+                $tone = \App\Helpers\PpdbHelper::statusTone($status);
+                $statusClass = match ($tone) {
+                    'green' => 'bg-green-50 text-green-700 border-green-100',
+                    'red' => 'bg-red-50 text-red-700 border-red-100',
+                    'blue' => 'bg-blue-50 text-blue-700 border-blue-100',
+                    'orange' => 'bg-orange-50 text-orange-700 border-orange-100',
+                    default => 'bg-yellow-50 text-yellow-700 border-yellow-100',
+                };
+            @endphp
+            <a href="{{ route('admin.ppdb', ['status' => $status]) }}" class="border rounded-2xl p-4 {{ $statusClass }} hover:shadow-sm transition">
+                <p class="text-2xl font-black">{{ $ppdbStatusCounts[$status] ?? 0 }}</p>
+                <p class="text-xs font-bold mt-1">{{ $label }}</p>
+            </a>
+        @endforeach
+    </div>
+    <div class="border-t border-gray-100 pt-4">
+        <p class="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Perlu Tindak Lanjut</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+            @forelse($perluTindakLanjut as $p)
+                <a href="{{ route('admin.ppdb', ['q' => $p->nomor_pendaftaran]) }}" class="p-3 rounded-2xl border border-gray-100 hover:border-[var(--color-accent)] transition">
+                    <p class="font-bold text-sm text-gray-800 truncate">{{ $p->nama }}</p>
+                    <p class="text-[10px] text-gray-400 font-bold mt-1">{{ $p->nomor_pendaftaran }}</p>
+                    <p class="text-[10px] text-[var(--color-primary)] font-black uppercase mt-2">{{ \App\Helpers\PpdbHelper::statusLabel($p->status_ppdb) }}</p>
+                </a>
+            @empty
+                <p class="md:col-span-2 lg:col-span-5 text-sm text-gray-400">Tidak ada pendaftar yang perlu ditindaklanjuti saat ini.</p>
+            @endforelse
+        </div>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {{-- Chart --}}
     <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm animate-fade">

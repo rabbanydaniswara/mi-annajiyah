@@ -101,7 +101,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">No. WhatsApp *</label>
-                            <input type="text" name="wa" required class="form-input-premium w-full px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-[var(--color-accent)] focus:bg-white outline-none transition" placeholder="08xxxxxxxxxx">
+                            <input type="text" name="wa" required class="form-input-premium w-full px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-[var(--color-accent)] focus:bg-white outline-none transition" placeholder="081234567890 atau 6281234567890">
                         </div>
                         <div>
                             <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">No. Akte Kelahiran *</label>
@@ -129,19 +129,23 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="p-5 rounded-3xl border-2 border-dashed border-gray-100 hover:border-[var(--color-accent)] transition">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">File Akte Kelahiran *</label>
-                            <input type="file" name="file_akte" accept=".jpg,.jpeg,.png,.pdf" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <input type="file" name="file_akte" accept=".jpg,.jpeg,.png,.pdf" required @@change="updateFilePreview($event, 'file_akte')" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <p x-show="filePreviews.file_akte" x-text="filePreviews.file_akte" class="mt-3 text-xs font-semibold text-[var(--color-primary)]"></p>
                         </div>
                         <div class="p-5 rounded-3xl border-2 border-dashed border-gray-100 hover:border-[var(--color-accent)] transition">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">File Kartu Keluarga (KK) *</label>
-                            <input type="file" name="file_kk" accept=".jpg,.jpeg,.png,.pdf" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <input type="file" name="file_kk" accept=".jpg,.jpeg,.png,.pdf" required @@change="updateFilePreview($event, 'file_kk')" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <p x-show="filePreviews.file_kk" x-text="filePreviews.file_kk" class="mt-3 text-xs font-semibold text-[var(--color-primary)]"></p>
                         </div>
                         <div class="p-5 rounded-3xl border-2 border-dashed border-gray-100 hover:border-[var(--color-accent)] transition">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">File KTP Orang Tua / Wali *</label>
-                            <input type="file" name="file_ktp" accept=".jpg,.jpeg,.png,.pdf" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <input type="file" name="file_ktp" accept=".jpg,.jpeg,.png,.pdf" required @@change="updateFilePreview($event, 'file_ktp')" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <p x-show="filePreviews.file_ktp" x-text="filePreviews.file_ktp" class="mt-3 text-xs font-semibold text-[var(--color-primary)]"></p>
                         </div>
                         <div class="p-5 rounded-3xl border-2 border-dashed border-gray-100 hover:border-[var(--color-accent)] transition">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">File Ijazah TK (Opsional)</label>
-                            <input type="file" name="file_ijazah" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <input type="file" name="file_ijazah" accept=".jpg,.jpeg,.png,.pdf" @@change="updateFilePreview($event, 'file_ijazah')" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-[var(--color-accent)] transition-all">
+                            <p x-show="filePreviews.file_ijazah" x-text="filePreviews.file_ijazah" class="mt-3 text-xs font-semibold text-[var(--color-primary)]"></p>
                         </div>
                     </div>
                 </div>
@@ -177,6 +181,18 @@ function registrationWizard() {
     return {
         step: 1,
         loading: false,
+        filePreviews: {},
+        formatFileSize(bytes) {
+            if (bytes < 1024 * 1024) {
+                return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+            }
+
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        },
+        updateFilePreview(event, key) {
+            const file = event.target.files[0];
+            this.filePreviews[key] = file ? `${file.name} (${this.formatFileSize(file.size)})` : '';
+        },
         nextStep() {
             // Basic validation for current step
             const currentFields = document.querySelector(`#formPendaftaran div[x-show='step === ${this.step}']`).querySelectorAll('[required]');
@@ -241,6 +257,7 @@ function registrationWizard() {
                     wrapper.append(icon, textWrap, printLink);
                     msgDiv.appendChild(wrapper);
                     formEl.reset();
+                    this.filePreviews = {};
                     this.step = 1;
                     window.scrollTo({top: msgDiv.offsetTop - 100, behavior: 'smooth'});
                 } else {

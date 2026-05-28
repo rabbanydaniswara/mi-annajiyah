@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\DocumentHelper;
+use App\Helpers\PpdbHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
@@ -12,11 +13,20 @@ class PpdbController extends Controller
     public function index(Request $request)
     {
         $query = Siswa::query();
-        if ($request->status && in_array($request->status, ['pending', 'diterima', 'ditolak'])) {
+        if ($request->status && array_key_exists($request->status, PpdbHelper::statusOptions())) {
             $query->where('status_ppdb', $request->status);
         }
         if ($request->tahun_ajaran) {
             $query->where('tahun_ajaran', $request->tahun_ajaran);
+        }
+        if ($request->kelas) {
+            $query->where('kelas', $request->kelas);
+        }
+        if ($request->tanggal_dari) {
+            $query->whereDate('tanggal_daftar', '>=', $request->tanggal_dari);
+        }
+        if ($request->tanggal_sampai) {
+            $query->whereDate('tanggal_daftar', '<=', $request->tanggal_sampai);
         }
         if ($q = trim((string) $request->q)) {
             $query->where(function ($w) use ($q) {
@@ -34,6 +44,9 @@ class PpdbController extends Controller
         if ($request->tahun_ajaran) {
             $statsQuery->where('tahun_ajaran', $request->tahun_ajaran);
         }
+        if ($request->kelas) {
+            $statsQuery->where('kelas', $request->kelas);
+        }
 
         $totalPending = (clone $statsQuery)->where('status_ppdb', 'pending')->count();
         $totalDiterima = (clone $statsQuery)->where('status_ppdb', 'diterima')->count();
@@ -43,15 +56,22 @@ class PpdbController extends Controller
             ->distinct()
             ->orderByDesc('tahun_ajaran')
             ->pluck('tahun_ajaran');
+        $kelasList = Siswa::whereNotNull('kelas')
+            ->where('kelas', '!=', '')
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
+        $statusOptions = PpdbHelper::statusOptions();
 
-        return view('admin.ppdb', compact('pendaftar', 'totalPending', 'totalDiterima', 'totalDitolak', 'totalSemua', 'tahunAjaranList'));
+        return view('admin.ppdb', compact('pendaftar', 'totalPending', 'totalDiterima', 'totalDitolak', 'totalSemua', 'tahunAjaranList', 'kelasList', 'statusOptions'));
     }
 
     public function updateStatus(Request $request)
     {
         $request->validate([
             'id' => 'required|exists:siswa,id',
-            'status' => 'required|in:pending,diterima,ditolak',
+            'status' => 'required|in:' . implode(',', array_keys(PpdbHelper::statusOptions())),
+            'catatan_verifikasi' => 'nullable|string|max:2000',
         ]);
 
         $siswa = Siswa::findOrFail($request->id);
@@ -59,6 +79,9 @@ class PpdbController extends Controller
         $siswa->update([
             'status_ppdb' => $request->status,
             'tgl_verifikasi' => now(),
+            'catatan_verifikasi' => $request->has('catatan_verifikasi')
+                ? $request->catatan_verifikasi
+                : $siswa->catatan_verifikasi,
         ]);
 
         \App\Helpers\ActivityLogger::log(
@@ -69,6 +92,36 @@ class PpdbController extends Controller
         );
 
         return redirect()->route('admin.ppdb')->with('success', 'Status berhasil diperbarui');
+    }
+
+    public function bulkUpdateStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:siswa,id',
+            'status' => 'required|in:' . implode(',', array_keys(PpdbHelper::statusOptions())),
+            'catatan_verifikasi' => 'nullable|string|max:2000',
+        ]);
+
+        $siswas = Siswa::whereIn('id', $validated['ids'])->get();
+
+        foreach ($siswas as $siswa) {
+            $oldStatus = $siswa->status_ppdb;
+            $siswa->update([
+                'status_ppdb' => $validated['status'],
+                'tgl_verifikasi' => now(),
+                'catatan_verifikasi' => $validated['catatan_verifikasi'] ?? $siswa->catatan_verifikasi,
+            ]);
+
+            \App\Helpers\ActivityLogger::log(
+                'bulk_update_status',
+                $siswa,
+                "Mengubah status pendaftaran {$siswa->nama} dari {$oldStatus} menjadi {$validated['status']}",
+                ['old' => $oldStatus, 'new' => $validated['status']]
+            );
+        }
+
+        return redirect()->route('admin.ppdb')->with('success', $siswas->count() . ' data pendaftar berhasil diperbarui');
     }
 
     public function document(Siswa $siswa, string $field)

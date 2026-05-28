@@ -7,6 +7,8 @@
 <div x-data="{ 
         modalOpen: false, 
         selected: {}, 
+        detailStatus: 'pending',
+        detailNote: '',
         documentRoute: '{{ route('admin.ppdb.document', ['siswa' => '__ID__', 'field' => '__FIELD__']) }}',
         filesMap: {
             'file_akte': 'Akte Kelahiran',
@@ -26,7 +28,10 @@
         },
         getStatusColor(status) {
             if(status === 'diterima') return 'text-green-600';
+            if(status === 'daftar_ulang') return 'text-green-600';
             if(status === 'ditolak') return 'text-red-600';
+            if(status === 'diverifikasi') return 'text-blue-600';
+            if(status === 'berkas_kurang') return 'text-orange-600';
             return 'text-yellow-600';
         },
         getDocumentUrl(field) {
@@ -39,6 +44,8 @@
             if (this.selected.tanggal_lahir && typeof this.selected.tanggal_lahir === 'object') {
                 this.selected.tanggal_lahir = this.selected.tanggal_lahir.date;
             }
+            this.detailStatus = this.selected.status_ppdb || 'pending';
+            this.detailNote = this.selected.catatan_verifikasi || '';
             this.modalOpen = true;
         }
      }" class="space-y-6">
@@ -97,17 +104,38 @@
                     <option value="{{ $tahun }}" {{ request('tahun_ajaran') === $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
                 @endforeach
             </select>
+            <select name="kelas" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
+                <option value="">Semua Kelas</option>
+                @foreach($kelasList as $kelas)
+                    <option value="{{ $kelas }}" {{ request('kelas') === $kelas ? 'selected' : '' }}>{{ $kelas }}</option>
+                @endforeach
+            </select>
             <select name="status" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
                 <option value="">Semua Status</option>
-                @foreach(['pending' => 'Pending', 'diterima' => 'Diterima', 'ditolak' => 'Ditolak'] as $val => $label)
+                @foreach($statusOptions as $val => $label)
                     <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
+            <input type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm" title="Tanggal daftar dari">
+            <input type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm" title="Tanggal daftar sampai">
             <button type="submit" class="bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-[var(--color-accent-dark)] transition"><i class="fas fa-search mr-1"></i> Cari</button>
             <a href="{{ route('admin.ppdb') }}" class="bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition"><i class="fas fa-undo mr-1"></i> Reset</a>
-            <a href="{{ route('admin.export', array_filter(['type' => 'ppdb', 'tahun_ajaran' => request('tahun_ajaran'), 'status' => request('status')])) }}" class="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20 text-sm flex items-center gap-2 ml-auto">
+            <a href="{{ route('admin.export', array_filter(['type' => 'ppdb', 'tahun_ajaran' => request('tahun_ajaran'), 'kelas' => request('kelas'), 'status' => request('status'), 'tanggal_dari' => request('tanggal_dari'), 'tanggal_sampai' => request('tanggal_sampai')])) }}" class="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20 text-sm flex items-center gap-2 ml-auto">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
+        </form>
+        <form id="bulkStatusForm" method="POST" action="{{ route('admin.ppdb.bulkUpdateStatus') }}" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2 items-center">
+            @csrf
+            <span class="text-xs font-black text-gray-400 uppercase tracking-widest mr-2">Bulk Action</span>
+            <select name="status" required class="px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
+                @foreach($statusOptions as $val => $label)
+                    <option value="{{ $val }}">{{ $label }}</option>
+                @endforeach
+            </select>
+            <input type="text" name="catatan_verifikasi" placeholder="Catatan opsional untuk data terpilih" class="flex-1 min-w-[220px] px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
+            <button type="submit" class="bg-[var(--color-primary)] text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-[var(--color-primary-light)] transition">
+                <i class="fas fa-layer-group mr-1"></i> Update Terpilih
+            </button>
         </form>
     </div>
 
@@ -122,6 +150,7 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50/50 text-[var(--color-primary)] uppercase text-[10px] font-black tracking-widest border-b border-gray-100">
+                        <th class="p-4 text-left w-10"></th>
                         <th class="p-4 text-left">No. Daftar</th>
                         <th class="p-4 text-left">Nama Lengkap</th>
                         <th class="p-4 text-left">Identitas (NISN/NIS)</th>
@@ -135,6 +164,9 @@
                 <tbody class="divide-y divide-gray-50">
                     @forelse($pendaftar as $p)
                     <tr class="hover:bg-yellow-50/30 transition group">
+                        <td class="p-4">
+                            <input type="checkbox" name="ids[]" value="{{ $p->id }}" form="bulkStatusForm" class="w-4 h-4 rounded accent-[var(--color-accent)]">
+                        </td>
                         <td class="p-4">
                             <div class="font-mono font-black text-[var(--color-primary)] text-xs">{{ $p->nomor_pendaftaran ?: '-' }}</div>
                             <div class="text-[10px] text-gray-400 font-bold mt-1">{{ $p->tahun_ajaran ?: '-' }}</div>
@@ -157,13 +189,16 @@
                         </td>
                         <td class="p-4 text-[10px] text-gray-500 font-medium">{{ $p->tanggal_daftar?->format('d M Y, H:i') }}</td>
                         <td class="p-4">
-                            @if($p->status_ppdb === 'diterima')
-                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter">Diterima</span>
-                            @elseif($p->status_ppdb === 'ditolak')
-                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter">Ditolak</span>
-                            @else
-                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter">Pending</span>
-                            @endif
+                            @php
+                                $statusClass = match (\App\Helpers\PpdbHelper::statusTone($p->status_ppdb)) {
+                                    'green' => 'bg-green-100 text-green-700',
+                                    'red' => 'bg-red-100 text-red-700',
+                                    'blue' => 'bg-blue-100 text-blue-700',
+                                    'orange' => 'bg-orange-100 text-orange-700',
+                                    default => 'bg-yellow-100 text-yellow-700',
+                                };
+                            @endphp
+                            <span class="{{ $statusClass }} px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter">{{ \App\Helpers\PpdbHelper::statusLabel($p->status_ppdb) }}</span>
                         </td>
                         <td class="p-4">
                             <div class="flex gap-1.5">
@@ -186,26 +221,26 @@
                         <td class="p-4">
                             <div class="flex gap-1.5 justify-center">
                                 <form method="POST" action="{{ route('admin.ppdb.updateStatus') }}" class="inline" 
-                                      data-confirm="Terima pendaftar {{ $p->nama }}?"
-                                      data-title="Konfirmasi Terima"
-                                      data-button="Terima"
+                                      data-confirm="Tandai pendaftar {{ $p->nama }} sudah diverifikasi?"
+                                      data-title="Konfirmasi Verifikasi"
+                                      data-button="Verifikasi"
                                       data-type="success"
                                       data-icon="fa-check-circle">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $p->id }}">
-                                    <input type="hidden" name="status" value="diterima">
-                                    <button type="submit" class="w-8 h-8 bg-green-50 text-green-600 rounded-xl flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm" title="Terima"><i class="fas fa-check text-xs"></i></button>
+                                    <input type="hidden" name="status" value="diverifikasi">
+                                    <button type="submit" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm" title="Verifikasi"><i class="fas fa-clipboard-check text-xs"></i></button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.ppdb.updateStatus') }}" class="inline" 
-                                      data-confirm="Tolak pendaftar {{ $p->nama }}?"
-                                      data-title="Konfirmasi Tolak"
-                                      data-button="Tolak"
+                                      data-confirm="Tandai berkas {{ $p->nama }} masih kurang?"
+                                      data-title="Konfirmasi Berkas Kurang"
+                                      data-button="Tandai"
                                       data-type="warning"
-                                      data-icon="fa-times-circle">
+                                      data-icon="fa-exclamation-circle">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $p->id }}">
-                                    <input type="hidden" name="status" value="ditolak">
-                                    <button type="submit" class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm" title="Tolak"><i class="fas fa-times text-xs"></i></button>
+                                    <input type="hidden" name="status" value="berkas_kurang">
+                                    <button type="submit" class="w-8 h-8 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all shadow-sm" title="Berkas Kurang"><i class="fas fa-exclamation text-xs"></i></button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.ppdb.destroy', $p->id) }}" class="inline" 
                                       data-confirm="Yakin ingin menghapus pendaftar {{ $p->nama }}?"
@@ -220,7 +255,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-20">
+                        <td colspan="9" class="text-center py-20">
                             <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5">
                                 <i class="fas fa-inbox text-3xl text-green-300"></i>
                             </div>
@@ -304,6 +339,10 @@
                                     <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Alamat Tinggal</p>
                                     <p class="text-sm text-gray-600 font-medium leading-relaxed" x-text="selected.alamat"></p>
                                 </div>
+                                <div class="col-span-2">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Catatan Verifikasi Internal</p>
+                                    <p class="text-sm text-gray-600 font-medium leading-relaxed" x-text="selected.catatan_verifikasi || 'Belum ada catatan.'"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -357,30 +396,23 @@
 
             {{-- Footer Actions --}}
             <div class="p-8 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-4 shrink-0">
-                <form method="POST" action="{{ route('admin.ppdb.updateStatus') }}" class="inline" 
-                      data-confirm="Terima pendaftar ini?"
-                      data-title="Konfirmasi Terima"
-                      data-button="Terima"
-                      data-type="success"
-                      data-icon="fa-check-circle">
+                <form method="POST" action="{{ route('admin.ppdb.updateStatus') }}" class="w-full flex flex-col md:flex-row gap-3 items-stretch md:items-end">
                     @csrf
                     <input type="hidden" name="id" :value="selected.id">
-                    <input type="hidden" name="status" value="diterima">
-                    <button type="submit" class="px-8 py-4 bg-green-600 text-white rounded-2xl font-black hover:bg-green-700 transition shadow-xl shadow-green-600/30 text-sm flex items-center gap-2">
-                        <i class="fas fa-check-circle"></i> Konfirmasi Terima
-                    </button>
-                </form>
-                <form method="POST" action="{{ route('admin.ppdb.updateStatus') }}" class="inline" 
-                      data-confirm="Tolak pendaftar ini?"
-                      data-title="Konfirmasi Tolak"
-                      data-button="Tolak"
-                      data-type="warning"
-                      data-icon="fa-times-circle">
-                    @csrf
-                    <input type="hidden" name="id" :value="selected.id">
-                    <input type="hidden" name="status" value="ditolak">
-                    <button type="submit" class="px-8 py-4 bg-white text-red-600 border-2 border-red-100 rounded-2xl font-black hover:bg-red-50 hover:border-red-200 transition text-sm flex items-center gap-2">
-                        <i class="fas fa-times-circle"></i> Tolak Pendaftaran
+                    <div class="md:w-56">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Status</label>
+                        <select name="status" x-model="detailStatus" class="w-full px-3 py-3 border-2 border-gray-200 rounded-2xl focus:border-[var(--color-accent)] outline-none text-sm font-bold">
+                            @foreach($statusOptions as $val => $label)
+                                <option value="{{ $val }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Catatan Internal</label>
+                        <textarea name="catatan_verifikasi" x-model="detailNote" rows="2" class="w-full px-3 py-3 border-2 border-gray-200 rounded-2xl focus:border-[var(--color-accent)] outline-none text-sm resize-none" placeholder="Catatan hanya terlihat di admin"></textarea>
+                    </div>
+                    <button type="submit" class="px-8 py-4 bg-[var(--color-primary)] text-white rounded-2xl font-black hover:bg-[var(--color-primary-light)] transition shadow-xl shadow-green-900/20 text-sm flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i> Simpan Verifikasi
                     </button>
                 </form>
             </div>

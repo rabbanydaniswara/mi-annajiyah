@@ -112,7 +112,8 @@ class HomeController extends Controller
         $hasil = null;
 
         if ($cari !== '' && mb_strlen($cari) <= 30) {
-            $hasil = Siswa::where('nisn', $cari)
+            $hasil = Siswa::where('nomor_pendaftaran', $cari)
+                ->orWhere('nisn', $cari)
                 ->orWhere('no_wa', $cari)
                 ->orWhere('nis', $cari)
                 ->orderByDesc('id')

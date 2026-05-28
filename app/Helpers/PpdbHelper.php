@@ -7,6 +7,45 @@ use App\Models\Siswa;
 
 class PpdbHelper
 {
+    public static function statusOptions(): array
+    {
+        return [
+            'pending' => 'Pending',
+            'berkas_kurang' => 'Berkas Kurang',
+            'diverifikasi' => 'Diverifikasi',
+            'diterima' => 'Diterima',
+            'ditolak' => 'Ditolak',
+            'daftar_ulang' => 'Daftar Ulang',
+        ];
+    }
+
+    public static function statusLabel(?string $status): string
+    {
+        return self::statusOptions()[$status] ?? 'Pending';
+    }
+
+    public static function publicStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'diterima', 'daftar_ulang' => 'Lolos Seleksi',
+            'ditolak' => 'Tidak Lolos',
+            'berkas_kurang' => 'Berkas Perlu Dilengkapi',
+            'diverifikasi' => 'Sedang Diverifikasi',
+            default => 'Menunggu Verifikasi',
+        };
+    }
+
+    public static function statusTone(?string $status): string
+    {
+        return match ($status) {
+            'diterima', 'daftar_ulang' => 'green',
+            'ditolak' => 'red',
+            'berkas_kurang' => 'orange',
+            'diverifikasi' => 'blue',
+            default => 'yellow',
+        };
+    }
+
     public static function activeAcademicYear(): string
     {
         $value = KontenWeb::where('tipe', 'ppdb_tahun_ajaran')->value('konten');

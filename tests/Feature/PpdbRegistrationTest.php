@@ -39,6 +39,7 @@ class PpdbRegistrationTest extends TestCase
         $this->assertNotNull($siswa->registration_token);
         $this->assertSame('2027/2028', $siswa->tahun_ajaran);
         $this->assertSame('PPDB-2027-0001', $siswa->nomor_pendaftaran);
+        $this->assertSame('6281234567890', $siswa->no_wa);
         $this->assertStringContainsString($siswa->registration_token, $response->json('card_url'));
         $this->assertStringStartsWith('ppdb/', $siswa->file_akte);
         $this->assertStringStartsWith('ppdb/', $siswa->file_kk);
@@ -49,6 +50,19 @@ class PpdbRegistrationTest extends TestCase
         Storage::disk('local')->assertExists($siswa->file_kk);
         Storage::disk('local')->assertExists($siswa->file_ktp_ortu);
         Storage::disk('local')->assertExists($siswa->file_ijazah);
+    }
+
+    public function test_public_ppdb_registration_rejects_invalid_whatsapp_number(): void
+    {
+        Storage::fake('local');
+
+        $this->postJson(route('api.pendaftaran'), $this->validPayload([
+            'wa' => '12345',
+        ]))->assertUnprocessable()
+            ->assertJsonValidationErrors(['wa']);
+
+        $this->assertDatabaseCount('siswa', 0);
+        $this->assertCount(0, Storage::disk('local')->allFiles('ppdb'));
     }
 
     public function test_public_ppdb_registration_rejects_duplicate_nisn_and_nis(): void
