@@ -214,15 +214,17 @@ Tujuan: mengurangi risiko migration gagal di hosting.
 
 Tujuan: membuat proses PPDB lebih enak dipakai panitia dan lebih jelas untuk wali murid.
 
-- `[ ]` Tambahkan pengaturan tahun ajaran PPDB.
+- `[x]` Tambahkan pengaturan tahun ajaran PPDB.
   - Prioritas: P1
   - Target area: model/migration pengaturan PPDB, admin konten atau menu khusus PPDB.
   - Kriteria selesai: admin dapat mengatur tahun ajaran aktif tanpa mengubah kode.
+  - Catatan: tahun ajaran aktif bisa diatur dari tab `PPDB` pada menu konten; pendaftar baru menyimpan snapshot `tahun_ajaran`.
 
-- `[ ]` Tambahkan nomor pendaftaran publik yang tidak sama dengan ID database.
+- `[x]` Tambahkan nomor pendaftaran publik yang tidak sama dengan ID database.
   - Prioritas: P1
   - Target area: model `Siswa`, migration, cetak kartu, admin PPDB.
   - Kriteria selesai: pendaftar memiliki nomor pendaftaran rapi untuk komunikasi panitia, tetap tidak membuka ID internal.
+  - Catatan: kolom `nomor_pendaftaran` memakai format `PPDB-YYYY-0001`, tampil di admin, cek status, kartu cetak, dan export.
 
 - `[ ]` Rapikan status PPDB menjadi alur yang lebih eksplisit.
   - Prioritas: P2

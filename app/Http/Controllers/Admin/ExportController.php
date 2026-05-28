@@ -12,12 +12,20 @@ class ExportController extends Controller
         $format = request('format', 'xls');
 
         if ($type === 'ppdb' || $type === 'siswa') {
-            $data = Siswa::orderBy('kelas')->orderBy('nama')->get();
-            $title = "Data Siswa MI Annajiyah";
+            $query = Siswa::query();
+            if ($type === 'ppdb' && request('tahun_ajaran')) {
+                $query->where('tahun_ajaran', request('tahun_ajaran'));
+            }
+            if ($type === 'ppdb' && request('status')) {
+                $query->where('status_ppdb', request('status'));
+            }
+
+            $data = $query->orderBy('kelas')->orderBy('nama')->get();
+            $title = $type === 'ppdb' ? "Data PPDB MI Annajiyah" : "Data Siswa MI Annajiyah";
             $view = 'admin.print-siswa';
-            $filename = "siswa_export_" . date('Ymd_His');
-            $headers = ['ID', 'Nama Lengkap', 'NISN', 'Kelas', 'No WhatsApp', 'Alamat', 'Nama Orang Tua', 'Status PPDB'];
-            $rows = $data->map(fn($s) => [$s->id, $s->nama, $s->nisn, $s->kelas, $s->no_wa, $s->alamat, $s->nama_ortu, $s->status_ppdb]);
+            $filename = $type . "_export_" . date('Ymd_His');
+            $headers = ['No Pendaftaran', 'Tahun Ajaran', 'Nama Lengkap', 'NISN', 'Kelas', 'No WhatsApp', 'Alamat', 'Nama Orang Tua', 'Status PPDB'];
+            $rows = $data->map(fn($s) => [$s->nomor_pendaftaran, $s->tahun_ajaran, $s->nama, $s->nisn, $s->kelas, $s->no_wa, $s->alamat, $s->nama_ortu, $s->status_ppdb]);
         } elseif ($type === 'guru') {
             $data = Guru::orderBy('nama')->get();
             $title = "Data Guru MI Annajiyah";

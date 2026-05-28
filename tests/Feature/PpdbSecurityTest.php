@@ -24,7 +24,9 @@ class PpdbSecurityTest extends TestCase
 
         $this->get(route('pendaftaran.print', $siswa->registration_token))
             ->assertOk()
-            ->assertSee('Ahmad Daniswara');
+            ->assertSee('Ahmad Daniswara')
+            ->assertSee($siswa->nomor_pendaftaran)
+            ->assertDontSee('REG-' . str_pad($siswa->id, 4, '0', STR_PAD_LEFT));
 
         $this->get('/pendaftaran/cetak/' . $siswa->id)
             ->assertNotFound();

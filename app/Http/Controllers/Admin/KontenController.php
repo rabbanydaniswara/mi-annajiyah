@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PpdbHelper;
 use App\Http\Controllers\Controller;
 use App\Models\{KontenWeb, KegiatanSekolah, KegiatanKategori, Banner};
 use Illuminate\Http\Request;
@@ -17,12 +18,29 @@ class KontenController extends Controller
         $kategoris = KegiatanKategori::orderBy('nama')->get();
         $banners = Banner::orderBy('urutan')->get();
         $editBanner = request('edit_banner') ? Banner::find(request('edit_banner')) : null;
+        $ppdbTahunAjaran = PpdbHelper::activeAcademicYear();
 
-        return view('admin.konten', compact('visi', 'misi', 'sejarah', 'kegiatan', 'kategoris', 'banners', 'editBanner'));
+        return view('admin.konten', compact('visi', 'misi', 'sejarah', 'kegiatan', 'kategoris', 'banners', 'editBanner', 'ppdbTahunAjaran'));
     }
 
     public function updateKonten(Request $request)
     {
+        if ($request->tipe === 'ppdb_settings') {
+            $validated = $request->validate([
+                'tahun_ajaran' => ['required', 'regex:/^\d{4}[\/-]\d{4}$/'],
+            ], [
+                'tahun_ajaran.regex' => 'Format tahun ajaran harus seperti 2026/2027.',
+            ]);
+
+            KontenWeb::updateOrCreate(
+                ['tipe' => 'ppdb_tahun_ajaran'],
+                ['judul' => 'Tahun Ajaran PPDB Aktif', 'konten' => PpdbHelper::normalizeAcademicYear($validated['tahun_ajaran']), 'urutan' => 20]
+            );
+
+            \App\Helpers\ActivityLogger::log('update_ppdb_settings', null, "Memperbarui tahun ajaran PPDB aktif");
+            return redirect()->route('admin.konten', ['tab' => 'ppdb'])->with('success', 'Pengaturan PPDB berhasil disimpan!');
+        }
+
         if ($request->tipe === 'kontak_multi') {
             foreach ($request->konten_items as $tipe => $value) {
                 KontenWeb::updateOrCreate(['tipe' => $tipe], ['konten' => $value]);

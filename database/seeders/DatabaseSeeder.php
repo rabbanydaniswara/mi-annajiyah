@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ['tipe' => 'telepon', 'judul' => 'Telepon', 'konten' => '+62 21 1234 5678', 'gambar' => null, 'urutan' => 5],
             ['tipe' => 'email',   'judul' => 'Email',   'konten' => 'info@miannajiyah.sch.id', 'gambar' => null, 'urutan' => 6],
             ['tipe' => 'jam_op',  'judul' => 'Jam Operasional', 'konten' => 'Senin - Jumat: 07.00 - 14.00 WIB', 'gambar' => null, 'urutan' => 7],
+            ['tipe' => 'ppdb_tahun_ajaran', 'judul' => 'Tahun Ajaran PPDB Aktif', 'konten' => date('Y') . '/' . (date('Y') + 1), 'gambar' => null, 'urutan' => 20],
         ]);
 
         // Banner

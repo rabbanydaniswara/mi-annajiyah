@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PpdbHelper;
 use App\Models\Banner;
 use App\Models\Fasilitas;
 use App\Models\Guru;
@@ -65,7 +66,9 @@ class HomeController extends Controller
 
     public function pendaftaran()
     {
-        return view('public.pendaftaran');
+        return view('public.pendaftaran', [
+            'ppdbTahunAjaran' => PpdbHelper::activeAcademicYear(),
+        ]);
     }
 
     public function tenagaPendidik()

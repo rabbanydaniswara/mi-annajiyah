@@ -89,8 +89,14 @@
         <form method="GET" action="{{ route('admin.ppdb') }}" class="flex flex-wrap gap-2 items-center">
             <div class="flex-1 min-w-[200px] relative">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, NISN, NIS, no WA, ortu..." class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nomor, nama, NISN, NIS, no WA, ortu..." class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
             </div>
+            <select name="tahun_ajaran" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
+                <option value="">Semua Tahun</option>
+                @foreach($tahunAjaranList as $tahun)
+                    <option value="{{ $tahun }}" {{ request('tahun_ajaran') === $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
+                @endforeach
+            </select>
             <select name="status" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm">
                 <option value="">Semua Status</option>
                 @foreach(['pending' => 'Pending', 'diterima' => 'Diterima', 'ditolak' => 'Ditolak'] as $val => $label)
@@ -99,7 +105,7 @@
             </select>
             <button type="submit" class="bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-[var(--color-accent-dark)] transition"><i class="fas fa-search mr-1"></i> Cari</button>
             <a href="{{ route('admin.ppdb') }}" class="bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition"><i class="fas fa-undo mr-1"></i> Reset</a>
-            <a href="{{ route('admin.export', 'ppdb') }}" class="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20 text-sm flex items-center gap-2 ml-auto">
+            <a href="{{ route('admin.export', array_filter(['type' => 'ppdb', 'tahun_ajaran' => request('tahun_ajaran'), 'status' => request('status')])) }}" class="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20 text-sm flex items-center gap-2 ml-auto">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
         </form>
@@ -116,6 +122,7 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50/50 text-[var(--color-primary)] uppercase text-[10px] font-black tracking-widest border-b border-gray-100">
+                        <th class="p-4 text-left">No. Daftar</th>
                         <th class="p-4 text-left">Nama Lengkap</th>
                         <th class="p-4 text-left">Identitas (NISN/NIS)</th>
                         <th class="p-4 text-left">Kontak WA</th>
@@ -128,6 +135,10 @@
                 <tbody class="divide-y divide-gray-50">
                     @forelse($pendaftar as $p)
                     <tr class="hover:bg-yellow-50/30 transition group">
+                        <td class="p-4">
+                            <div class="font-mono font-black text-[var(--color-primary)] text-xs">{{ $p->nomor_pendaftaran ?: '-' }}</div>
+                            <div class="text-[10px] text-gray-400 font-bold mt-1">{{ $p->tahun_ajaran ?: '-' }}</div>
+                        </td>
                         <td class="p-4">
                             <a href="javascript:void(0)" @@click="openDetail(@js($p))" class="font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition text-left cursor-pointer outline-none block group-hover:translate-x-1 duration-300">
                                 {{ $p->nama }}
@@ -209,7 +220,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-20">
+                        <td colspan="8" class="text-center py-20">
                             <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5">
                                 <i class="fas fa-inbox text-3xl text-green-300"></i>
                             </div>
@@ -248,7 +259,8 @@
                     <div>
                         <h4 class="text-2xl font-black text-[var(--color-primary)] leading-tight tracking-tight" x-text="selected.nama"></h4>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-gray-100 text-gray-500" x-text="'ID #' + selected.id"></span>
+                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-gray-100 text-gray-500" x-text="selected.nomor_pendaftaran || '-'"></span>
+                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-600" x-text="selected.tahun_ajaran || '-'"></span>
                             <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded" :class="getStatusColor(selected.status_ppdb).replace('text', 'bg').replace('600', '100') + ' ' + getStatusColor(selected.status_ppdb)" x-text="selected.status_ppdb"></span>
                         </div>
                     </div>

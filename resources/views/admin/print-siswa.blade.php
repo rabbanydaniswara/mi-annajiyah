@@ -39,6 +39,8 @@
         <thead>
             <tr>
                 <th style="width: 30px;">No</th>
+                <th>No. Pendaftaran</th>
+                <th>Tahun Ajaran</th>
                 <th>Nama Lengkap</th>
                 <th>NISN</th>
                 <th style="width: 50px;">Kelas</th>
@@ -51,6 +53,8 @@
             @foreach($data as $s)
             <tr>
                 <td>{{ $loop->iteration }}</td>
+                <td>{{ $s->nomor_pendaftaran ?: '-' }}</td>
+                <td>{{ $s->tahun_ajaran ?: '-' }}</td>
                 <td><strong>{{ $s->nama }}</strong></td>
                 <td>{{ $s->nisn ?: '-' }}</td>
                 <td style="text-align: center;">{{ $s->kelas ?: '-' }}</td>

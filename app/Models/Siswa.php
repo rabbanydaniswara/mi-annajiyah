@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\PpdbHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -10,7 +11,8 @@ class Siswa extends Model
     public $timestamps = false;
     protected $table = 'siswa';
     protected $fillable = [
-        'registration_token', 'nama', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
+        'registration_token', 'nomor_pendaftaran', 'tahun_ajaran',
+        'nama', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
         'nisn', 'nis', 'akte_kelahiran', 'file_akte',
         'no_kk', 'file_kk', 'alamat', 'asal_sekolah', 'nama_ortu',
         'file_ktp_ortu', 'no_wa', 'kelas', 'tanggal_daftar',
@@ -31,6 +33,14 @@ class Siswa extends Model
                 } while (self::where('registration_token', $token)->exists());
 
                 $siswa->registration_token = $token;
+            }
+
+            if (!$siswa->tahun_ajaran) {
+                $siswa->tahun_ajaran = PpdbHelper::activeAcademicYear();
+            }
+
+            if (!$siswa->nomor_pendaftaran) {
+                $siswa->nomor_pendaftaran = PpdbHelper::generateRegistrationNumber($siswa->tahun_ajaran);
             }
         });
     }

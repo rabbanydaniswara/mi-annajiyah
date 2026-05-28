@@ -15,9 +15,13 @@ class PpdbController extends Controller
         if ($request->status && in_array($request->status, ['pending', 'diterima', 'ditolak'])) {
             $query->where('status_ppdb', $request->status);
         }
+        if ($request->tahun_ajaran) {
+            $query->where('tahun_ajaran', $request->tahun_ajaran);
+        }
         if ($q = trim((string) $request->q)) {
             $query->where(function ($w) use ($q) {
                 $w->where('nama', 'like', "%$q%")
+                  ->orWhere('nomor_pendaftaran', 'like', "%$q%")
                   ->orWhere('nisn', 'like', "%$q%")
                   ->orWhere('nis', 'like', "%$q%")
                   ->orWhere('no_wa', 'like', "%$q%")
@@ -26,12 +30,21 @@ class PpdbController extends Controller
         }
 
         $pendaftar = $query->orderByDesc('tanggal_daftar')->paginate(20)->withQueryString();
-        $totalPending = Siswa::where('status_ppdb', 'pending')->count();
-        $totalDiterima = Siswa::where('status_ppdb', 'diterima')->count();
-        $totalDitolak = Siswa::where('status_ppdb', 'ditolak')->count();
-        $totalSemua = Siswa::count();
+        $statsQuery = Siswa::query();
+        if ($request->tahun_ajaran) {
+            $statsQuery->where('tahun_ajaran', $request->tahun_ajaran);
+        }
 
-        return view('admin.ppdb', compact('pendaftar', 'totalPending', 'totalDiterima', 'totalDitolak', 'totalSemua'));
+        $totalPending = (clone $statsQuery)->where('status_ppdb', 'pending')->count();
+        $totalDiterima = (clone $statsQuery)->where('status_ppdb', 'diterima')->count();
+        $totalDitolak = (clone $statsQuery)->where('status_ppdb', 'ditolak')->count();
+        $totalSemua = (clone $statsQuery)->count();
+        $tahunAjaranList = Siswa::whereNotNull('tahun_ajaran')
+            ->distinct()
+            ->orderByDesc('tahun_ajaran')
+            ->pluck('tahun_ajaran');
+
+        return view('admin.ppdb', compact('pendaftar', 'totalPending', 'totalDiterima', 'totalDitolak', 'totalSemua', 'tahunAjaranList'));
     }
 
     public function updateStatus(Request $request)

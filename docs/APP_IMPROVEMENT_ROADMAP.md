@@ -22,8 +22,8 @@ Tujuan: membuat PPDB lebih cocok untuk kerja panitia sehari-hari.
 
 Prioritas:
 
-- Tahun ajaran PPDB aktif.
-- Nomor pendaftaran publik yang rapi.
+- Tahun ajaran PPDB aktif. Selesai: dapat diatur dari admin dan tersimpan sebagai snapshot di pendaftar baru.
+- Nomor pendaftaran publik yang rapi. Selesai: memakai format `PPDB-YYYY-0001`, bukan ID database.
 - Status PPDB yang lebih lengkap.
 - Catatan verifikasi internal.
 - Filter dan export PPDB yang lebih kuat.

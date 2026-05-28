@@ -16,7 +16,7 @@
 
 {{-- Tab Navigation --}}
 <div class="flex gap-2 mb-6 overflow-x-auto pb-1" x-data="{ tab: '{{ request('tab', 'visi') }}' }">
-    @foreach(['visi' => 'Visi & Misi', 'sejarah' => 'Sejarah', 'kegiatan' => 'Kegiatan', 'banner' => 'Banner', 'kontak' => 'Kontak'] as $key => $label)
+    @foreach(['visi' => 'Visi & Misi', 'sejarah' => 'Sejarah', 'kegiatan' => 'Kegiatan', 'banner' => 'Banner', 'ppdb' => 'PPDB', 'kontak' => 'Kontak'] as $key => $label)
     <a href="{{ route('admin.konten', ['tab' => $key]) }}"
        class="px-5 py-2 rounded-xl font-semibold text-sm whitespace-nowrap transition {{ request('tab', 'visi') === $key ? 'bg-[var(--color-primary)] text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-sm' }}">
         {{ $label }}
@@ -264,6 +264,28 @@
             </div>
         </form>
     </div>
+</div>
+@endif
+@if($activeTab === 'ppdb')
+<div class="bg-white rounded-2xl p-6 shadow-sm animate-fade">
+    <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-user-graduate mr-2"></i>Pengaturan PPDB</h3>
+    <p class="text-xs text-gray-400 mb-6">Tahun ajaran aktif dipakai untuk pendaftar baru dan nomor pendaftaran. Data lama tetap mengikuti tahun ajaran saat pendaftaran dibuat.</p>
+
+    <form method="POST" action="{{ route('admin.konten.update') }}" class="space-y-4 max-w-xl">
+        @csrf
+        <input type="hidden" name="tipe" value="ppdb_settings">
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Tahun Ajaran Aktif</label>
+            <input type="text" name="tahun_ajaran" value="{{ old('tahun_ajaran', $ppdbTahunAjaran) }}" required pattern="\d{4}[/-]\d{4}" placeholder="2026/2027" class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+            <p class="text-xs text-gray-400 mt-1">Format: 2026/2027. Nomor pendaftaran baru akan memakai awalan tahun pertama, misalnya PPDB-2026-0001.</p>
+            @error('tahun_ajaran')
+                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+        <button type="submit" class="bg-[var(--color-primary)] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[var(--color-primary-light)] transition shadow-md">
+            <i class="fas fa-save mr-2"></i> Simpan Pengaturan PPDB
+        </button>
+    </form>
 </div>
 @endif
 @if($activeTab === 'kontak')

@@ -112,8 +112,8 @@
                                     </span>
                                     <div class="space-y-3 mt-4">
                                         <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span class="text-xs text-gray-500">Nomor Induk</span>
-                                            <span class="text-xs font-bold text-[var(--color-primary)]">Terverifikasi oleh sistem</span>
+                                            <span class="text-xs text-gray-500">No. Pendaftaran</span>
+                                            <span class="text-xs font-bold text-[var(--color-primary)]">{{ $hasil->nomor_pendaftaran ?: 'Terverifikasi oleh sistem' }}</span>
                                         </div>
                                         <div class="flex justify-between items-center py-2">
                                             <span class="text-xs text-gray-500">Terakhir Update</span>

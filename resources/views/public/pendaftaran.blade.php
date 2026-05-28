@@ -1,6 +1,6 @@
 @extends('layouts.public')
 @section('title', 'Pendaftaran PPDB - MI Annajiyah')
-@section('meta_description', 'Formulir Pendaftaran Peserta Didik Baru (PPDB) MI Annajiyah Tahun Ajaran 2026/2027.')
+@section('meta_description', 'Formulir Pendaftaran Peserta Didik Baru (PPDB) MI Annajiyah Tahun Ajaran ' . ($ppdbTahunAjaran ?? '2026/2027') . '.')
 
 @section('content')
 {{-- Page Header --}}
@@ -9,7 +9,7 @@
     <div class="absolute bottom-0 left-0 w-60 h-60 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
     <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <span class="inline-block bg-[var(--color-accent)]/20 text-[var(--color-accent)] px-4 py-1 rounded-full text-sm font-semibold mb-4 border border-[var(--color-accent)]/30">
-            PPDB {{ date('Y') }}/{{ date('Y')+1 }}
+            PPDB {{ $ppdbTahunAjaran ?? date('Y').'/'.(date('Y') + 1) }}
         </span>
         <h1 class="text-3xl md:text-5xl font-black text-white mb-3">Formulir Pendaftaran</h1>
         <p class="text-green-200 text-lg">Lengkapi 3 langkah pendaftaran untuk mendaftarkan putra/putri Anda</p>

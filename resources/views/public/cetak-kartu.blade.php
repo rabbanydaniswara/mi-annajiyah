@@ -42,7 +42,7 @@
             </div>
             <div class="header-text">
                 <h1>Kartu Pendaftaran Santri Baru</h1>
-                <p>MI ANNAJIYAH - TAHUN PELAJARAN {{ date('Y') }}/{{ date('Y')+1 }}</p>
+                <p>MI ANNAJIYAH - TAHUN PELAJARAN {{ $siswa->tahun_ajaran ?: date('Y').'/'.(date('Y') + 1) }}</p>
                 <p>Jl. Raya Parung Panjang, Ciomas, Kec. Tenjo, Kabupaten Bogor</p>
             </div>
         </div>
@@ -51,7 +51,7 @@
             <div class="details">
                 <div class="info-group">
                     <div class="label">Nomor Pendaftaran</div>
-                    <div class="value">REG-{{ str_pad($siswa->id, 4, '0', STR_PAD_LEFT) }}</div>
+                    <div class="value">{{ $siswa->nomor_pendaftaran ?: '-' }}</div>
                 </div>
                 <div class="info-group">
                     <div class="label">Nama Lengkap</div>
