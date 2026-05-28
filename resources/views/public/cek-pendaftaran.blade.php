@@ -178,7 +178,7 @@
                     <h4 class="text-xl font-bold mb-2">Butuh Bantuan Panitia?</h4>
                     <p class="text-green-100 text-sm leading-relaxed">Jika Anda mengalami kendala saat melakukan pengecekan atau menemukan kesalahan data, jangan ragu untuk menghubungi layanan informasi kami.</p>
                 </div>
-                <a href="https://www.instagram.com/mi_annajiyah?igsh=MTF2ZzloN2tjenoybg==" target="_blank" class="bg-white text-[var(--color-primary)] px-6 py-3 rounded-xl font-bold hover:bg-[var(--color-accent)] transition whitespace-nowrap shadow-xl">
+                <a href="https://www.instagram.com/mi_annajiyah?igsh=MTF2ZzloN2tjenoybg==" target="_blank" rel="noopener noreferrer" class="bg-white text-[var(--color-primary)] px-6 py-3 rounded-xl font-bold hover:bg-[var(--color-accent)] transition whitespace-nowrap shadow-xl">
                     Hubungi Panitia
                 </a>
             </div>

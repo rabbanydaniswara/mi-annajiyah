@@ -118,8 +118,8 @@
                 </div>
                 <p class="text-green-200 text-sm leading-relaxed">Madrasah Ibtidaiyah yang berkomitmen mencetak generasi berakhlak mulia dan berprestasi.</p>
                 <div class="flex gap-3 mt-4">
-                    <a href="https://www.instagram.com/mi_annajiyah?igsh=MTF2ZzloN2tjenoybg==" target="_blank" class="w-9 h-9 rounded-full bg-white/10 hover:bg-[var(--color-accent)] hover:text-[var(--color-primary)] flex items-center justify-center transition text-sm shadow-sm" title="Instagram MI Annajiyah"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.tiktok.com/@@mis.annajiyah?_r=1&_t=ZS-95rKvMOFVX5" target="_blank" class="w-9 h-9 rounded-full bg-white/10 hover:bg-[var(--color-accent)] hover:text-[var(--color-primary)] flex items-center justify-center transition text-sm shadow-sm" title="TikTok MI Annajiyah"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.instagram.com/mi_annajiyah?igsh=MTF2ZzloN2tjenoybg==" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-white/10 hover:bg-[var(--color-accent)] hover:text-[var(--color-primary)] flex items-center justify-center transition text-sm shadow-sm" title="Instagram MI Annajiyah"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@@mis.annajiyah?_r=1&_t=ZS-95rKvMOFVX5" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-white/10 hover:bg-[var(--color-accent)] hover:text-[var(--color-primary)] flex items-center justify-center transition text-sm shadow-sm" title="TikTok MI Annajiyah"><i class="fab fa-tiktok"></i></a>
                 </div>
             </div>
             <div>

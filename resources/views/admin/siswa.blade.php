@@ -12,7 +12,7 @@
 
 <div class="flex gap-3 mb-6">
     <a href="{{ route('admin.export', 'siswa') }}" class="bg-green-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-green-700 transition text-sm"><i class="fas fa-file-excel mr-1"></i> Export Excel</a>
-    <a href="{{ route('admin.export', ['type' => 'siswa', 'format' => 'pdf']) }}" target="_blank" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-700 transition text-sm"><i class="fas fa-file-pdf mr-1"></i> Export PDF</a>
+    <a href="{{ route('admin.export', ['type' => 'siswa', 'format' => 'pdf']) }}" target="_blank" rel="noopener noreferrer" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-700 transition text-sm"><i class="fas fa-file-pdf mr-1"></i> Export PDF</a>
 </div>
 
 {{-- Stats --}}

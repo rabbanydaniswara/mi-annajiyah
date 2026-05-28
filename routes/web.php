@@ -85,7 +85,7 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::delete('/konten/kategori/{id}', [KontenController::class, 'destroyKategori'])->name('konten.destroyKategori');
     Route::post('/konten/banner', [KontenController::class, 'storeBanner'])->name('konten.storeBanner');
     Route::put('/konten/banner', [KontenController::class, 'updateBanner'])->name('konten.updateBanner');
-    Route::get('/konten/banner/toggle/{id}', [KontenController::class, 'toggleBanner'])->name('konten.toggleBanner');
+    Route::patch('/konten/banner/toggle/{id}', [KontenController::class, 'toggleBanner'])->name('konten.toggleBanner');
     Route::delete('/konten/banner/{id}', [KontenController::class, 'destroyBanner'])->name('konten.destroyBanner');
 
     // Jadwal
@@ -102,7 +102,7 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     // Fasilitas
     Route::get('/fasilitas', [FasilitasController::class, 'index'])->name('fasilitas');
     Route::post('/fasilitas', [FasilitasController::class, 'store'])->name('fasilitas.store');
-    Route::get('/fasilitas/toggle/{id}', [FasilitasController::class, 'toggle'])->name('fasilitas.toggle');
+    Route::patch('/fasilitas/toggle/{id}', [FasilitasController::class, 'toggle'])->name('fasilitas.toggle');
     Route::delete('/fasilitas/{id}', [FasilitasController::class, 'destroy'])->name('fasilitas.destroy');
 
     // Siswa

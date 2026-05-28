@@ -103,10 +103,13 @@
                         <p class="text-gray-400 text-xs"><i class="text-[var(--color-accent)]"></i> Urutan: {{ $fas->urutan }}</p>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                        <a href="{{ route('admin.fasilitas.toggle', $fas->id) }}" title="Toggle Aktif"
-                           class="w-8 h-8 rounded-lg flex items-center justify-center transition {{ $fas->aktif ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200' }}">
-                            <i class="fas fa-toggle-{{ $fas->aktif ? 'on' : 'off' }} text-sm"></i>
-                        </a>
+                        <form method="POST" action="{{ route('admin.fasilitas.toggle', $fas->id) }}" class="inline">
+                            @csrf @method('PATCH')
+                            <button type="submit" title="Toggle Aktif"
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center transition {{ $fas->aktif ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200' }}">
+                                <i class="fas fa-toggle-{{ $fas->aktif ? 'on' : 'off' }} text-sm"></i>
+                            </button>
+                        </form>
                         <a href="{{ route('admin.fasilitas', ['edit' => $fas->id]) }}" title="Edit"
                            class="w-8 h-8 bg-yellow-100 text-yellow-600 hover:bg-yellow-200 rounded-lg flex items-center justify-center transition">
                             <i class="fas fa-edit text-sm"></i>

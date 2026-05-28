@@ -314,7 +314,7 @@
                 <p class="text-gray-600 text-sm leading-relaxed">
                     {{ $kontenWeb['alamat'] ?? 'JL. PLN NO.80, Pondok Karya, Pondok Aren, Tangerang Selatan' }}
                 </p>
-                <a href="https://maps.google.com/?q=MI+Annajiyah+Pondok+Aren" target="_blank" class="mt-4 inline-flex items-center gap-2 text-[var(--color-primary)] font-bold text-sm hover:text-[var(--color-accent)] transition">
+                <a href="https://maps.google.com/?q=MI+Annajiyah+Pondok+Aren" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-[var(--color-primary)] font-bold text-sm hover:text-[var(--color-accent)] transition">
                     Buka di Google Maps <i class="fas fa-external-link-alt"></i>
                 </a>
             </div>
@@ -436,5 +436,4 @@ function indexData() {
 }
 </script>
 @endpush
-
 

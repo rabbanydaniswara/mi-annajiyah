@@ -208,7 +208,10 @@
                 <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-bold {{ $banner->aktif ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600' }}">{{ $banner->aktif ? 'Aktif' : 'Nonaktif' }}</span>
             </div>
             <div class="flex gap-1">
-                <a href="{{ route('admin.konten.toggleBanner', $banner->id) }}" class="w-8 h-8 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg flex items-center justify-center text-xs transition" title="Ubah status"><i class="fas fa-toggle-on"></i></a>
+                <form method="POST" action="{{ route('admin.konten.toggleBanner', $banner->id) }}" class="inline">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="w-8 h-8 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg flex items-center justify-center text-xs transition" title="Ubah status"><i class="fas fa-toggle-on"></i></button>
+                </form>
                 <a href="{{ route('admin.konten', ['edit_banner' => $banner->id, 'tab' => 'banner']) }}" class="w-8 h-8 bg-yellow-100 text-yellow-600 hover:bg-yellow-200 rounded-lg flex items-center justify-center text-xs transition"><i class="fas fa-edit"></i></a>
                 <form method="POST" action="{{ route('admin.konten.destroyBanner', $banner->id) }}" class="inline" 
                       data-confirm="Yakin ingin menghapus banner '{{ $banner->judul }}'?"

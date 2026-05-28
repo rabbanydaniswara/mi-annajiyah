@@ -117,20 +117,23 @@ Tujuan: menutup risiko terbesar sebelum aplikasi dipakai publik.
 
 Tujuan: memastikan aksi perubahan data memakai method yang benar.
 
-- `[ ]` Ubah toggle banner dari GET ke PATCH/POST.
+- `[x]` Ubah toggle banner dari GET ke PATCH/POST.
   - Prioritas: P1
   - Target file: `routes/web.php`, `app/Http/Controllers/Admin/KontenController.php`, `resources/views/admin/konten.blade.php`.
   - Kriteria selesai: GET tidak lagi mengubah status banner.
+  - Catatan: route banner toggle memakai `PATCH`, tombol view memakai form CSRF, dan test memastikan `GET` ditolak.
 
-- `[ ]` Ubah toggle fasilitas dari GET ke PATCH/POST.
+- `[x]` Ubah toggle fasilitas dari GET ke PATCH/POST.
   - Prioritas: P1
   - Target file: `routes/web.php`, `app/Http/Controllers/Admin/FasilitasController.php`, `resources/views/admin/fasilitas.blade.php`.
   - Kriteria selesai: GET tidak lagi mengubah status fasilitas.
+  - Catatan: route fasilitas toggle memakai `PATCH`, tombol view memakai form CSRF, dan test memastikan `GET` ditolak.
 
-- `[ ]` Tambahkan `rel="noopener noreferrer"` untuk link `target="_blank"`.
+- `[x]` Tambahkan `rel="noopener noreferrer"` untuk link `target="_blank"`.
   - Prioritas: P2
   - Target file: view publik dan admin.
   - Kriteria selesai: semua link tab baru memiliki rel yang aman.
+  - Catatan: sweep view publik/admin selesai; semua `target="_blank"` di `resources` sudah memiliki `rel="noopener noreferrer"`.
 
 - `[x]` Ganti penggunaan `innerHTML` untuk pesan dinamis dari server.
   - Prioritas: P1
@@ -165,9 +168,10 @@ Tujuan: membuat perubahan bisa diverifikasi otomatis.
   - Kriteria selesai: token valid 200, token invalid 404, numeric ID lama tidak valid.
   - Catatan: tercakup di `tests/Feature/PpdbSecurityTest.php`.
 
-- `[ ]` Tambahkan test route toggle hanya menerima method aman.
+- `[x]` Tambahkan test route toggle hanya menerima method aman.
   - Prioritas: P2
   - Kriteria selesai: GET toggle ditolak, PATCH/POST berhasil dengan CSRF/auth.
+  - Catatan: tercakup di `tests/Feature/AdminRouteSafetyTest.php`.
 
 ## Fase 5 - Database dan Migration Cleanup
 

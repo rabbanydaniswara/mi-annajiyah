@@ -17,7 +17,7 @@
     <a href="{{ route('admin.export', 'guru') }}" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-green-700 transition text-sm">
         <i class="fas fa-file-excel"></i> Export Excel
     </a>
-    <a href="{{ route('admin.export', ['type' => 'guru', 'format' => 'pdf']) }}" target="_blank" class="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-700 transition text-sm">
+    <a href="{{ route('admin.export', ['type' => 'guru', 'format' => 'pdf']) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-700 transition text-sm">
         <i class="fas fa-file-pdf"></i> Export PDF
     </a>
 </div>

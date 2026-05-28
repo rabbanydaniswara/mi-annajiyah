@@ -25,7 +25,7 @@
         <h3 class="text-xl font-black text-[var(--color-primary)]">{{ $totalKelas }}</h3><p class="text-gray-400 text-[10px] uppercase font-bold tracking-wider">Kelas</p>
     </div>
     <div class="flex items-center justify-center">
-        <a href="{{ route('admin.jadwal.print') }}" target="_blank" class="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-dark)] text-[var(--color-primary)] rounded-2xl font-black shadow-lg shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-b-4 border-yellow-600">
+        <a href="{{ route('admin.jadwal.print') }}" target="_blank" rel="noopener noreferrer" class="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-dark)] text-[var(--color-primary)] rounded-2xl font-black shadow-lg shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-b-4 border-yellow-600">
             <i class="fas fa-print text-xl"></i>
             <div class="text-left">
                 <p class="text-[10px] uppercase tracking-widest leading-none mb-1">Cetak Mode</p>
