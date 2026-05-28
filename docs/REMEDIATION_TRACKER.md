@@ -39,18 +39,20 @@ Tujuan: memastikan perubahan berikutnya bisa dilacak dan dipulihkan.
   - Prioritas: P0
   - Kriteria selesai: ada backup database dan backup `public/uploads`.
 
-- `[ ]` Catat versi runtime lokal dan target hosting.
+- `[x]` Catat versi runtime lokal dan target hosting.
   - Prioritas: P1
   - Kriteria selesai: versi PHP, Composer, Node, MySQL/MariaDB, dan extension PHP terdokumentasi.
+  - Catatan: runtime lokal dicatat di `docs/HOSTING_READINESS.md`; target hosting masih menunggu paket final.
 
 ## Fase 1 - Keputusan Dependency dan Hosting
 
 Tujuan: memilih dependency yang aman sebelum menyentuh fitur.
 
-- `[ ]` Cek paket hosting final.
+- `[!]` Cek paket hosting final.
   - Prioritas: P0
   - Cek minimal: PHP 8.2/8.3, Composer 2, SSH, Fileinfo, Mbstring, OpenSSL, PDO MySQL, DOM/XML, kemampuan set document root ke `public`.
   - Kriteria selesai: ada keputusan hosting layak atau perlu upgrade paket.
+  - Catatan: tertahan sampai paket hosting final/akses hosting diberikan.
 
 - `[x]` Tentukan jalur dependency.
   - Prioritas: P0
@@ -173,10 +175,11 @@ Tujuan: mengurangi risiko migration gagal di hosting.
   - Target file: `database/seeders/DatabaseSeeder.php`.
   - Kriteria selesai: production tidak membuat user `admin/admin123`.
 
-- `[ ]` Selaraskan `.env.example` dengan setup yang dipilih.
+- `[x]` Selaraskan `.env.example` dengan setup yang dipilih.
   - Prioritas: P1
   - Target file: `.env.example`.
   - Kriteria selesai: nilai default tidak misleading, `APP_DEBUG` aman untuk template production atau diberi catatan jelas.
+  - Catatan: `.env.example` sudah diarahkan ke Laravel 12/PHP 8.2+, MySQL, locale Indonesia, dan default production-safe.
 
 ## Fase 6 - Deployment Readiness
 
@@ -226,7 +229,7 @@ Tujuan: memastikan siap naik hosting.
 Isi bagian ini saat keputusan sudah dibuat.
 
 - Dependency target: Laravel 12 + PHP `^8.2`; frontend Vite 6 + `laravel-vite-plugin` 1.x.
-- Hosting target: belum diputuskan.
-- Database production: belum diputuskan.
+- Hosting target: belum diputuskan; checklist tersedia di `docs/HOSTING_READINESS.md`.
+- Database production: MySQL/MariaDB direkomendasikan; detail database belum diputuskan.
 - Strategi deploy asset: build lokal/CI, lalu deploy `public/build`.
 - Repository remote: `origin` terhubung ke `https://github.com/rabbanydaniswara/mi-annajiyah.git`, branch lokal `main`.
