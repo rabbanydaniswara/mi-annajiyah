@@ -112,6 +112,8 @@ Lokasi:
 
 Seeder membuat user `admin` dengan password `admin123`.
 
+Status perbaikan 2026-05-28: selesai. Seeder production tidak lagi membuat `admin/admin123` otomatis; admin awal hanya dibuat jika `INITIAL_ADMIN_USERNAME` dan `INITIAL_ADMIN_PASSWORD` disediakan.
+
 Rekomendasi:
 
 - Untuk produksi, jangan seeding password default.
@@ -153,6 +155,8 @@ Lokasi:
 - `database/migrations/2026_05_01_000000_add_performance_indexes.php`
 
 Dua migration menambah index yang overlap pada `siswa.no_wa`, `siswa.status_ppdb`, `siswa.tanggal_daftar`, dan `kegiatan_sekolah.tanggal`. Migration kedua membungkus setiap perubahan dalam `try/catch` kosong sehingga kegagalan bisa tidak terlihat.
+
+Status perbaikan 2026-05-28: selesai. Index overlap dirapikan dan `catch` kosong di migration index dihapus.
 
 Rekomendasi:
 

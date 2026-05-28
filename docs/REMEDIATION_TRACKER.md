@@ -180,15 +180,17 @@ Tujuan: membuat perubahan bisa diverifikasi otomatis.
 
 Tujuan: mengurangi risiko migration gagal di hosting.
 
-- `[ ]` Rapikan migration index dobel.
+- `[x]` Rapikan migration index dobel.
   - Prioritas: P1
   - Target file: `database/migrations/2026_04_30_235000_add_performance_indexes.php`, `database/migrations/2026_05_01_000000_add_performance_indexes.php`.
   - Kriteria selesai: tidak ada index overlap dan tidak ada `catch` kosong.
+  - Catatan: index `nisn` dobel dihindari karena sudah unique; migration kedua hanya menambah index `nama` dan tidak lagi memakai `catch` kosong.
 
-- `[ ]` Evaluasi seeder admin default.
+- `[x]` Evaluasi seeder admin default.
   - Prioritas: P0 untuk production.
   - Target file: `database/seeders/DatabaseSeeder.php`.
   - Kriteria selesai: production tidak membuat user `admin/admin123`.
+  - Catatan: production tidak membuat admin default kecuali `INITIAL_ADMIN_USERNAME` dan `INITIAL_ADMIN_PASSWORD` disediakan; password production minimal 12 karakter; perilaku ini dilindungi test.
 
 - `[x]` Selaraskan `.env.example` dengan setup yang dipilih.
   - Prioritas: P1

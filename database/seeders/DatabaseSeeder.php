@@ -2,22 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin user
-        DB::table('users')->insert([
-            'username' => 'admin',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $this->seedInitialAdmin();
 
         // Konten web
         DB::table('konten_web')->insert([
@@ -38,5 +33,31 @@ class DatabaseSeeder extends Seeder
 
         // Run additional seeders (kategori, fasilitas, guru, kegiatan)
         $this->call(NewFeaturesSeeder::class);
+    }
+
+    private function seedInitialAdmin(): void
+    {
+        $username = env('INITIAL_ADMIN_USERNAME');
+        $password = env('INITIAL_ADMIN_PASSWORD');
+
+        if (app()->environment('production') && (!$username || !$password)) {
+            $this->command?->warn('Skipping initial admin seeder in production. Set INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD if needed.');
+            return;
+        }
+
+        $username = $username ?: 'admin';
+        $password = $password ?: 'admin123';
+
+        if (app()->environment('production') && strlen($password) < 12) {
+            throw new RuntimeException('INITIAL_ADMIN_PASSWORD must be at least 12 characters in production.');
+        }
+
+        User::updateOrCreate(
+            ['username' => $username],
+            [
+                'password' => Hash::make($password),
+                'role' => 'admin',
+            ]
+        );
     }
 }

@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('siswa', function (Blueprint $table) {
-            // Menambahkan index untuk kolom yang sering dicari
-            $table->index('nisn');
+            // Kolom nisn dan nis sudah memiliki unique index di migration sebelumnya.
             $table->index('no_wa');
             $table->index('status_ppdb');
             $table->index('tanggal_daftar');
@@ -30,7 +29,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('siswa', function (Blueprint $table) {
-            $table->dropIndex(['nisn']);
             $table->dropIndex(['no_wa']);
             $table->dropIndex(['status_ppdb']);
             $table->dropIndex(['tanggal_daftar']);
