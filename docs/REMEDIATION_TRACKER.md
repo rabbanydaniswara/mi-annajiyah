@@ -1,7 +1,7 @@
 # Remediation Tracker
 
 Tanggal dibuat: 2026-05-28  
-Tujuan: merencanakan perbaikan proyek SPMB Annajiyah secara bertahap, aman untuk hosting umum, dan mudah dilacak.
+Tujuan: merencanakan perbaikan proyek SPMB Annajiyah secara bertahap, menjaga keamanan data, meningkatkan kualitas aplikasi, dan menyiapkan hosting saat waktunya sudah tepat.
 
 ## Status Legend
 
@@ -9,6 +9,18 @@ Tujuan: merencanakan perbaikan proyek SPMB Annajiyah secara bertahap, aman untuk
 - `[~]` Sedang dikerjakan
 - `[x]` Selesai
 - `[!]` Tertahan / perlu keputusan
+
+## Status Arah Kerja Saat Ini
+
+Hosting belum menjadi target langsung. Fase teknis dasar, keamanan PPDB, route safety, test reliability, dan cleanup database sudah selesai. Mulai tahap berikutnya, prioritas kerja dialihkan ke peningkatan aplikasi/web sebelum deployment production.
+
+Prioritas baru:
+
+1. Rapikan workflow PPDB agar lebih lengkap untuk operasional panitia.
+2. Tingkatkan ergonomi admin/operator untuk input, filter, export, dan verifikasi.
+3. Perbaiki konten publik dan pengalaman pengguna pendaftaran.
+4. Tambahkan fitur operasional yang membantu sekolah mengelola data.
+5. Simpan checklist hosting sebagai fase tertunda sampai domain/hosting final dipilih.
 
 ## Target Stack Aman
 
@@ -198,16 +210,114 @@ Tujuan: mengurangi risiko migration gagal di hosting.
   - Kriteria selesai: nilai default tidak misleading, `APP_DEBUG` aman untuk template production atau diberi catatan jelas.
   - Catatan: `.env.example` sudah diarahkan ke Laravel 12/PHP 8.2+, MySQL, locale Indonesia, dan default production-safe.
 
-## Fase 6 - Deployment Readiness
+## Fase 6 - Workflow PPDB dan Data Pendaftar
 
-Tujuan: memastikan siap naik hosting.
+Tujuan: membuat proses PPDB lebih enak dipakai panitia dan lebih jelas untuk wali murid.
 
-- `[ ]` Pastikan document root hosting mengarah ke `public`.
-  - Prioritas: P0
+- `[ ]` Tambahkan pengaturan tahun ajaran PPDB.
+  - Prioritas: P1
+  - Target area: model/migration pengaturan PPDB, admin konten atau menu khusus PPDB.
+  - Kriteria selesai: admin dapat mengatur tahun ajaran aktif tanpa mengubah kode.
+
+- `[ ]` Tambahkan nomor pendaftaran publik yang tidak sama dengan ID database.
+  - Prioritas: P1
+  - Target area: model `Siswa`, migration, cetak kartu, admin PPDB.
+  - Kriteria selesai: pendaftar memiliki nomor pendaftaran rapi untuk komunikasi panitia, tetap tidak membuka ID internal.
+
+- `[ ]` Rapikan status PPDB menjadi alur yang lebih eksplisit.
+  - Prioritas: P2
+  - Opsi status: `pending`, `berkas_kurang`, `diverifikasi`, `diterima`, `ditolak`, `daftar_ulang`.
+  - Kriteria selesai: status sesuai kebutuhan operasional panitia dan tampil konsisten di admin/publik.
+
+- `[ ]` Tambahkan catatan verifikasi internal.
+  - Prioritas: P2
+  - Target area: admin PPDB.
+  - Kriteria selesai: operator/admin dapat menulis catatan tanpa tampil ke publik.
+
+- `[ ]` Tambahkan filter dan export PPDB yang lebih terarah.
+  - Prioritas: P2
+  - Target area: admin PPDB, export.
+  - Kriteria selesai: data bisa difilter berdasarkan status, tahun ajaran, tanggal daftar, dan kelas tujuan.
+
+## Fase 7 - Admin Panel dan Operasional Sekolah
+
+Tujuan: membuat area admin/operator lebih nyaman untuk pekerjaan berulang.
+
+- `[ ]` Evaluasi ulang hak akses admin dan operator per menu.
+  - Prioritas: P1
+  - Kriteria selesai: ada matriks role yang jelas dan middleware/policy mengikuti matriks tersebut.
+
+- `[ ]` Tambahkan fitur ganti password untuk user login.
+  - Prioritas: P1
+  - Kriteria selesai: admin/operator bisa mengganti password sendiri dengan validasi password lama.
+
+- `[ ]` Tambahkan dashboard ringkas PPDB.
+  - Prioritas: P2
+  - Kriteria selesai: dashboard menampilkan tren pendaftar, status, dan tugas verifikasi yang perlu ditindaklanjuti.
+
+- `[ ]` Rapikan log aktivitas agar mudah diaudit.
+  - Prioritas: P2
+  - Kriteria selesai: log bisa difilter berdasarkan user, action, tanggal, dan model terkait.
+
+- `[ ]` Tambahkan bulk action untuk data PPDB jika dibutuhkan.
+  - Prioritas: P3
+  - Kriteria selesai: admin dapat mengubah status beberapa pendaftar secara aman dengan konfirmasi.
+
+## Fase 8 - Konten Publik, Media, dan UX Pendaftaran
+
+Tujuan: meningkatkan pengalaman wali murid dan membuat konten sekolah lebih mudah dirawat.
+
+- `[ ]` Rapikan validasi dan format input nomor WhatsApp.
+  - Prioritas: P1
+  - Kriteria selesai: nomor WA disimpan dalam format konsisten dan pesan validasi mudah dipahami.
+
+- `[ ]` Tambahkan preview file sebelum submit pendaftaran.
+  - Prioritas: P2
+  - Kriteria selesai: wali murid bisa melihat nama/ukuran file yang dipilih sebelum mengirim.
+
+- `[ ]` Perbaiki warning font Inter pada build.
+  - Prioritas: P2
+  - Kriteria selesai: `npm run build` tidak lagi memberi warning font unresolved.
+
+- `[ ]` Evaluasi konten homepage dan halaman informasi.
+  - Prioritas: P2
+  - Kriteria selesai: teks, kontak, alamat, media sosial, dan CTA sesuai data sekolah terbaru.
+
+- `[ ]` Rapikan manajemen media publik.
+  - Prioritas: P3
+  - Kriteria selesai: upload banner/guru/kegiatan/fasilitas memiliki validasi, thumbnail, dan penghapusan file yang konsisten.
+
+## Fase 9 - Hardening Lanjutan dan Kualitas Kode
+
+Tujuan: menjaga aplikasi tetap stabil saat fitur bertambah.
+
+- `[ ]` Tambahkan test untuk admin PPDB update status.
+  - Prioritas: P1
+  - Kriteria selesai: status berubah, tanggal verifikasi terisi, dan activity log tercatat.
+
+- `[ ]` Tambahkan test untuk fitur konten utama.
+  - Prioritas: P2
+  - Kriteria selesai: create/update/delete banner, fasilitas, guru, dan kegiatan minimal tercakup.
+
+- `[ ]` Evaluasi refactor upload publik vs dokumen private.
+  - Prioritas: P2
+  - Kriteria selesai: ada pemisahan helper/service yang jelas untuk media publik dan dokumen sensitif.
+
+- `[ ]` Tambahkan backup/export database lokal sebelum perubahan besar.
+  - Prioritas: P1
+  - Kriteria selesai: ada prosedur backup yang bisa dijalankan sebelum migration destruktif.
+
+## Fase 10 - Deployment Readiness (Ditunda)
+
+Tujuan: memastikan siap naik hosting saat fitur aplikasi sudah cukup matang.
+
+- `[!]` Pastikan document root hosting mengarah ke `public`.
+  - Prioritas: P0 saat hosting dimulai
   - Kriteria selesai: file root project seperti `.env`, `composer.json`, dan `storage` tidak bisa diakses publik.
+  - Catatan: ditunda sampai hosting/domain final dipilih.
 
-- `[ ]` Jalankan full verification sebelum deploy.
-  - Prioritas: P0
+- `[!]` Jalankan full verification sebelum deploy.
+  - Prioritas: P0 saat hosting dimulai
   - Perintah:
     - `composer validate --strict`
     - `composer audit`
@@ -216,37 +326,40 @@ Tujuan: memastikan siap naik hosting.
     - `npm run build`
     - `php artisan route:list`
   - Kriteria selesai: semua lulus atau ada catatan risiko yang diterima.
+  - Catatan: tetap dijalankan tiap fase besar, tetapi checklist deploy final ditunda.
 
-- `[ ]` Siapkan konfigurasi production.
-  - Prioritas: P0
+- `[!]` Siapkan konfigurasi production.
+  - Prioritas: P0 saat hosting dimulai
   - Wajib: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://domain-final`, database production, mailer, session/cookie HTTPS.
   - Kriteria selesai: tidak ada konfigurasi local/debug di production.
+  - Catatan: menunggu domain, database, dan paket hosting final.
 
-- `[ ]` Jalankan migration production secara terkontrol.
-  - Prioritas: P0
+- `[!]` Jalankan migration production secara terkontrol.
+  - Prioritas: P0 saat hosting dimulai
   - Kriteria selesai: `php artisan migrate --force` berhasil dan data lama aman.
+  - Catatan: wajib didahului backup database dan folder upload.
 
-- `[ ]` Cache konfigurasi/view untuk production.
-  - Prioritas: P1
+- `[!]` Cache konfigurasi/view untuk production.
+  - Prioritas: P1 saat hosting dimulai
   - Perintah: `php artisan config:cache`, `php artisan view:cache`.
   - Catatan: `route:cache` perlu diuji karena saat ini ada route closure untuk sitemap.
 
 ## Urutan Eksekusi yang Disarankan
 
-1. Fase 0: Git dan backup.
-2. Fase 1: keputusan Laravel 12 vs 13 berdasarkan hosting final.
-3. Fase 2: token kartu dan private storage dokumen.
-4. Fase 3: route method safety dan pesan frontend aman.
-5. Fase 4: test otomatis.
-6. Fase 5: cleanup migration/seeder/env.
-7. Fase 6: checklist deploy.
+1. Fase 0-5: fondasi keamanan, dependency, test, route safety, dan database cleanup. Status: selesai mayoritas.
+2. Fase 6: workflow PPDB dan data pendaftar.
+3. Fase 7: admin panel dan operasional sekolah.
+4. Fase 8: konten publik, media, dan UX pendaftaran.
+5. Fase 9: hardening lanjutan dan kualitas kode.
+6. Fase 10: checklist deploy, ditunda sampai hosting/domain final dipilih.
 
 ## Catatan Keputusan
 
 Isi bagian ini saat keputusan sudah dibuat.
 
 - Dependency target: Laravel 12 + PHP `^8.2`; frontend Vite 6 + `laravel-vite-plugin` 1.x.
-- Hosting target: belum diputuskan; checklist tersedia di `docs/HOSTING_READINESS.md`.
+- Hosting target: belum diputuskan dan tidak menjadi fokus langsung; checklist tetap tersedia di `docs/HOSTING_READINESS.md`.
 - Database production: MySQL/MariaDB direkomendasikan; detail database belum diputuskan.
 - Strategi deploy asset: build lokal/CI, lalu deploy `public/build`.
 - Repository remote: `origin` terhubung ke `https://github.com/rabbanydaniswara/mi-annajiyah.git`, branch lokal `main`.
+- Fokus kerja berikutnya: pengembangan fitur aplikasi dan perbaikan UX sebelum masuk tahap hosting.
