@@ -151,17 +151,20 @@ Tujuan: membuat perubahan bisa diverifikasi otomatis.
   - Kriteria selesai: `php artisan test` tidak gagal karena tabel belum ada.
   - Catatan: `RefreshDatabase` diaktifkan pada feature test baseline.
 
-- `[ ]` Tambahkan test submit PPDB sukses.
+- `[x]` Tambahkan test submit PPDB sukses.
   - Prioritas: P1
   - Kriteria selesai: upload file palsu valid, record `siswa` dibuat, response JSON sukses.
+  - Catatan: tercakup di `tests/Feature/PpdbRegistrationTest.php`; memastikan dokumen masuk private storage dan response mengembalikan `card_url`.
 
-- `[ ]` Tambahkan test validasi unique NISN/NIS.
+- `[x]` Tambahkan test validasi unique NISN/NIS.
   - Prioritas: P1
   - Kriteria selesai: data duplikat ditolak.
+  - Catatan: tercakup di `tests/Feature/PpdbRegistrationTest.php`; duplikat `nisn` dan `nis` menghasilkan error validasi dan tidak mengunggah dokumen.
 
-- `[ ]` Tambahkan test role admin/operator.
+- `[x]` Tambahkan test role admin/operator.
   - Prioritas: P1
   - Kriteria selesai: operator tidak bisa akses kelola admin.
+  - Catatan: tercakup di `tests/Feature/AdminRoleAccessTest.php`; admin bisa membuka kelola admin, operator hanya bisa masuk dashboard dan ditolak dari kelola admin.
 
 - `[x]` Tambahkan test cetak kartu token.
   - Prioritas: P0 setelah token dibuat.
