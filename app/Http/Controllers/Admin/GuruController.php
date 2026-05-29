@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ImageHelper;
+use App\Helpers\PublicCacheHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Guru;
 use Illuminate\Http\Request;
@@ -44,15 +46,16 @@ class GuruController extends Controller
         $data['tampilkan'] = $request->has('tampilkan') ? 1 : 0;
 
         if ($request->hasFile('foto')) {
-            $data['foto'] = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('foto'), 'uploads/guru', 'guru');
-            \App\Helpers\ImageHelper::generateThumbnailFor($data['foto']);
+            $data['foto'] = ImageHelper::uploadAndOptimize($request->file('foto'), 'uploads/guru', 'guru');
+            ImageHelper::generateThumbnailFor($data['foto']);
+            ImageHelper::generateVariantFor($data['foto'], 'card', 480, 64);
         }
 
         if ($request->id) {
             $guru = Guru::findOrFail($request->id);
             if (isset($data['foto']) && $guru->foto && file_exists(public_path($guru->foto))) {
                 @unlink(public_path($guru->foto));
-                \App\Helpers\ImageHelper::deleteThumbnail($guru->foto);
+                ImageHelper::deleteThumbnail($guru->foto);
             }
             $guru->update($data);
             \App\Helpers\ActivityLogger::log('update_guru', $guru, "Memperbarui data guru {$guru->nama}");
@@ -60,6 +63,8 @@ class GuruController extends Controller
             $guru = Guru::create($data);
             \App\Helpers\ActivityLogger::log('create_guru', $guru, "Menambahkan guru baru {$guru->nama}");
         }
+
+        PublicCacheHelper::clearContent();
 
         return redirect()->route('admin.guru')->with('success', 'Data guru berhasil disimpan');
     }
@@ -74,12 +79,13 @@ class GuruController extends Controller
         }
         if ($guru->foto && file_exists(public_path($guru->foto))) {
             @unlink(public_path($guru->foto));
-            \App\Helpers\ImageHelper::deleteThumbnail($guru->foto);
+            ImageHelper::deleteThumbnail($guru->foto);
         }
 
         \App\Helpers\ActivityLogger::log('delete_guru', null, "Menghapus data guru {$namaGuru}");
         
         $guru->delete();
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.guru')->with('success', 'Guru berhasil dihapus');
     }
 }

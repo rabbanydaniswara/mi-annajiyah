@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\DocumentHelper;
 use App\Helpers\PhoneHelper;
+use App\Helpers\PublicCacheHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
@@ -101,6 +102,8 @@ class SiswaController extends Controller
             \App\Helpers\ActivityLogger::log('create_siswa', $siswa, "Menambahkan siswa baru {$siswa->nama}");
         }
 
+        PublicCacheHelper::clearStats();
+
         return redirect()->route('admin.siswa')->with('success', 'Data siswa berhasil disimpan');
     }
 
@@ -117,6 +120,7 @@ class SiswaController extends Controller
         \App\Helpers\ActivityLogger::log('delete_siswa', null, "Menghapus data siswa {$namaSiswa}", ['data' => $siswa->toArray()]);
         
         $siswa->delete();
+        PublicCacheHelper::clearStats();
         return redirect()->route('admin.siswa')->with('success', 'Siswa berhasil dihapus');
     }
 }

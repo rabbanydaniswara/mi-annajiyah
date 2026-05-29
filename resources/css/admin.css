@@ -1,8 +1,9 @@
 @import 'tailwindcss';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import './shared.css';
 
 @source '../views/admin/**/*.blade.php';
-@source '../views/layouts/*.blade.php';
+@source '../views/layouts/admin.blade.php';
 @source '../views/components/**/*.blade.php';
 @source '../js/admin.js';
 

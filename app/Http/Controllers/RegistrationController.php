@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\DocumentHelper;
 use App\Helpers\PhoneHelper;
+use App\Helpers\PublicCacheHelper;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -77,6 +78,7 @@ class RegistrationController extends Controller
             ]);
 
             \App\Helpers\ActivityLogger::log('public_registration', $siswa, "Pendaftaran baru atas nama {$siswa->nama} (Public)");
+            PublicCacheHelper::clearStats();
 
             return response()->json([
                 'success' => true,

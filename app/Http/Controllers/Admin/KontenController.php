@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ImageHelper;
 use App\Helpers\PpdbHelper;
+use App\Helpers\PublicCacheHelper;
 use App\Http\Controllers\Controller;
 use App\Models\{KontenWeb, KegiatanSekolah, KegiatanKategori, Banner};
 use Illuminate\Http\Request;
@@ -38,6 +40,7 @@ class KontenController extends Controller
             );
 
             \App\Helpers\ActivityLogger::log('update_ppdb_settings', null, "Memperbarui tahun ajaran PPDB aktif");
+            PublicCacheHelper::clearContent();
             return redirect()->route('admin.konten', ['tab' => 'ppdb'])->with('success', 'Pengaturan PPDB berhasil disimpan!');
         }
 
@@ -46,6 +49,7 @@ class KontenController extends Controller
                 KontenWeb::updateOrCreate(['tipe' => $tipe], ['konten' => $value]);
             }
             \App\Helpers\ActivityLogger::log('update_konten', null, "Memperbarui informasi kontak website");
+            PublicCacheHelper::clearContent();
             return redirect()->route('admin.konten', ['tab' => 'kontak'])->with('success', 'Kontak berhasil diupdate!');
         }
 
@@ -54,6 +58,7 @@ class KontenController extends Controller
             ['konten' => $request->konten]
         );
         \App\Helpers\ActivityLogger::log('update_konten', null, "Memperbarui konten website: {$request->tipe}");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten', ['tab' => $request->tipe])->with('success', 'Konten berhasil disimpan!');
     }
 
@@ -68,8 +73,9 @@ class KontenController extends Controller
 
         $gambar = null;
         if ($request->hasFile('gambar_kegiatan')) {
-            $gambar = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('gambar_kegiatan'), 'uploads/kegiatan', 'kegiatan');
-            \App\Helpers\ImageHelper::generateThumbnailFor($gambar);
+            $gambar = ImageHelper::uploadAndOptimize($request->file('gambar_kegiatan'), 'uploads/kegiatan', 'kegiatan');
+            ImageHelper::generateThumbnailFor($gambar);
+            ImageHelper::generateVariantFor($gambar, 'card', 420, 45);
         }
 
         $kegiatan = KegiatanSekolah::create([
@@ -81,6 +87,7 @@ class KontenController extends Controller
         ]);
 
         \App\Helpers\ActivityLogger::log('create_kegiatan', $kegiatan, "Menambahkan kegiatan baru {$kegiatan->judul}");
+        PublicCacheHelper::clearContent();
 
         return redirect()->route('admin.konten')->with('success', 'Kegiatan berhasil ditambahkan');
     }
@@ -91,10 +98,11 @@ class KontenController extends Controller
         $judul = $keg->judul;
         if ($keg->gambar && file_exists(public_path($keg->gambar))) {
             @unlink(public_path($keg->gambar));
-            \App\Helpers\ImageHelper::deleteThumbnail($keg->gambar);
+            ImageHelper::deleteThumbnail($keg->gambar);
         }
         $keg->delete();
         \App\Helpers\ActivityLogger::log('delete_kegiatan', null, "Menghapus kegiatan {$judul}");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten')->with('success', 'Kegiatan berhasil dihapus');
     }
 
@@ -104,6 +112,7 @@ class KontenController extends Controller
         $request->validate(['nama' => 'required|string|max:100', 'warna' => 'nullable|string|max:30']);
         $kat = KegiatanKategori::create(['nama' => $request->nama, 'warna' => $request->warna ?? 'green']);
         \App\Helpers\ActivityLogger::log('create_kategori', $kat, "Menambahkan kategori kegiatan {$kat->nama}");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten')->with('success', 'Kategori berhasil ditambahkan!');
     }
 
@@ -115,12 +124,13 @@ class KontenController extends Controller
         foreach ($kategori->kegiatan as $keg) {
             if ($keg->gambar && file_exists(public_path($keg->gambar))) {
                 @unlink(public_path($keg->gambar));
-                \App\Helpers\ImageHelper::deleteThumbnail($keg->gambar);
+                ImageHelper::deleteThumbnail($keg->gambar);
             }
             $keg->delete();
         }
         $kategori->delete();
         \App\Helpers\ActivityLogger::log('delete_kategori', null, "Menghapus kategori kegiatan {$namaKat} beserta seluruh kegiatannya");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten')->with('success', 'Kategori berhasil dihapus!');
     }
 
@@ -132,7 +142,9 @@ class KontenController extends Controller
             'gambar_banner' => 'required|image|mimetypes:image/jpeg,image/png|max:5120',
         ]);
 
-        $gambar = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('gambar_banner'), 'uploads/banner', 'banner');
+        $gambar = ImageHelper::uploadAndOptimize($request->file('gambar_banner'), 'uploads/banner', 'banner');
+        ImageHelper::generateVariantFor($gambar, 'hero', 1600, 72);
+        ImageHelper::generateVariantFor($gambar, 'card', 640, 68);
 
         $banner = Banner::create([
             'judul'    => $request->judul_banner,
@@ -143,6 +155,7 @@ class KontenController extends Controller
         ]);
 
         \App\Helpers\ActivityLogger::log('create_banner', $banner, "Menambahkan banner baru {$banner->judul}");
+        PublicCacheHelper::clearContent();
 
         return redirect()->route('admin.konten')->with('success', 'Banner berhasil ditambahkan');
     }
@@ -159,14 +172,17 @@ class KontenController extends Controller
         if ($request->hasFile('gambar_banner_edit')) {
             if ($banner->gambar && file_exists(public_path($banner->gambar))) {
                 @unlink(public_path($banner->gambar));
-                \App\Helpers\ImageHelper::deleteThumbnail($banner->gambar);
+                ImageHelper::deleteThumbnail($banner->gambar);
             }
-            $data['gambar'] = \App\Helpers\ImageHelper::uploadAndOptimize($request->file('gambar_banner_edit'), 'uploads/banner', 'banner');
-            \App\Helpers\ImageHelper::generateThumbnailFor($data['gambar']);
+            $data['gambar'] = ImageHelper::uploadAndOptimize($request->file('gambar_banner_edit'), 'uploads/banner', 'banner');
+            ImageHelper::generateThumbnailFor($data['gambar']);
+            ImageHelper::generateVariantFor($data['gambar'], 'hero', 1600, 72);
+            ImageHelper::generateVariantFor($data['gambar'], 'card', 640, 68);
         }
 
         $banner->update($data);
         \App\Helpers\ActivityLogger::log('update_banner', $banner, "Memperbarui banner {$banner->judul}");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten')->with('success', 'Banner berhasil diupdate');
     }
 
@@ -176,6 +192,7 @@ class KontenController extends Controller
         $banner->update(['aktif' => !$banner->aktif]);
         $status = $banner->aktif ? 'Mengaktifkan' : 'Menonaktifkan';
         \App\Helpers\ActivityLogger::log('toggle_banner', $banner, "{$status} banner {$banner->judul}");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten');
     }
 
@@ -185,10 +202,11 @@ class KontenController extends Controller
         $judul = $banner->judul;
         if ($banner->gambar && file_exists(public_path($banner->gambar))) {
             @unlink(public_path($banner->gambar));
-            \App\Helpers\ImageHelper::deleteThumbnail($banner->gambar);
+            ImageHelper::deleteThumbnail($banner->gambar);
         }
         $banner->delete();
         \App\Helpers\ActivityLogger::log('delete_banner', null, "Menghapus banner {$judul}");
+        PublicCacheHelper::clearContent();
         return redirect()->route('admin.konten')->with('success', 'Banner berhasil dihapus');
     }
 }

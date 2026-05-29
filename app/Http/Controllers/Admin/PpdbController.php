@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\DocumentHelper;
 use App\Helpers\PpdbHelper;
+use App\Helpers\PublicCacheHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
@@ -91,6 +92,8 @@ class PpdbController extends Controller
             ['old' => $oldStatus, 'new' => $request->status]
         );
 
+        PublicCacheHelper::clearStats();
+
         return redirect()->route('admin.ppdb')->with('success', 'Status berhasil diperbarui');
     }
 
@@ -120,6 +123,8 @@ class PpdbController extends Controller
                 ['old' => $oldStatus, 'new' => $validated['status']]
             );
         }
+
+        PublicCacheHelper::clearStats();
 
         return redirect()->route('admin.ppdb')->with('success', $siswas->count() . ' data pendaftar berhasil diperbarui');
     }
@@ -158,6 +163,7 @@ class PpdbController extends Controller
         );
 
         $siswa->delete();
+        PublicCacheHelper::clearStats();
         return redirect()->route('admin.ppdb')->with('success', 'Data pendaftar berhasil dihapus');
     }
 }

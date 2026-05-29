@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Helpers\PublicCacheHelper;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Cache;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,7 +36,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Share contact info to all public views
         \Illuminate\Support\Facades\View::composer(['layouts.public', 'public.*'], function ($view) {
-            $konten = \App\Models\KontenWeb::all()->pluck('konten', 'tipe');
+            $konten = collect(Cache::remember(PublicCacheHelper::KONTEN_WEB, now()->addHours(6), function () {
+                return \App\Models\KontenWeb::orderBy('urutan')->pluck('konten', 'tipe')->all();
+            }));
+
             $view->with('kontenWeb', $konten);
         });
     }

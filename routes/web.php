@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FasilitasController;
+use App\Http\Controllers\SitemapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,23 +42,7 @@ Route::post('/admin/login', [AuthController::class, 'login'])->middleware('throt
 | Sitemap
 |--------------------------------------------------------------------------
 */
-Route::get('sitemap.xml', function () {
-    $urls = [
-        ['loc' => url('/'), 'priority' => '1.0'],
-        ['loc' => route('pendaftaran'), 'priority' => '0.8'],
-        ['loc' => route('tenaga-pendidik'), 'priority' => '0.8'],
-        ['loc' => route('fasilitas'), 'priority' => '0.8'],
-        ['loc' => route('kegiatan'), 'priority' => '0.8'],
-        ['loc' => route('cek-pendaftaran'), 'priority' => '0.6'],
-    ];
-    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
-    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-    foreach ($urls as $url) {
-        $xml .= '<url><loc>' . e($url['loc']) . '</loc><priority>' . $url['priority'] . '</priority></url>';
-    }
-    $xml .= '</urlset>';
-    return response($xml, 200)->header('Content-Type', 'text/xml');
-})->name('sitemap');
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 /*
 |--------------------------------------------------------------------------

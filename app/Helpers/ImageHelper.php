@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 
 class ImageHelper
 {
+    private const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+
     /**
      * Upload and optimize image
      * 
@@ -206,6 +208,102 @@ class ImageHelper
         $thumbAbs = public_path($thumbRel);
         if (file_exists($thumbAbs)) {
             @unlink($thumbAbs);
+        }
+    }
+
+    /**
+     * Generate a resized WebP variant for an existing public-relative image.
+     * The original file is kept untouched so database references remain stable.
+     */
+    public static function generateVariantFor(string $relativePath, string $suffix, int $maxWidth, int $quality = 68, bool $force = false): bool
+    {
+        $relativePath = ltrim($relativePath, '/');
+        $src = public_path($relativePath);
+        if (!file_exists($src)) return false;
+
+        $variantRel = self::variantPath($relativePath, $suffix);
+        $variantAbs = public_path($variantRel);
+        if (!$force && file_exists($variantAbs)) return true;
+
+        $img = self::loadImageResource($src, pathinfo($relativePath, PATHINFO_EXTENSION));
+        if (!$img) return false;
+
+        $width = imagesx($img);
+        $height = imagesy($img);
+
+        if ($width > $maxWidth) {
+            $newWidth = $maxWidth;
+            $newHeight = (int) round(($height / $width) * $newWidth);
+            $resized = imagecreatetruecolor($newWidth, $newHeight);
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            imagecopyresampled($resized, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            imagedestroy($img);
+            $img = $resized;
+        }
+
+        if (!is_dir(dirname($variantAbs))) @mkdir(dirname($variantAbs), 0755, true);
+        $ok = imagewebp($img, $variantAbs, $quality);
+        imagedestroy($img);
+
+        return (bool) $ok;
+    }
+
+    /**
+     * Get a card-sized image variant, falling back safely to existing assets.
+     */
+    public static function getCard(string $path): string
+    {
+        return self::getVariant($path, 'card') ?: self::getThumbnail($path);
+    }
+
+    /**
+     * Get a hero-sized image variant, falling back safely to the WebP original.
+     */
+    public static function getHero(string $path): string
+    {
+        return self::getVariant($path, 'hero') ?: self::getWebp($path);
+    }
+
+    public static function transparentPixel(): string
+    {
+        return self::TRANSPARENT_PIXEL;
+    }
+
+    private static function getVariant(string $path, string $suffix): ?string
+    {
+        if (!$path) return null;
+
+        $path = ltrim($path, '/');
+        $variantRel = self::variantPath($path, $suffix);
+
+        return file_exists(public_path($variantRel)) ? $variantRel : null;
+    }
+
+    private static function variantPath(string $path, string $suffix): string
+    {
+        $info = pathinfo(ltrim($path, '/'));
+        return ($info['dirname'] === '.' ? '' : $info['dirname'] . '/') . $info['filename'] . '_' . $suffix . '.webp';
+    }
+
+    private static function loadImageResource(string $src, ?string $extension)
+    {
+        switch (strtolower((string) $extension)) {
+            case 'jpg':
+            case 'jpeg':
+                return @imagecreatefromjpeg($src);
+            case 'png':
+                $img = @imagecreatefrompng($src);
+                if ($img) {
+                    imagepalettetotruecolor($img);
+                    imagealphablending($img, true);
+                    imagesavealpha($img, true);
+                }
+                return $img;
+            case 'webp':
+                return @imagecreatefromwebp($src);
+            default:
+                return false;
         }
     }
     /**

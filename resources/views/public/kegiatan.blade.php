@@ -27,7 +27,7 @@
            class="px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition
                   {{ $filterKategori == $kat->id ? 'bg-[var(--color-primary)] text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
             {{ $kat->nama }}
-            <span class="ml-1 text-xs opacity-70">({{ $kat->kegiatan->count() }})</span>
+            <span class="ml-1 text-xs opacity-70">({{ $kat->kegiatan_count }})</span>
         </a>
         @endforeach
     </div>
@@ -51,10 +51,14 @@
                  )">
                 <div class="relative overflow-hidden h-44 bg-gradient-to-br from-green-50 to-green-100">
                     @if($kgt->gambar)
-                    <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($kgt->gambar)) }}"
+                    <img src="{{ asset(\App\Helpers\ImageHelper::getCard($kgt->gambar)) }}"
                          alt="{{ $kgt->judul }}"
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                         loading="lazy"
+                         width="420"
+                         height="280"
+                         loading="{{ $loop->index < 4 ? 'eager' : 'lazy' }}"
+                         decoding="async"
+                         fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="hidden w-full h-full items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
                         <i class="fas fa-calendar-alt text-4xl text-green-400"></i>
@@ -79,7 +83,7 @@
                 <div class="p-3">
                     <h3 class="font-bold text-[var(--color-primary)] text-sm leading-snug line-clamp-2">{{ $kgt->judul }}</h3>
                     <p class="text-xs text-gray-400 mt-1">
-                        <i class="far fa-calendar-alt mr-1"></i>
+                        <i class="fas fa-calendar-alt mr-1"></i>
                         {{ $kgt->tanggal ? $kgt->tanggal->format('d M Y') : '-' }}
                     </p>
                 </div>
@@ -139,7 +143,7 @@
             <div class="p-6 overflow-y-auto">
                 <h2 class="text-xl font-black text-[var(--color-primary)] mb-2" x-text="currentTitle"></h2>
                 <p class="text-sm text-[var(--color-accent)] font-semibold mb-3 flex items-center gap-2">
-                    <i class="far fa-calendar-alt"></i>
+                    <i class="fas fa-calendar-alt"></i>
                     <span x-text="currentDate"></span>
                 </p>
                 <p x-show="currentDesc" class="text-gray-600 text-sm leading-relaxed" x-text="currentDesc"></p>

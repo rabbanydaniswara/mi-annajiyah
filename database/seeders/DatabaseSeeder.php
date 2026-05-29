@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Banner;
+use App\Models\KontenWeb;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
 
@@ -15,14 +16,14 @@ class DatabaseSeeder extends Seeder
         $this->seedInitialAdmin();
 
         foreach ($this->kontenWeb() as $konten) {
-            DB::table('konten_web')->updateOrInsert(
+            KontenWeb::firstOrCreate(
                 ['tipe' => $konten['tipe']],
-                array_merge($konten, ['updated_at' => now()])
+                $konten
             );
         }
 
         foreach ($this->banners() as $banner) {
-            DB::table('banner')->updateOrInsert(
+            Banner::firstOrCreate(
                 ['urutan' => $banner['urutan']],
                 $banner
             );

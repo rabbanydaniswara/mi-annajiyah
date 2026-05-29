@@ -42,10 +42,14 @@
                     <div class="p-4">
                         <div class="relative bg-gradient-to-br from-green-50 to-green-100 aspect-square rounded-2xl overflow-hidden shadow-inner">
                             @if($kepsek->foto)
-                            <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($kepsek->foto)) }}"
+                            <img src="{{ asset(\App\Helpers\ImageHelper::getCard($kepsek->foto)) }}"
                                  alt="{{ $kepsek->nama }}"
                                  class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
-                                 loading="lazy"
+                                 width="480"
+                                 height="480"
+                                 loading="eager"
+                                 decoding="async"
+                                 fetchpriority="high"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="hidden w-full h-full items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
                                 <i class="fas fa-user text-green-400" style="font-size:4rem;"></i>
@@ -89,10 +93,13 @@
                 <div class="p-4">
                     <div class="relative bg-gradient-to-br from-green-50 to-green-100 aspect-square rounded-2xl overflow-hidden shadow-inner">
                         @if($guru->foto)
-                        <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($guru->foto)) }}"
+                        <img src="{{ asset(\App\Helpers\ImageHelper::getCard($guru->foto)) }}"
                              alt="{{ $guru->nama }}"
                              class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                             width="480"
+                             height="480"
                              loading="lazy"
+                             decoding="async"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="hidden w-full h-full items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
                             <i class="fas fa-user text-green-400" style="font-size:4rem;"></i>
@@ -221,7 +228,10 @@
                         <img src="{{ asset('uploads/ketua_yayasan.webp') }}"
                              alt="Ketua Yayasan"
                              class="w-full h-full object-cover object-top"
-                             loading="lazy">
+                             width="176"
+                             height="176"
+                             loading="lazy"
+                             decoding="async">
                     @else
                         <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
                             <i class="fas fa-user text-green-400 text-5xl"></i>

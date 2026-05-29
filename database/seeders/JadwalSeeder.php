@@ -10,7 +10,11 @@ class JadwalSeeder extends Seeder
 {
     public function run()
     {
-        $gurus = Guru::all();
+        if (Jadwal::exists()) {
+            return;
+        }
+
+        $gurus = Guru::orderBy('urutan')->orderBy('nama')->get();
         if ($gurus->isEmpty()) {
             return;
         }
@@ -22,8 +26,8 @@ class JadwalSeeder extends Seeder
         ];
         $kelas = ['1A', '1B', '2A', '2B', '3A', '4A', '5A', '6A'];
 
-        foreach ($hari as $h) {
-            foreach ($kelas as $k) {
+        foreach ($hari as $hariIndex => $h) {
+            foreach ($kelas as $kelasIndex => $k) {
                 $startTime = 7; // Start at 07:00
                 $maxSessions = 4;
                 
@@ -36,8 +40,8 @@ class JadwalSeeder extends Seeder
                         'hari' => $h,
                         'jam_mulai' => $jamMulai,
                         'jam_selesai' => $jamSelesai,
-                        'mapel' => $mapels[array_rand($mapels)],
-                        'id_guru' => $gurus->random()->id,
+                        'mapel' => $mapels[($hariIndex + $kelasIndex + $i) % count($mapels)],
+                        'id_guru' => $gurus[($hariIndex + $kelasIndex + $i) % $gurus->count()]->id,
                         'kelas' => $k,
                         'ruangan' => 'Ruang ' . $k
                     ]);

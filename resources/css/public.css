@@ -1,9 +1,9 @@
 @import 'tailwindcss';
+@import './fontawesome-public.css';
 @import './shared.css';
 
 @source '../views/public/**/*.blade.php';
-@source '../views/layouts/*.blade.php';
-@source '../views/components/**/*.blade.php';
+@source '../views/layouts/public.blade.php';
 @source '../js/public.js';
 
 /* Public specific animations */

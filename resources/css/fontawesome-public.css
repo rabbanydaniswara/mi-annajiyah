@@ -1,0 +1,90 @@
+/* FontAwesome subset for public pages.
+   Generated from public views and baseline facility icons to avoid shipping the full icon CSS to visitors. */
+:host, :root {
+    --fa-family-classic: "Font Awesome 7 Free";
+}
+
+@font-face {
+    font-family: "Font Awesome 7 Free";
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+    src: url("@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2") format("woff2");
+}
+
+.fa, .fas, .fa-solid {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: var(--fa-display, inline-block);
+    font-feature-settings: normal;
+    font-style: normal;
+    font-synthesis: none;
+    font-variant: normal;
+    line-height: 1;
+    text-align: center;
+    text-rendering: auto;
+    width: var(--fa-width, 1.25em);
+}
+
+.fa::before, .fas::before, .fa-solid::before {
+    content: var(--fa);
+}
+
+.fa, .fas, .fa-solid {
+    font-family: "Font Awesome 7 Free";
+    font-weight: 900;
+}
+
+.fa-spin {
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-arrow-left { --fa: "\f060"; }
+.fa-arrow-right { --fa: "\f061"; }
+.fa-arrow-up { --fa: "\f062"; }
+.fa-bars { --fa: "\f0c9"; }
+.fa-book-open { --fa: "\f518"; }
+.fa-bullseye { --fa: "\f140"; }
+.fa-calendar-alt { --fa: "\f073"; }
+.fa-calendar-times { --fa: "\f273"; }
+.fa-chalkboard { --fa: "\f51b"; }
+.fa-chalkboard-teacher { --fa: "\f51c"; }
+.fa-check-circle { --fa: "\f058"; }
+.fa-chevron-down { --fa: "\f078"; }
+.fa-chevron-right { --fa: "\f054"; }
+.fa-clipboard-check { --fa: "\f46c"; }
+.fa-clock { --fa: "\f017"; }
+.fa-door-open { --fa: "\f52b"; }
+.fa-edit { --fa: "\f044"; }
+.fa-envelope { --fa: "\f0e0"; }
+.fa-exclamation-circle { --fa: "\f06a"; }
+.fa-expand { --fa: "\f065"; }
+.fa-external-link-alt { --fa: "\f35d"; }
+.fa-eye { --fa: "\f06e"; }
+.fa-futbol { --fa: "\f1e3"; }
+.fa-headset { --fa: "\f590"; }
+.fa-history { --fa: "\f1da"; }
+.fa-info-circle { --fa: "\f05a"; }
+.fa-map-marked-alt { --fa: "\f5a0"; }
+.fa-map-marker-alt { --fa: "\f3c5"; }
+.fa-mosque { --fa: "\f678"; }
+.fa-paper-plane { --fa: "\f1d8"; }
+.fa-phone { --fa: "\f095"; }
+.fa-print { --fa: "\f02f"; }
+.fa-question-circle { --fa: "\f059"; }
+.fa-school { --fa: "\f549"; }
+.fa-search { --fa: "\f002"; }
+.fa-search-minus { --fa: "\f010"; }
+.fa-spinner { --fa: "\f110"; }
+.fa-star { --fa: "\f005"; }
+.fa-times { --fa: "\f00d"; }
+.fa-times-circle { --fa: "\f057"; }
+.fa-user { --fa: "\f007"; }
+.fa-user-circle { --fa: "\f2bd"; }
+.fa-user-shield { --fa: "\f505"; }
+.fa-users { --fa: "\f0c0"; }

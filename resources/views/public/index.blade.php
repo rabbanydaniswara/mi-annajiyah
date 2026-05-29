@@ -4,7 +4,7 @@
 
 @push('head')
     @if($banners->count() > 0)
-        <link rel="preload" as="image" href="{{ asset(\App\Helpers\ImageHelper::getWebp($banners->first()->gambar ?? 'depan.jpg')) }}">
+        <link rel="preload" as="image" href="{{ asset(\App\Helpers\ImageHelper::getHero($banners->first()->gambar ?? 'depan.jpg')) }}">
     @endif
 @endpush
 
@@ -13,8 +13,20 @@
 {{-- ==================== HERO SECTION ==================== --}}
 <section id="beranda" class="relative h-screen overflow-hidden">
     @foreach($banners as $index => $banner)
+    @php
+        $heroImage = \App\Helpers\ImageHelper::getHero($banner->gambar ?? 'depan.jpg');
+    @endphp
     <div class="slide absolute inset-0 {{ $index === 0 ? 'active' : '' }}">
-        <div class="absolute inset-0 bg-cover bg-center transition-all duration-700" style="background-image: url('{{ asset(\App\Helpers\ImageHelper::getWebp($banner->gambar ?? 'depan.jpg')) }}')"></div>
+        <img
+            src="{{ $index === 0 ? asset($heroImage) : \App\Helpers\ImageHelper::transparentPixel() }}"
+            data-hero-src="{{ $index === 0 ? '' : asset($heroImage) }}"
+            alt="{{ $banner->judul ?? 'MI Annajiyah' }}"
+            class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700"
+            width="1600"
+            height="900"
+            loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
+            decoding="{{ $index === 0 ? 'sync' : 'async' }}"
+            fetchpriority="{{ $index === 0 ? 'high' : 'low' }}">
         <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[var(--color-primary)]/80"></div>
         <div class="relative z-10 flex items-center justify-center h-full">
             <div class="text-center text-white px-4 max-w-4xl">
@@ -159,10 +171,13 @@
                  )">
                 <div class="relative overflow-hidden h-52 bg-gradient-to-br from-green-100 to-green-200">
                     @if($kgt->gambar)
-                    <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($kgt->gambar)) }}"
+                    <img src="{{ asset(\App\Helpers\ImageHelper::getCard($kgt->gambar)) }}"
                          alt="{{ $kgt->judul }}"
                          class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                         width="420"
+                         height="280"
                          loading="lazy"
+                         decoding="async"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="hidden w-full h-full items-center justify-center">
                         <i class="fas fa-calendar-alt text-5xl text-green-400"></i>
@@ -180,7 +195,7 @@
                 </div>
                 <div class="p-5">
                     <div class="text-xs text-green-600 font-semibold mb-2">
-                        <i class="far fa-calendar-alt mr-1"></i>{{ $kgt->tanggal ? $kgt->tanggal->format('d M Y') : '-' }}
+                        <i class="fas fa-calendar-alt mr-1"></i>{{ $kgt->tanggal ? $kgt->tanggal->format('d M Y') : '-' }}
                     </div>
                     <h3 class="font-bold text-[var(--color-primary)] text-base mb-1">{{ $kgt->judul }}</h3>
                     @if($kgt->deskripsi)
@@ -228,10 +243,13 @@
                     <div class="p-4">
                         <div class="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-green-50 to-green-100 relative shadow-inner">
                             @if($kepsek->foto)
-                            <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($kepsek->foto)) }}"
+                            <img src="{{ asset(\App\Helpers\ImageHelper::getCard($kepsek->foto)) }}"
                                  alt="{{ $kepsek->nama }}"
                                  class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                                 width="480"
+                                 height="480"
                                  loading="lazy"
+                                 decoding="async"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="hidden w-full h-full items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
                                 <i class="fas fa-user text-green-400 text-4xl"></i>
@@ -261,10 +279,13 @@
                 <div class="p-4">
                     <div class="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-green-50 to-green-100 relative shadow-inner">
                         @if($guru->foto)
-                        <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($guru->foto)) }}"
+                        <img src="{{ asset(\App\Helpers\ImageHelper::getCard($guru->foto)) }}"
                              alt="{{ $guru->nama }}"
                              class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                             width="480"
+                             height="480"
                              loading="lazy"
+                             decoding="async"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="hidden w-full h-full items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
                             <i class="fas fa-user text-green-400 text-4xl"></i>
@@ -403,8 +424,17 @@ function indexData() {
             }
         },
         next() { this.goTo((this.current + 1) % this.total); },
+        loadHeroImage(index) {
+            const slide = document.querySelectorAll('.slide')[index];
+            const image = slide ? slide.querySelector('img[data-hero-src]:not([data-hero-src=""])') : null;
+            if (image) {
+                image.src = image.dataset.heroSrc;
+                image.removeAttribute('data-hero-src');
+            }
+        },
         goTo(index) {
             const slides = document.querySelectorAll('.slide');
+            this.loadHeroImage(index);
             slides.forEach((s, i) => s.classList.toggle('active', i === index));
             this.current = index;
         },

@@ -22,7 +22,14 @@
             <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition hover:-translate-y-2 border border-gray-100 fade-up delay-{{ ($loop->index % 3) + 1 }}">
                 @if($fas->gambar)
                 <div class="h-52 overflow-hidden">
-                    <img src="{{ asset(\App\Helpers\ImageHelper::getWebp($fas->gambar)) }}" alt="{{ $fas->nama }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy">
+                    <img src="{{ asset(\App\Helpers\ImageHelper::getCard($fas->gambar)) }}"
+                         alt="{{ $fas->nama }}"
+                         class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                         width="560"
+                         height="360"
+                         loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}"
+                         decoding="async"
+                         fetchpriority="{{ $loop->first ? 'high' : 'auto' }}">
                 </div>
                 @else
                 <div class="h-52 bg-gradient-to-br from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 flex items-center justify-center">

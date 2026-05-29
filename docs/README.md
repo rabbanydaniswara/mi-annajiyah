@@ -14,5 +14,6 @@ Isi dokumen:
 - `ROLE_MATRIX.md`: matriks hak akses admin dan operator.
 - `CONTENT_MEDIA_CHECKLIST.md`: checklist konten dan media publik sebelum publish.
 - `BACKUP_GUIDE.md`: panduan backup dan recovery lokal sebelum migration/perubahan besar.
+- `PERFORMANCE_MEDIA_PRESERVATION_PLAN.md`: rencana optimasi website agar ringan serta aturan menjaga data/gambar baseline agar tidak terhapus saat perubahan berikutnya.
 
 Catatan penting: hosting belum menjadi fokus langsung. Gunakan `APP_IMPROVEMENT_ROADMAP.md` dan `REMEDIATION_TRACKER.md` untuk menentukan perbaikan aplikasi berikutnya.

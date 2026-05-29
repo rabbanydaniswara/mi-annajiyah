@@ -2,20 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\Fasilitas;
+use App\Models\Guru;
+use App\Models\KegiatanKategori;
+use App\Models\KegiatanSekolah;
 use App\Models\Siswa;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class NewFeaturesSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset dependent tables for idempotent re-seeding (FK order matters)
-        DB::table('jadwal')->delete();
-        DB::table('kegiatan_sekolah')->delete();
-        DB::table('kegiatan_kategori')->delete();
-        DB::table('fasilitas')->delete();
-
         // Kategori Kegiatan
         $kategoriIds = [];
         $kategoris = [
@@ -25,10 +22,12 @@ class NewFeaturesSeeder extends Seeder
             ['nama' => 'Kegiatan Ramadhan', 'warna' => 'yellow'],
         ];
         foreach ($kategoris as $k) {
-            $id = DB::table('kegiatan_kategori')->insertGetId(array_merge($k, [
-                'created_at' => now(), 'updated_at' => now()
-            ]));
-            $kategoriIds[$k['nama']] = $id;
+            $kategori = KegiatanKategori::firstOrCreate(
+                ['nama' => $k['nama']],
+                ['warna' => $k['warna']]
+            );
+
+            $kategoriIds[$k['nama']] = $kategori->id;
         }
 
         // Fasilitas
@@ -41,10 +40,10 @@ class NewFeaturesSeeder extends Seeder
             ['nama' => 'Layanan PPDB', 'deskripsi' => 'Area pelayanan administrasi dan verifikasi berkas yang membantu wali murid saat pendaftaran.', 'ikon' => 'fas fa-clipboard-check', 'gambar' => 'uploads/fasilitas/layanan-ppdb.webp', 'urutan' => 6],
         ];
         foreach ($fasilitas as $f) {
-            DB::table('fasilitas')->insert(array_merge([
-                'aktif' => true,
-                'created_at' => now(), 'updated_at' => now()
-            ], $f));
+            Fasilitas::firstOrCreate(
+                ['nama' => $f['nama']],
+                array_merge($f, ['aktif' => true])
+            );
         }
 
         // Data Guru sesuai daftar
@@ -61,10 +60,11 @@ class NewFeaturesSeeder extends Seeder
             ['nama' => 'Putri Nurlailawati, S.Ak', 'mapel' => '-', 'jabatan' => 'Kepala Sekolah', 'foto' => 'uploads/guru/Putri_NurlailawatiS_Ak.webp', 'urutan' => 0],
         ];
 
-        // Hapus data guru lama jika ada, lalu insert baru
-        DB::table('guru')->delete();
         foreach ($guruData as $g) {
-            DB::table('guru')->insert(array_merge($g, ['tampilkan' => true]));
+            Guru::firstOrCreate(
+                ['nama' => $g['nama']],
+                array_merge($g, ['tampilkan' => true])
+            );
         }
 
         // Kegiatan dari foto
@@ -113,7 +113,10 @@ class NewFeaturesSeeder extends Seeder
         ];
 
         foreach ($kegiatanAll as $kgt) {
-            DB::table('kegiatan_sekolah')->insert(array_merge($kgt, ['created_at' => now()]));
+            KegiatanSekolah::firstOrCreate(
+                ['judul' => $kgt['judul'], 'tanggal' => $kgt['tanggal']],
+                $kgt
+            );
         }
 
         $this->seedDemoStudents();
