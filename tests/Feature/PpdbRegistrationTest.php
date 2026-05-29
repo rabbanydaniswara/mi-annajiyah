@@ -39,7 +39,7 @@ class PpdbRegistrationTest extends TestCase
         $this->assertNotNull($siswa->registration_token);
         $this->assertSame('2027/2028', $siswa->tahun_ajaran);
         $this->assertSame('PPDB-2027-0001', $siswa->nomor_pendaftaran);
-        $this->assertSame('6281234567890', $siswa->no_wa);
+        $this->assertSame('081234567890', $siswa->no_wa);
         $this->assertStringContainsString($siswa->registration_token, $response->json('card_url'));
         $this->assertStringStartsWith('ppdb/', $siswa->file_akte);
         $this->assertStringStartsWith('ppdb/', $siswa->file_kk);

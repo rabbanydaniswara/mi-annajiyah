@@ -43,8 +43,8 @@ class RegistrationController extends Controller
             'nis.unique'  => 'NIS sudah terdaftar sebelumnya.',
         ]);
 
-        $normalizedWhatsapp = PhoneHelper::normalizeIndonesianWhatsapp($request->wa);
-        if (!$normalizedWhatsapp) {
+        $whatsapp = PhoneHelper::sanitizeIndonesianWhatsapp($request->wa);
+        if (!$whatsapp) {
             throw ValidationException::withMessages([
                 'wa' => 'Nomor WhatsApp harus berupa nomor Indonesia aktif, contoh: 081234567890.',
             ]);
@@ -73,7 +73,7 @@ class RegistrationController extends Controller
                 'asal_sekolah' => $request->asal_sekolah,
                 'nama_ortu' => $request->ortu,
                 'file_ktp_ortu' => $fileKtp,
-                'no_wa' => $normalizedWhatsapp,
+                'no_wa' => $whatsapp,
                 'file_ijazah' => $fileIjazah,
             ]);
 

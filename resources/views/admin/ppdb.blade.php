@@ -38,6 +38,14 @@
             if(!this.selected.id || !field) return '';
             return this.documentRoute.replace('__ID__', this.selected.id).replace('__FIELD__', field);
         },
+        whatsappUrl(noWa) {
+            const digits = noWa ? noWa.replace(/\D/g, '') : '';
+            if(!digits) return '#';
+            if(digits.startsWith('08')) return 'https://wa.me/62' + digits.slice(1);
+            if(digits.startsWith('8')) return 'https://wa.me/62' + digits;
+            if(digits.startsWith('620')) return 'https://wa.me/62' + digits.slice(3);
+            return 'https://wa.me/' + digits;
+        },
         openDetail(p) {
             this.selected = JSON.parse(JSON.stringify(p));
             // Fix Carbon date objects if they exist
@@ -358,7 +366,7 @@
                                     <p class="text-[10px] font-black text-green-700/50 uppercase mb-1">Nama Orang Tua/Wali</p>
                                     <p class="text-lg font-black text-green-900" x-text="selected.nama_ortu"></p>
                                 </div>
-                                <a :href="'https://wa.me/' + (selected.no_wa ? selected.no_wa.replace(/\D/g,'') : '')" target="_blank" rel="noopener noreferrer" class="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-transform">
+                                <a :href="whatsappUrl(selected.no_wa)" target="_blank" rel="noopener noreferrer" class="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-transform">
                                     <i class="fab fa-whatsapp text-xl"></i>
                                 </a>
                             </div>

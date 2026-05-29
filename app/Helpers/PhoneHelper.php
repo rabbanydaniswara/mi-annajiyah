@@ -6,6 +6,11 @@ class PhoneHelper
 {
     public static function normalizeIndonesianWhatsapp(?string $value): ?string
     {
+        return self::sanitizeIndonesianWhatsapp($value);
+    }
+
+    public static function sanitizeIndonesianWhatsapp(?string $value): ?string
+    {
         if ($value === null) {
             return null;
         }
@@ -17,15 +22,7 @@ class PhoneHelper
             return null;
         }
 
-        if (str_starts_with($number, '08')) {
-            $number = '62' . substr($number, 1);
-        } elseif (str_starts_with($number, '8')) {
-            $number = '62' . $number;
-        } elseif (str_starts_with($number, '620')) {
-            $number = '62' . substr($number, 3);
-        }
-
-        if (!preg_match('/^628[0-9]{8,13}$/', $number)) {
+        if (!preg_match('/^(08|628)[0-9]{8,13}$/', $number)) {
             return null;
         }
 

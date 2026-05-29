@@ -85,7 +85,7 @@ class SiswaController extends Controller
         ]);
 
         if ($request->filled('no_wa')) {
-            $data['no_wa'] = PhoneHelper::normalizeIndonesianWhatsapp($request->no_wa);
+            $data['no_wa'] = PhoneHelper::sanitizeIndonesianWhatsapp($request->no_wa);
             if (!$data['no_wa']) {
                 throw ValidationException::withMessages([
                     'no_wa' => 'Nomor WhatsApp harus berupa nomor Indonesia aktif, contoh: 081234567890.',
