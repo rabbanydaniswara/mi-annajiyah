@@ -14,26 +14,105 @@ class DatabaseSeeder extends Seeder
     {
         $this->seedInitialAdmin();
 
-        // Konten web
-        DB::table('konten_web')->insert([
-            ['tipe' => 'visi', 'judul' => 'Visi', 'konten' => 'Menjadikan Madrasah Ibtidaiyah yang berkualitas, berkarakter islami dan berprestasi.', 'gambar' => null, 'urutan' => 1],
-            ['tipe' => 'misi', 'judul' => 'Misi', 'konten' => "1. Menyelenggarakan pendidikan yang berkualitas\n2. Membentuk karakter siswa yang islami\n3. Mengembangkan potensi siswa secara optimal\n4. Menciptakan lingkungan belajar yang kondusif", 'gambar' => null, 'urutan' => 2],
-            ['tipe' => 'sejarah', 'judul' => 'Sejarah', 'konten' => 'MI Annajiyah berdiri sejak tahun 1995. MI ini didirikan oleh para tokoh masyarakat dan ulama setempat yang memiliki visi untuk menyediakan pendidikan berkualitas berbasis Islam.', 'gambar' => null, 'urutan' => 3],
-            ['tipe' => 'alamat',  'judul' => 'Alamat',  'konten' => 'Jl. PLN No. 80, Pondok Karya, Kec. Pondok Aren, Kota Tangerang Selatan, Banten 15225', 'gambar' => null, 'urutan' => 4],
-            ['tipe' => 'telepon', 'judul' => 'Telepon', 'konten' => '+62 21 1234 5678', 'gambar' => null, 'urutan' => 5],
-            ['tipe' => 'email',   'judul' => 'Email',   'konten' => 'info@miannajiyah.sch.id', 'gambar' => null, 'urutan' => 6],
-            ['tipe' => 'jam_op',  'judul' => 'Jam Operasional', 'konten' => 'Senin - Jumat: 07.00 - 14.00 WIB', 'gambar' => null, 'urutan' => 7],
-            ['tipe' => 'ppdb_tahun_ajaran', 'judul' => 'Tahun Ajaran PPDB Aktif', 'konten' => date('Y') . '/' . (date('Y') + 1), 'gambar' => null, 'urutan' => 20],
-        ]);
+        foreach ($this->kontenWeb() as $konten) {
+            DB::table('konten_web')->updateOrInsert(
+                ['tipe' => $konten['tipe']],
+                array_merge($konten, ['updated_at' => now()])
+            );
+        }
 
-        // Banner
-        DB::table('banner')->insert([
-            ['judul' => 'Selamat Datang di MI Annajiyah', 'subtitle' => 'Madrasah Unggulan Berprestasi', 'gambar' => 'uploads/banner/banner2.jpg', 'urutan' => 1, 'aktif' => 1],
-            ['judul' => 'PPDB 2026/2027 Telah Dibuka', 'subtitle' => 'Daftarkan putra-putri Anda sekarang juga!', 'gambar' => 'uploads/banner/banner1.jpg', 'urutan' => 2, 'aktif' => 1],
-        ]);
+        foreach ($this->banners() as $banner) {
+            DB::table('banner')->updateOrInsert(
+                ['urutan' => $banner['urutan']],
+                $banner
+            );
+        }
 
         // Run additional seeders (kategori, fasilitas, guru, kegiatan)
         $this->call(NewFeaturesSeeder::class);
+        $this->call(JadwalSeeder::class);
+    }
+
+    private function kontenWeb(): array
+    {
+        return [
+            [
+                'tipe' => 'visi',
+                'judul' => 'Visi',
+                'konten' => 'Menjadi madrasah ibtidaiyah yang unggul dalam akhlak, prestasi, literasi, dan kepedulian sosial.',
+                'gambar' => null,
+                'urutan' => 1,
+            ],
+            [
+                'tipe' => 'misi',
+                'judul' => 'Misi',
+                'konten' => "1. Menyelenggarakan pembelajaran aktif, kreatif, dan menyenangkan.\n2. Membiasakan ibadah harian, adab islami, dan karakter disiplin.\n3. Mengembangkan potensi akademik, seni, olahraga, dan kepramukaan siswa.\n4. Menjalin kerja sama yang baik antara madrasah, orang tua, yayasan, dan masyarakat.",
+                'gambar' => null,
+                'urutan' => 2,
+            ],
+            [
+                'tipe' => 'sejarah',
+                'judul' => 'Sejarah',
+                'konten' => 'MI Annajiyah tumbuh dari semangat masyarakat dan tokoh pendidikan Islam untuk menghadirkan madrasah yang dekat dengan kebutuhan warga. Sejak berdiri, madrasah ini terus mengembangkan pembelajaran dasar yang memadukan ilmu pengetahuan, pembiasaan ibadah, dan kegiatan karakter.',
+                'gambar' => null,
+                'urutan' => 3,
+            ],
+            [
+                'tipe' => 'alamat',
+                'judul' => 'Alamat',
+                'konten' => 'Jl. PLN No. 80, Pondok Karya, Kec. Pondok Aren, Kota Tangerang Selatan, Banten 15225',
+                'gambar' => null,
+                'urutan' => 4,
+            ],
+            [
+                'tipe' => 'telepon',
+                'judul' => 'Telepon',
+                'konten' => '+62 851-7422-8000',
+                'gambar' => null,
+                'urutan' => 5,
+            ],
+            [
+                'tipe' => 'email',
+                'judul' => 'Email',
+                'konten' => 'info@miannajiyah.sch.id',
+                'gambar' => null,
+                'urutan' => 6,
+            ],
+            [
+                'tipe' => 'jam_op',
+                'judul' => 'Jam Operasional',
+                'konten' => 'Senin - Jumat: 07.00 - 13.30 WIB; Sabtu: 07.00 - 11.00 WIB',
+                'gambar' => null,
+                'urutan' => 7,
+            ],
+            [
+                'tipe' => 'ppdb_tahun_ajaran',
+                'judul' => 'Tahun Ajaran PPDB Aktif',
+                'konten' => date('Y') . '/' . (date('Y') + 1),
+                'gambar' => null,
+                'urutan' => 20,
+            ],
+        ];
+    }
+
+    private function banners(): array
+    {
+        return [
+            [
+                'judul' => 'MI Annajiyah',
+                'subtitle' => 'Madrasah ibtidaiyah yang membimbing anak tumbuh cerdas, santun, dan percaya diri.',
+                'gambar' => 'uploads/banner/banner2.webp',
+                'urutan' => 1,
+                'aktif' => 1,
+            ],
+            [
+                'judul' => 'PPDB 2026/2027 Telah Dibuka',
+                'subtitle' => 'Pendaftaran peserta didik baru dapat dilakukan secara online dengan proses yang mudah dan terpantau.',
+                'gambar' => 'uploads/banner/banner1.webp',
+                'urutan' => 2,
+                'aktif' => 1,
+            ],
+        ];
     }
 
     private function seedInitialAdmin(): void

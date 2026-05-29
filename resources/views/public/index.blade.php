@@ -347,7 +347,7 @@
     <div class="absolute inset-0 bg-black/95 backdrop-blur-md" @@click="closeAll()"></div>
     <div x-show="isLightboxOpen" class="relative bg-white rounded-3xl overflow-hidden shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col z-10" x-transition>
         <div class="relative bg-black flex-shrink-0">
-            <img :src="lbImg" class="w-full max-h-[55vh] object-contain">
+            <img :src="lbImg || '{{ asset('logo.png') }}'" class="w-full max-h-[55vh] object-contain">
             <button @@click="closeAll()" class="absolute top-3 right-3 w-10 h-10 bg-black/70 text-white rounded-full flex items-center justify-center text-2xl font-bold">&times;</button>
         </div>
         <div class="p-6 overflow-y-auto">
@@ -364,7 +364,7 @@
     <div x-show="isGuruOpen" class="relative bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full z-10" x-transition>
         <div class="p-4">
             <div class="relative bg-gray-50 aspect-square rounded-2xl overflow-hidden border border-gray-100">
-                <img :src="gImg" class="w-full h-full object-cover object-top">
+                <img :src="gImg || '{{ asset('logo.png') }}'" class="w-full h-full object-cover object-top">
             </div>
         </div>
         <div class="px-6 pb-6">
@@ -436,4 +436,3 @@ function indexData() {
 }
 </script>
 @endpush
-

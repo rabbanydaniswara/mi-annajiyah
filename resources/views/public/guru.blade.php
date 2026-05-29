@@ -165,7 +165,7 @@
             {{-- Photo --}}
             <div class="p-4">
                 <div class="relative bg-gray-50 aspect-square rounded-2xl overflow-hidden shadow-inner border border-gray-100">
-                    <img :src="currentImg" :alt="currentName"
+                    <img :src="currentImg || '{{ asset('logo.png') }}'" :alt="currentName"
                          x-show="currentImg"
                          class="w-full h-full object-cover object-top"
                          onerror="this.style.display='none'">
@@ -217,11 +217,16 @@
         <div class="flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-green-50 to-white rounded-3xl p-8 shadow-lg border border-green-100">
             <div class="shrink-0">
                 <div class="w-44 h-44 rounded-full overflow-hidden border-4 border-[var(--color-accent)] shadow-xl">
-                    <img src="{{ asset(\App\Helpers\ImageHelper::getWebp('uploads/ketua_yayasan.jpeg')) }}"
-                         alt="Ketua Yayasan"
-                         class="w-full h-full object-cover object-top"
-                         loading="lazy"
-                         onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center\'><i class=\'fas fa-user text-green-400 text-5xl\'></i></div>';">
+                    @if(file_exists(public_path('uploads/ketua_yayasan.webp')))
+                        <img src="{{ asset('uploads/ketua_yayasan.webp') }}"
+                             alt="Ketua Yayasan"
+                             class="w-full h-full object-cover object-top"
+                             loading="lazy">
+                    @else
+                        <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                            <i class="fas fa-user text-green-400 text-5xl"></i>
+                        </div>
+                    @endif
                 </div>
             </div>
             <div>

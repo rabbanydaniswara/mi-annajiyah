@@ -125,7 +125,7 @@
              style="z-index:1;">
 
             <div class="relative bg-black flex-shrink-0">
-                <img :src="currentImg" :alt="currentTitle"
+                <img :src="currentImg || '{{ asset('logo.png') }}'" :alt="currentTitle"
                      class="w-full max-h-[55vh] object-contain">
                 <button @@click="close()"
                         class="absolute top-3 right-3 w-10 h-10 bg-black/70 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition text-2xl font-bold leading-none">

@@ -43,7 +43,7 @@
             <div class="header-text">
                 <h1>Kartu Pendaftaran Santri Baru</h1>
                 <p>MI ANNAJIYAH - TAHUN PELAJARAN {{ $siswa->tahun_ajaran ?: date('Y').'/'.(date('Y') + 1) }}</p>
-                <p>Jl. Raya Parung Panjang, Ciomas, Kec. Tenjo, Kabupaten Bogor</p>
+                <p>Jl. PLN No. 80, Pondok Karya, Kec. Pondok Aren, Kota Tangerang Selatan</p>
             </div>
         </div>
 

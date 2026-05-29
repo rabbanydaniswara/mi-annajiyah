@@ -18,8 +18,8 @@ class HomeController extends Controller
         $banners = Banner::where('aktif', 1)->orderBy('urutan')->get();
         if ($banners->isEmpty()) {
             $banners = collect([
-                (object)['judul' => 'Selamat Datang di MI Annajiyah', 'subtitle' => 'Madrasah Unggulan Berprestasi', 'gambar' => 'depan.jpg'],
-                (object)['judul' => 'PPDB 2026/2027 Telah Dibuka', 'subtitle' => 'Daftarkan putra-putri Anda sekarang juga!', 'gambar' => 'depan.jpg'],
+                (object)['judul' => 'MI Annajiyah', 'subtitle' => 'Madrasah ibtidaiyah yang membimbing anak tumbuh cerdas, santun, dan percaya diri.', 'gambar' => 'uploads/banner/banner2.jpg'],
+                (object)['judul' => 'PPDB 2026/2027 Telah Dibuka', 'subtitle' => 'Daftarkan putra-putri Anda sekarang juga!', 'gambar' => 'uploads/banner/banner1.jpg'],
             ]);
         }
 

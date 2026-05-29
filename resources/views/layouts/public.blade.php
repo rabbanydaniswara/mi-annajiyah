@@ -14,7 +14,7 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'MI Annajiyah - Madrasah Unggulan')">
-    <meta name="twitter:description" content="@yield('meta_description', 'MI Annajiyah - Madrasah Ibtidaiyah Unggulan di Tenjo, Bogor. Mencetak generasi berakhlak mulia.')">
+    <meta name="twitter:description" content="@yield('meta_description', 'MI Annajiyah - Madrasah Ibtidaiyah Unggulan di Pondok Aren, Tangerang Selatan. Mencetak generasi berakhlak mulia.')">
     <meta name="twitter:image" content="@yield('og_image', asset('logo.png'))">
     <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
     @vite(['resources/css/public.css', 'resources/js/public.js'])
@@ -29,10 +29,10 @@
       "logo": "{{ asset('logo.png') }}",
       "address": {
         "@@type": "PostalAddress",
-        "streetAddress": "Jl. Raya Parung Panjang, Ciomas",
-        "addressLocality": "Tenjo",
-        "addressRegion": "Bogor",
-        "postalCode": "16370",
+        "streetAddress": "{{ $kontenWeb['alamat'] ?? 'Jl. PLN No. 80, Pondok Karya' }}",
+        "addressLocality": "Pondok Aren",
+        "addressRegion": "Tangerang Selatan",
+        "postalCode": "15225",
         "addressCountry": "ID"
       },
       "contactPoint": {
