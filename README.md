@@ -24,7 +24,9 @@ Sistem ini juga dilengkapi dengan panel administrasi untuk mengelola data pendaf
 
 - **Halaman Publik Informatif**: Menampilkan profil sekolah, daftar tenaga pendidik, fasilitas, dan dokumentasi kegiatan.
 - **Pendaftaran Online**: Formulir pendaftaran online yang komprehensif dan mudah digunakan oleh calon siswa.
+- **Buka/Tutup PPDB**: Admin dapat mengatur status pendaftaran dan pesan publik tanpa mengubah kode.
 - **Cek Status Pendaftaran**: Calon siswa dapat mengecek status pendaftaran dan pengumuman secara mandiri.
+- **Pengelolaan PPDB**: Admin/operator dapat memverifikasi data, mengubah status, melihat dokumen privat, dan mengekspor data ke Excel.
 - **Manajemen Konten (CMS)**: Admin dapat memperbarui konten halaman publik (banner, berita, guru, fasilitas) langsung melalui panel dashboard.
 - **Multi-Role Access**: Sistem role untuk **Admin** dan **Operator** dengan hak akses yang disesuaikan.
 - **Responsive Design**: Tampilan yang optimal diakses melalui desktop, tablet, maupun perangkat mobile.
@@ -54,8 +56,8 @@ Pastikan sistem kamu sudah terinstal:
 
 1. **Clone repositori**
    ```bash
-   git clone https://github.com/username/spmb-annajiyah-laravel.git
-   cd spmb-annajiyah-laravel
+   git clone https://github.com/rabbanydaniswara/mi-annajiyah.git
+   cd mi-annajiyah
    ```
 
 2. **Install dependensi backend**
@@ -82,7 +84,7 @@ Pastikan sistem kamu sudah terinstal:
    ```
 
 6. **Migrasi Database & Seeding**
-   Jalankan migrasi untuk membuat struktur tabel dan mengisi data awal (dummy/pengaturan).
+   Jalankan migrasi untuk membuat struktur tabel dan mengisi pengaturan serta konten baseline.
    ```bash
    php artisan migrate --seed
    ```
@@ -97,4 +99,6 @@ Pastikan sistem kamu sudah terinstal:
 
 ## 🔒 Catatan Penting
 - **Keamanan Data**: File pendaftaran yang bersifat sensitif akan disimpan secara privat (`storage/app/private/ppdb`) dan tidak dapat diakses langsung oleh publik.
+- **Data Demo**: Data siswa contoh hanya dibuat di lingkungan non-production jika `SEED_DEMO_DATA=true`.
+- **Paket Pengumpulan**: Struktur dan batasan paket akademik/HKI dijelaskan di `README_PENGUMPULAN_HKI.md`.
 - Jika kamu adalah pengembang (atau AI Agent) yang berkontribusi, harap merujuk ke dokumen teknis internal seperti `TODO.md` dan file panduan di folder `docs/` (atau lihat file `README_INTERNAL.md`).

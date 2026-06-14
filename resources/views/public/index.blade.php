@@ -31,13 +31,18 @@
         <div class="relative z-10 flex items-center justify-center h-full">
             <div class="text-center text-white px-4 max-w-4xl">
                 <div class="inline-block bg-[var(--color-accent)]/20 border border-[var(--color-accent)]/50 text-[var(--color-accent)] px-4 py-1 rounded-full text-sm font-semibold mb-5 backdrop-blur-sm fade-up">
-                    PPDB {{ date('Y') }}/{{ date('Y')+1 }} Telah Dibuka
+                    PPDB {{ $ppdbSettings['academic_year'] }} {{ $ppdbSettings['is_open'] ? 'Telah Dibuka' : 'Sedang Ditutup' }}
                 </div>
-                <h2 class="text-4xl md:text-7xl font-black leading-tight mb-4 animate-slide-up drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">{{ $banner->judul }}</h2>
+                @if($loop->first)
+                    <h1 class="text-4xl md:text-7xl font-black leading-tight mb-4 animate-slide-up drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">{{ $banner->judul }}</h1>
+                @else
+                    <h2 class="text-4xl md:text-7xl font-black leading-tight mb-4 animate-slide-up drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">{{ $banner->judul }}</h2>
+                @endif
                 <p class="text-lg md:text-2xl text-green-50 mb-8 animate-slide-up delay-100 drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]">{{ $banner->subtitle }}</p>
                 <div class="flex flex-wrap justify-center gap-4 fade-up delay-3">
                     <a href="{{ route('pendaftaran') }}" class="bg-[var(--color-accent)] text-[var(--color-primary)] px-8 py-3.5 rounded-full font-bold hover:bg-[var(--color-accent-dark)] transition transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-edit mr-2"></i> Daftar Sekarang
+                        <i class="fas {{ $ppdbSettings['is_open'] ? 'fa-edit' : 'fa-info-circle' }} mr-2"></i>
+                        {{ $ppdbSettings['is_open'] ? 'Daftar Sekarang' : 'Lihat Informasi PPDB' }}
                     </a>
                     <a href="#tentang" class="border-2 border-white text-white px-8 py-3.5 rounded-full font-bold hover:bg-white hover:text-[var(--color-primary)] transition">
                         <i class="fas fa-info-circle mr-2"></i> Tentang Kami
@@ -50,12 +55,12 @@
     {{-- Slider indicators --}}
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
         @foreach($banners as $index => $banner)
-        <button @@click="goTo({{ $index }})" :class="current === {{ $index }} ? 'bg-[var(--color-accent)] w-8' : 'bg-white/50 w-3'" class="h-3 rounded-full transition-all duration-300"></button>
+        <button @@click="goTo({{ $index }})" :class="current === {{ $index }} ? 'bg-[var(--color-accent)] w-8' : 'bg-white/50 w-3'" class="h-3 rounded-full transition-all duration-300" aria-label="Tampilkan banner {{ $index + 1 }}"></button>
         @endforeach
     </div>
     {{-- Scroll down indicator --}}
     <div class="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-        <a href="#stats"><i class="fas fa-chevron-down text-white/60 text-xl"></i></a>
+        <a href="#stats" aria-label="Lihat statistik sekolah"><i class="fas fa-chevron-down text-white/60 text-xl"></i></a>
     </div>
 </section>
 
@@ -161,14 +166,19 @@
         @if($kegiatan->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             @foreach($kegiatan as $kgt)
-            <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition hover:-translate-y-2 border border-gray-100 reveal delay-{{ ($loop->index % 3) + 1 }} cursor-pointer"
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition hover:-translate-y-2 border border-gray-100 reveal delay-{{ ($loop->index % 3) + 1 }} cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)]"
+                 role="button"
+                 tabindex="0"
+                 aria-label="Lihat detail kegiatan {{ $kgt->judul }}"
                  @@click="openLightbox(
                      '{{ $kgt->gambar ? asset(\App\Helpers\ImageHelper::getWebp($kgt->gambar)) : '' }}',
                      '{{ addslashes($kgt->judul) }}',
                      '{{ $kgt->tanggal ? $kgt->tanggal->format('d F Y') : '-' }}',
                      '{{ addslashes($kgt->kategori->nama ?? '') }}',
                      '{{ addslashes($kgt->deskripsi ?? '') }}'
-                 )">
+                 )"
+                 @@keydown.enter.prevent="$el.click()"
+                 @@keydown.space.prevent="$el.click()">
                 <div class="relative overflow-hidden h-52 bg-gradient-to-br from-green-100 to-green-200">
                     @if($kgt->gambar)
                     <img src="{{ asset(\App\Helpers\ImageHelper::getCard($kgt->gambar)) }}"
@@ -239,7 +249,19 @@
         @if($kepsek)
         <div class="flex justify-center mb-10">
             <div class="w-full sm:w-1/2 lg:w-1/4">
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-[var(--color-accent)]/30 reveal reveal-zoom group">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-[var(--color-accent)]/30 reveal reveal-zoom group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)]"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Lihat profil {{ $kepsek->nama }}"
+                     @@click="openGuru(
+                         '{{ $kepsek->foto ? asset(\App\Helpers\ImageHelper::getWebp($kepsek->foto)) : '' }}',
+                         '{{ addslashes($kepsek->nama) }}',
+                         'Kepala Sekolah',
+                         '{{ addslashes($kepsek->mapel ?? '') }}',
+                         '{{ addslashes($kepsek->nip ?? '') }}'
+                     )"
+                     @@keydown.enter.prevent="$el.click()"
+                     @@keydown.space.prevent="$el.click()">
                     <div class="p-4">
                         <div class="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-green-50 to-green-100 relative shadow-inner">
                             @if($kepsek->foto)
@@ -275,7 +297,19 @@
         {{-- Teachers Grid --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($teachers as $guru)
-            <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 reveal reveal-zoom delay-{{ ($loop->index % 4) + 1 }} group">
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 reveal reveal-zoom delay-{{ ($loop->index % 4) + 1 }} group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)]"
+                 role="button"
+                 tabindex="0"
+                 aria-label="Lihat profil {{ $guru->nama }}"
+                 @@click="openGuru(
+                     '{{ $guru->foto ? asset(\App\Helpers\ImageHelper::getWebp($guru->foto)) : '' }}',
+                     '{{ addslashes($guru->nama) }}',
+                     '{{ addslashes($guru->jabatan ?? $guru->mapel) }}',
+                     '{{ addslashes($guru->mapel) }}',
+                     '{{ addslashes($guru->nip ?? '') }}'
+                 )"
+                 @@keydown.enter.prevent="$el.click()"
+                 @@keydown.space.prevent="$el.click()">
                 <div class="p-4">
                     <div class="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-green-50 to-green-100 relative shadow-inner">
                         @if($guru->foto)
@@ -348,12 +382,13 @@
     <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
     <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
     <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
-        <span class="inline-block bg-[var(--color-accent)]/20 text-[var(--color-accent)] px-4 py-1 rounded-full text-sm font-semibold mb-5 border border-[var(--color-accent)]/30">PPDB {{ date('Y') }}/{{ date('Y')+1 }}</span>
-        <h2 class="text-3xl md:text-5xl font-black text-white mb-4">Daftarkan Putra-Putri Anda</h2>
-        <p class="text-green-200 text-lg mb-8 max-w-2xl mx-auto">Bergabunglah bersama keluarga besar MI Annajiyah dan wujudkan cita-cita generasi Islam yang cerdas dan berakhlak mulia.</p>
+        <span class="inline-block bg-[var(--color-accent)]/20 text-[var(--color-accent)] px-4 py-1 rounded-full text-sm font-semibold mb-5 border border-[var(--color-accent)]/30">PPDB {{ $ppdbSettings['academic_year'] }} {{ $ppdbSettings['is_open'] ? 'Dibuka' : 'Ditutup' }}</span>
+        <h2 class="text-3xl md:text-5xl font-black text-white mb-4">{{ $ppdbSettings['is_open'] ? 'Daftarkan Putra-Putri Anda' : 'Informasi Pendaftaran PPDB' }}</h2>
+        <p class="text-green-200 text-lg mb-8 max-w-2xl mx-auto">{{ $ppdbSettings['is_open'] ? 'Bergabunglah bersama keluarga besar MI Annajiyah dan wujudkan cita-cita generasi Islam yang cerdas dan berakhlak mulia.' : $ppdbSettings['closed_message'] }}</p>
         <div class="flex flex-wrap justify-center gap-4 mt-10 relative z-10">
             <a href="{{ route('pendaftaran') }}" class="bg-[var(--color-accent)] text-[var(--color-primary)] px-8 py-4 rounded-full font-bold text-lg hover:bg-[var(--color-accent-dark)] transition shadow-lg hover:shadow-xl">
-                <i class="fas fa-edit mr-2"></i> Daftar Sekarang
+                <i class="fas {{ $ppdbSettings['is_open'] ? 'fa-edit' : 'fa-info-circle' }} mr-2"></i>
+                {{ $ppdbSettings['is_open'] ? 'Daftar Sekarang' : 'Lihat Informasi PPDB' }}
             </a>
             <a href="{{ route('cek-pendaftaran') }}" class="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-[var(--color-primary)] transition">
                 <i class="fas fa-search mr-2"></i> Cek Status
@@ -364,15 +399,21 @@
 
 {{-- MODALS --}}
 {{-- Lightbox Kegiatan --}}
-<div x-show="isLightboxOpen" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none;">
+<div x-show="isLightboxOpen"
+     @@keydown.escape.window="closeAll()"
+     class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="home-kegiatan-dialog-title"
+     style="display:none;">
     <div class="absolute inset-0 bg-black/95 backdrop-blur-md" @@click="closeAll()"></div>
     <div x-show="isLightboxOpen" class="relative bg-white rounded-3xl overflow-hidden shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col z-10" x-transition>
         <div class="relative bg-black flex-shrink-0">
-            <img :src="lbImg || '{{ asset('logo.png') }}'" class="w-full max-h-[55vh] object-contain">
-            <button @@click="closeAll()" class="absolute top-3 right-3 w-10 h-10 bg-black/70 text-white rounded-full flex items-center justify-center text-2xl font-bold">&times;</button>
+            <img :src="lbImg || '{{ asset('logo-web.webp') }}'" :alt="lbTitle" class="w-full max-h-[55vh] object-contain">
+            <button type="button" @@click="closeAll()" aria-label="Tutup detail kegiatan" class="absolute top-3 right-3 w-10 h-10 bg-black/70 text-white rounded-full flex items-center justify-center text-2xl font-bold">&times;</button>
         </div>
         <div class="p-6 overflow-y-auto">
-            <h2 class="text-xl font-black text-[var(--color-primary)] mb-2" x-text="lbTitle"></h2>
+            <h2 id="home-kegiatan-dialog-title" class="text-xl font-black text-[var(--color-primary)] mb-2" x-text="lbTitle"></h2>
             <p class="text-sm text-[var(--color-accent)] font-semibold mb-3" x-text="lbDate"></p>
             <p class="text-gray-600 text-sm leading-relaxed" x-text="lbDesc"></p>
         </div>
@@ -380,17 +421,23 @@
 </div>
 
 {{-- Lightbox Guru --}}
-<div x-show="isGuruOpen" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none;">
+<div x-show="isGuruOpen"
+     @@keydown.escape.window="closeAll()"
+     class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="home-guru-dialog-title"
+     style="display:none;">
     <div class="absolute inset-0 bg-black/95 backdrop-blur-md" @@click="closeAll()"></div>
     <div x-show="isGuruOpen" class="relative bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full z-10" x-transition>
         <div class="p-4">
             <div class="relative bg-gray-50 aspect-square rounded-2xl overflow-hidden border border-gray-100">
-                <img :src="gImg || '{{ asset('logo.png') }}'" class="w-full h-full object-cover object-top">
+                <img :src="gImg || '{{ asset('logo-web.webp') }}'" :alt="gName" class="w-full h-full object-cover object-top">
             </div>
         </div>
         <div class="px-6 pb-6">
             <div class="text-center mb-4">
-                <h2 class="text-lg font-black text-[var(--color-primary)]" x-text="gName"></h2>
+                <h2 id="home-guru-dialog-title" class="text-lg font-black text-[var(--color-primary)]" x-text="gName"></h2>
                 <p class="text-[var(--color-accent)] font-bold text-xs uppercase tracking-wider mt-1" x-text="gJabatan"></p>
             </div>
             <div class="space-y-2">
@@ -403,7 +450,7 @@
                     <span class="text-xs font-bold text-[var(--color-primary)]" x-text="gMapel"></span>
                 </div>
             </div>
-            <button @@click="closeAll()" class="w-full mt-6 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold">Tutup</button>
+            <button type="button" @@click="closeAll()" class="w-full mt-6 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold">Tutup</button>
         </div>
     </div>
 </div>

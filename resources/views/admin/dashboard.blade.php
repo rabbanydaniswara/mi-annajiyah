@@ -36,12 +36,23 @@
 
 <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 animate-fade">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-        <h3 class="text-lg font-bold text-[var(--color-primary)] border-l-4 border-[var(--color-accent)] pl-3">
-            <i class="fas fa-clipboard-check mr-2"></i>Ringkasan Verifikasi PPDB
-        </h3>
-        <a href="{{ route('admin.ppdb', ['status' => 'pending']) }}" class="inline-flex items-center justify-center gap-2 bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[var(--color-primary-light)] transition">
-            <i class="fas fa-arrow-right"></i> Buka PPDB
-        </a>
+        <div>
+            <h3 class="text-lg font-bold text-[var(--color-primary)] border-l-4 border-[var(--color-accent)] pl-3">
+                <i class="fas fa-clipboard-check mr-2"></i>Ringkasan Verifikasi PPDB
+            </h3>
+            <p class="mt-2 text-xs font-bold {{ $ppdbSettings['is_open'] ? 'text-green-600' : 'text-red-600' }}">
+                <i class="fas {{ $ppdbSettings['is_open'] ? 'fa-lock-open' : 'fa-lock' }} mr-1"></i>
+                Pendaftaran publik {{ $ppdbSettings['is_open'] ? 'dibuka' : 'ditutup' }} untuk {{ $ppdbSettings['academic_year'] }}
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('admin.konten', ['tab' => 'ppdb']) }}" class="inline-flex items-center justify-center gap-2 border-2 border-[var(--color-primary)] text-[var(--color-primary)] px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-50 transition">
+                <i class="fas fa-cog"></i> Atur Status
+            </a>
+            <a href="{{ route('admin.ppdb', ['status' => 'pending']) }}" class="inline-flex items-center justify-center gap-2 bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[var(--color-primary-light)] transition">
+                <i class="fas fa-arrow-right"></i> Kelola Pendaftar
+            </a>
+        </div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
         @foreach($statusOptions as $status => $label)
@@ -83,7 +94,75 @@
         <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3">
             <i class="fas fa-chart-line mr-2"></i>Pendaftaran 7 Hari Terakhir
         </h3>
-        <canvas id="chartPendaftar" height="150"></canvas>
+        @php
+            $chartPoints = collect($chartLabels)->map(fn ($label, $index) => [
+                'label' => $label,
+                'value' => (int) ($chartData[$index] ?? 0),
+            ]);
+            $chartPeak = (int) $chartPoints->max('value');
+            $chartScaleMax = max(1, $chartPeak);
+            $chartLeft = 32;
+            $chartRight = 668;
+            $chartTop = 24;
+            $chartBottom = 158;
+            $chartStep = $chartPoints->count() > 1 ? ($chartRight - $chartLeft) / ($chartPoints->count() - 1) : 0;
+            $linePoints = $chartPoints->values()->map(function ($point, $index) use ($chartLeft, $chartTop, $chartBottom, $chartStep, $chartScaleMax) {
+                $x = $chartLeft + ($index * $chartStep);
+                $ratio = $point['value'] / $chartScaleMax;
+                $y = $chartBottom - ($ratio * ($chartBottom - $chartTop));
+
+                return [
+                    'label' => $point['label'],
+                    'value' => $point['value'],
+                    'x' => round($x, 2),
+                    'y' => round($y, 2),
+                ];
+            });
+            $linePath = $linePoints->map(fn ($point) => $point['x'] . ',' . $point['y'])->implode(' ');
+            $areaPath = $linePoints->isNotEmpty()
+                ? 'M ' . $linePoints->first()['x'] . ' ' . $chartBottom . ' L ' . $linePoints->map(fn ($point) => $point['x'] . ' ' . $point['y'])->implode(' L ') . ' L ' . $linePoints->last()['x'] . ' ' . $chartBottom . ' Z'
+                : '';
+        @endphp
+        <div class="h-56 rounded-2xl border border-gray-100 bg-gradient-to-b from-gray-50 to-white p-3">
+            <svg viewBox="0 0 700 190" class="w-full h-full" role="img" aria-label="Diagram garis pendaftaran 7 hari terakhir">
+                <defs>
+                    <linearGradient id="registrationLineFill" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="var(--color-accent)" stop-opacity="0.30" />
+                        <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.02" />
+                    </linearGradient>
+                </defs>
+
+                @foreach([24, 57.5, 91, 124.5, 158] as $gridY)
+                    <line x1="{{ $chartLeft }}" y1="{{ $gridY }}" x2="{{ $chartRight }}" y2="{{ $gridY }}" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 8" />
+                @endforeach
+
+                @if($areaPath)
+                    <path d="{{ $areaPath }}" fill="url(#registrationLineFill)" />
+                @endif
+
+                <polyline points="{{ $linePath }}"
+                          fill="none"
+                          stroke="var(--color-primary)"
+                          stroke-width="4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+
+                @foreach($linePoints as $point)
+                    <g>
+                        <line x1="{{ $point['x'] }}" y1="{{ $chartBottom }}" x2="{{ $point['x'] }}" y2="166" stroke="#e5e7eb" stroke-width="1" />
+                        <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="7" fill="white" stroke="var(--color-accent)" stroke-width="4">
+                            <title>{{ $point['label'] }}: {{ $point['value'] }} pendaftar</title>
+                        </circle>
+                        <text x="{{ $point['x'] }}" y="{{ max(12, $point['y'] - 14) }}" text-anchor="middle" class="fill-[var(--color-primary)] text-[11px] font-black">{{ $point['value'] }}</text>
+                        <text x="{{ $point['x'] }}" y="184" text-anchor="middle" class="fill-gray-400 text-[10px] font-bold">{{ $point['label'] }}</text>
+                    </g>
+                @endforeach
+            </svg>
+        </div>
+        <div class="flex justify-between mt-3 text-xs text-gray-400">
+            <span>Total 7 hari: <strong class="text-[var(--color-primary)]">{{ $chartPoints->sum('value') }}</strong></span>
+            <span>Puncak: <strong class="text-[var(--color-primary)]">{{ $chartPeak }}</strong></span>
+        </div>
     </div>
 
     {{-- Jadwal Hari Ini --}}
@@ -116,24 +195,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-new Chart(document.getElementById('chartPendaftar'), {
-    type: 'line',
-    data: {
-        labels: @json($chartLabels),
-        datasets: [{
-            label: 'Pendaftar',
-            data: @json($chartData),
-            borderColor: '#0b3b1e',
-            backgroundColor: 'rgba(11,59,30,0.1)',
-            tension: 0.4, fill: true, pointRadius: 5,
-            pointBackgroundColor: '#f9c74f', pointBorderColor: '#0b3b1e',
-        }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-});
-</script>
-@endpush

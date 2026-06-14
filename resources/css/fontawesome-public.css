@@ -70,6 +70,8 @@
 .fa-headset { --fa: "\f590"; }
 .fa-history { --fa: "\f1da"; }
 .fa-info-circle { --fa: "\f05a"; }
+.fa-lock { --fa: "\f023"; }
+.fa-lock-open { --fa: "\f3c1"; }
 .fa-map-marked-alt { --fa: "\f5a0"; }
 .fa-map-marker-alt { --fa: "\f3c5"; }
 .fa-mosque { --fa: "\f678"; }

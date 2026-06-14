@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -42,33 +44,41 @@ class AdminController extends Controller
         $usersForFilter = User::orderBy('username')->get(['id', 'username']);
         $actionList = ActivityLog::whereNotNull('action')->distinct()->orderBy('action')->pluck('action');
         $modelList = ActivityLog::whereNotNull('model_type')->distinct()->orderBy('model_type')->pluck('model_type');
-            
+
         return view('admin.admin', compact('admins', 'edit', 'logs', 'usersForFilter', 'actionList', 'modelList'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string|max:50|unique:users,username,' . $request->id,
+        $validated = $request->validate([
+            'id' => 'nullable|exists:users,id',
+            'username' => 'required|string|max:50|unique:users,username,'.$request->id,
             'role' => 'required|in:admin,operator',
+            'password' => ($request->id ? 'nullable' : 'required').'|string|min:8|confirmed',
         ]);
 
         if ($request->id) {
             $user = User::findOrFail($request->id);
-            $data = ['username' => $request->username, 'role' => $request->role];
+            if ($this->wouldRemoveLastAdmin($user, $validated['role'])) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Minimal harus ada satu akun admin aktif.');
+            }
+
+            $data = ['username' => $validated['username'], 'role' => $validated['role']];
             if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
+                $data['password'] = Hash::make($validated['password']);
+                $data['active_session_id'] = null;
             }
             $user->update($data);
-            \App\Helpers\ActivityLogger::log('update_admin', $user, "Memperbarui data admin {$user->username}");
+            ActivityLogger::log('update_admin', $user, "Memperbarui data admin {$user->username}");
         } else {
-            $request->validate(['password' => 'required|min:6']);
             $user = User::create([
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role' => $request->role,
+                'username' => $validated['username'],
+                'password' => Hash::make($validated['password']),
+                'role' => $validated['role'],
             ]);
-            \App\Helpers\ActivityLogger::log('create_admin', $user, "Menambahkan admin baru {$user->username}");
+            ActivityLogger::log('create_admin', $user, "Menambahkan admin baru {$user->username}");
         }
 
         return redirect()->route('admin.admin')->with('success', 'Admin berhasil disimpan');
@@ -77,12 +87,36 @@ class AdminController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        if ($user->is(Auth::user())) {
+            return redirect()->route('admin.admin')->with('error', 'Akun yang sedang digunakan tidak bisa dihapus.');
+        }
+
+        if ($this->wouldRemoveLastAdmin($user, null)) {
+            return redirect()->route('admin.admin')->with('error', 'Minimal harus ada satu akun admin aktif.');
+        }
+
         if ($user->username === 'admin') {
             return redirect()->route('admin.admin')->with('error', 'Super admin tidak bisa dihapus');
         }
         $username = $user->username;
         $user->delete();
-        \App\Helpers\ActivityLogger::log('delete_admin', null, "Menghapus admin {$username}");
+        ActivityLogger::log('delete_admin', null, "Menghapus admin {$username}");
+
         return redirect()->route('admin.admin')->with('success', 'Admin berhasil dihapus');
+    }
+
+    private function wouldRemoveLastAdmin(User $user, ?string $newRole): bool
+    {
+        if ($user->role !== 'admin') {
+            return false;
+        }
+
+        if ($newRole === 'admin') {
+            return false;
+        }
+
+        return ! User::where('role', 'admin')
+            ->whereKeyNot($user->getKey())
+            ->exists();
     }
 }

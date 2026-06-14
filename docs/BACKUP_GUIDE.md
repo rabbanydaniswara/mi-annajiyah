@@ -45,3 +45,15 @@ mysql -u USERNAME -p NAMA_DATABASE < backup-mi-annajiyah-YYYYMMDD.sql
 - `php artisan test` lulus di lokal.
 - Migration sudah diuji dengan `php artisan migrate:fresh --env=testing --force`.
 - Jika production, jalankan migration dengan `php artisan migrate --force` hanya setelah backup selesai.
+
+## Backup Production Saat Ini
+
+Backup final deployment Rumahweb dibuat di luar web root:
+
+```text
+/home/miak7156/backups/miannajiyah-final-20260609-001904
+```
+
+Backup tersebut mencakup aplikasi, file publik domain utama, database `miak7156_spmb`, dan checksum SHA-256. Folder `public_html/siamiannajiyah.my.id` dikecualikan karena merupakan proyek terpisah.
+
+Panduan verifikasi, maintenance, dan rollback production tersedia di `docs/PRODUCTION_OPERATIONS_2026-06-09.md`.

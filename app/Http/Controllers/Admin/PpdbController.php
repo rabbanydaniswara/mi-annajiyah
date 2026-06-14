@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogger;
 use App\Helpers\DocumentHelper;
 use App\Helpers\PpdbHelper;
 use App\Helpers\PublicCacheHelper;
@@ -11,6 +12,8 @@ use Illuminate\Http\Request;
 
 class PpdbController extends Controller
 {
+    private const DOCUMENT_FIELDS = ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'];
+
     public function index(Request $request)
     {
         $query = Siswa::query();
@@ -32,11 +35,11 @@ class PpdbController extends Controller
         if ($q = trim((string) $request->q)) {
             $query->where(function ($w) use ($q) {
                 $w->where('nama', 'like', "%$q%")
-                  ->orWhere('nomor_pendaftaran', 'like', "%$q%")
-                  ->orWhere('nisn', 'like', "%$q%")
-                  ->orWhere('nis', 'like', "%$q%")
-                  ->orWhere('no_wa', 'like', "%$q%")
-                  ->orWhere('nama_ortu', 'like', "%$q%");
+                    ->orWhere('nomor_pendaftaran', 'like', "%$q%")
+                    ->orWhere('nisn', 'like', "%$q%")
+                    ->orWhere('nis', 'like', "%$q%")
+                    ->orWhere('no_wa', 'like', "%$q%")
+                    ->orWhere('nama_ortu', 'like', "%$q%");
             });
         }
 
@@ -71,7 +74,7 @@ class PpdbController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:siswa,id',
-            'status' => 'required|in:' . implode(',', array_keys(PpdbHelper::statusOptions())),
+            'status' => 'required|in:'.implode(',', array_keys(PpdbHelper::statusOptions())),
             'catatan_verifikasi' => 'nullable|string|max:2000',
         ]);
 
@@ -85,9 +88,9 @@ class PpdbController extends Controller
                 : $siswa->catatan_verifikasi,
         ]);
 
-        \App\Helpers\ActivityLogger::log(
-            'update_status', 
-            $siswa, 
+        ActivityLogger::log(
+            'update_status',
+            $siswa,
             "Mengubah status pendaftaran {$siswa->nama} dari {$oldStatus} menjadi {$request->status}",
             ['old' => $oldStatus, 'new' => $request->status]
         );
@@ -102,7 +105,7 @@ class PpdbController extends Controller
         $validated = $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'integer|exists:siswa,id',
-            'status' => 'required|in:' . implode(',', array_keys(PpdbHelper::statusOptions())),
+            'status' => 'required|in:'.implode(',', array_keys(PpdbHelper::statusOptions())),
             'catatan_verifikasi' => 'nullable|string|max:2000',
         ]);
 
@@ -116,7 +119,7 @@ class PpdbController extends Controller
                 'catatan_verifikasi' => $validated['catatan_verifikasi'] ?? $siswa->catatan_verifikasi,
             ]);
 
-            \App\Helpers\ActivityLogger::log(
+            ActivityLogger::log(
                 'bulk_update_status',
                 $siswa,
                 "Mengubah status pendaftaran {$siswa->nama} dari {$oldStatus} menjadi {$validated['status']}",
@@ -126,12 +129,12 @@ class PpdbController extends Controller
 
         PublicCacheHelper::clearStats();
 
-        return redirect()->route('admin.ppdb')->with('success', $siswas->count() . ' data pendaftar berhasil diperbarui');
+        return redirect()->route('admin.ppdb')->with('success', $siswas->count().' data pendaftar berhasil diperbarui');
     }
 
     public function document(Siswa $siswa, string $field)
     {
-        abort_unless(in_array($field, ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'], true), 404);
+        abort_unless(in_array($field, self::DOCUMENT_FIELDS, true), 404);
 
         $path = $siswa->{$field};
         $absolutePath = DocumentHelper::absolutePath($path);
@@ -145,25 +148,49 @@ class PpdbController extends Controller
         ]);
     }
 
+    public function documentThumbnail(Siswa $siswa, string $field)
+    {
+        abort_unless(in_array($field, self::DOCUMENT_FIELDS, true), 404);
+
+        $path = $siswa->{$field};
+        abort_unless(DocumentHelper::isImage($path), 404);
+
+        $absolutePath = DocumentHelper::thumbnailAbsolutePath($path)
+            ?: DocumentHelper::absolutePath($path);
+
+        abort_unless($absolutePath && is_file($absolutePath), 404);
+
+        return response()->file($absolutePath, [
+            'Cache-Control' => 'private, max-age=3600',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function destroy($id)
     {
         $siswa = Siswa::findOrFail($id);
         $namaSiswa = $siswa->nama;
-
-        // Hapus file
-        foreach (['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'] as $field) {
-            DocumentHelper::delete($siswa->$field);
-        }
-
-        \App\Helpers\ActivityLogger::log(
-            'delete_ppdb', 
-            null, 
-            "Menghapus data pendaftaran {$namaSiswa}",
-            ['nama' => $namaSiswa, 'data' => $siswa->toArray()]
-        );
+        $documentPaths = collect(self::DOCUMENT_FIELDS)
+            ->map(fn (string $field) => $siswa->{$field})
+            ->filter()
+            ->all();
+        $auditIdentity = PpdbHelper::auditIdentity($siswa);
 
         $siswa->delete();
+
+        ActivityLogger::log(
+            'delete_ppdb',
+            null,
+            "Menghapus data pendaftaran {$namaSiswa}",
+            $auditIdentity
+        );
+
+        foreach ($documentPaths as $path) {
+            DocumentHelper::delete($path);
+        }
+
         PublicCacheHelper::clearStats();
+
         return redirect()->route('admin.ppdb')->with('success', 'Data pendaftar berhasil dihapus');
     }
 }

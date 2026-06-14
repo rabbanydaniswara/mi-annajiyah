@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\PpdbHelper;
 use App\Http\Controllers\Controller;
-use App\Models\{Banner, Guru, Jadwal, KegiatanSekolah, KontenWeb, Siswa};
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Guru;
+use App\Models\Jadwal;
+use App\Models\KegiatanSekolah;
+use App\Models\Siswa;
 
 class DashboardController extends Controller
 {
@@ -19,6 +20,7 @@ class DashboardController extends Controller
         $totalDiterima = Siswa::where('status_ppdb', 'diterima')->count();
         $totalKegiatan = KegiatanSekolah::count();
         $statusOptions = PpdbHelper::statusOptions();
+        $ppdbSettings = PpdbHelper::settings();
         $ppdbStatusCounts = Siswa::selectRaw('status_ppdb, COUNT(*) as total')
             ->groupBy('status_ppdb')
             ->pluck('total', 'status_ppdb');
@@ -30,7 +32,7 @@ class DashboardController extends Controller
         // Chart data (7 hari terakhir)
         $chartData = [];
         $chartLabels = [];
-        
+
         $stats = Siswa::selectRaw('DATE(tanggal_daftar) as date, COUNT(*) as count')
             ->where('tanggal_daftar', '>=', now()->subDays(6)->startOfDay())
             ->groupBy('date')
@@ -56,8 +58,7 @@ class DashboardController extends Controller
             'totalSiswa', 'totalGuru', 'totalJadwal',
             'totalPendaftar', 'totalDiterima', 'totalKegiatan',
             'chartData', 'chartLabels', 'jadwalHariIni',
-            'statusOptions', 'ppdbStatusCounts', 'perluTindakLanjut'
+            'statusOptions', 'ppdbStatusCounts', 'perluTindakLanjut', 'ppdbSettings'
         ));
     }
-
 }

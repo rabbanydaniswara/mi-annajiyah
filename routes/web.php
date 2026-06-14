@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\PpdbController;
-use App\Http\Controllers\Admin\KontenController;
-use App\Http\Controllers\Admin\JadwalController;
-use App\Http\Controllers\Admin\GuruController;
-use App\Http\Controllers\Admin\SiswaController;
-use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FasilitasController;
+use App\Http\Controllers\Admin\GuruController;
+use App\Http\Controllers\Admin\JadwalController;
+use App\Http\Controllers\Admin\KontenController;
+use App\Http\Controllers\Admin\PpdbController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SitemapController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +27,9 @@ Route::get('/tenaga-pendidik', [HomeController::class, 'tenagaPendidik'])->name(
 Route::get('/fasilitas', [HomeController::class, 'fasilitas'])->name('fasilitas');
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
 Route::get('/cek-pendaftaran', [HomeController::class, 'cekPendaftaran'])->middleware('throttle:cek-pendaftaran')->name('cek-pendaftaran');
-Route::post('/api/pendaftaran', [RegistrationController::class, 'store'])->middleware('throttle:pendaftaran')->name('api.pendaftaran');
+Route::post('/api/pendaftaran', [RegistrationController::class, 'store'])
+    ->middleware(['ppdb.open', 'throttle:pendaftaran'])
+    ->name('api.pendaftaran');
 
 /*
 |--------------------------------------------------------------------------
@@ -49,7 +51,7 @@ Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 | Admin Panel Routes (Protected)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'single.admin.session'])->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile/password', [AuthController::class, 'showPasswordForm'])->name('password.edit');
@@ -59,6 +61,9 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb');
     Route::post('/ppdb/update-status', [PpdbController::class, 'updateStatus'])->name('ppdb.updateStatus');
     Route::post('/ppdb/bulk-update-status', [PpdbController::class, 'bulkUpdateStatus'])->name('ppdb.bulkUpdateStatus');
+    Route::get('/ppdb/{siswa}/document/{field}/thumbnail', [PpdbController::class, 'documentThumbnail'])
+        ->whereIn('field', ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'])
+        ->name('ppdb.document.thumbnail');
     Route::get('/ppdb/{siswa}/document/{field}', [PpdbController::class, 'document'])
         ->whereIn('field', ['file_akte', 'file_kk', 'file_ktp_ortu', 'file_ijazah'])
         ->name('ppdb.document');

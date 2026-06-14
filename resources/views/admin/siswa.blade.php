@@ -84,12 +84,36 @@
         @csrf
         @if($edit)<input type="hidden" name="id" value="{{ $edit->id }}">@endif
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-user mr-1"></i>Nama *</label><input type="text" name="nama" value="{{ $edit->nama ?? '' }}" required class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm"></div>
-            <div><label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-id-card mr-1"></i>NISN</label><input type="text" name="nisn" value="{{ $edit->nisn ?? '' }}" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm"></div>
-            <div><label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-layer-group mr-1"></i>Kelas</label><input type="text" name="kelas" value="{{ $edit->kelas ?? '' }}" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm"></div>
-            <div><label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fab fa-whatsapp mr-1"></i>No WA</label><input type="text" name="no_wa" value="{{ $edit->no_wa ?? '' }}" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm"></div>
-            <div><label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-user-friends mr-1"></i>Nama Ortu</label><input type="text" name="nama_ortu" value="{{ $edit->nama_ortu ?? '' }}" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm"></div>
-            <div><label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-map-marker-alt mr-1"></i>Alamat</label><textarea name="alamat" rows="2" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm resize-none">{{ $edit->alamat ?? '' }}</textarea></div>
+            <div>
+                <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-user mr-1"></i>Nama *</label>
+                <input type="text" name="nama" value="{{ old('nama', $edit->nama ?? '') }}" required minlength="3" maxlength="100" autocomplete="name" class="w-full px-4 py-2 border-2 {{ $errors->has('nama') ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                @error('nama')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-id-card mr-1"></i>NISN</label>
+                <input type="text" name="nisn" value="{{ old('nisn', $edit->nisn ?? '') }}" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" autocomplete="off" class="w-full px-4 py-2 border-2 {{ $errors->has('nisn') ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm" placeholder="10 digit angka">
+                @error('nisn')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-layer-group mr-1"></i>Kelas</label>
+                <input type="text" name="kelas" value="{{ old('kelas', $edit->kelas ?? '') }}" maxlength="10" pattern="[A-Za-z0-9 -]+" autocomplete="off" class="w-full px-4 py-2 border-2 {{ $errors->has('kelas') ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm" placeholder="Contoh: 1A">
+                @error('kelas')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fab fa-whatsapp mr-1"></i>No WA</label>
+                <input type="tel" name="no_wa" value="{{ old('no_wa', $edit->no_wa ?? '') }}" minlength="10" maxlength="30" inputmode="tel" autocomplete="tel" class="w-full px-4 py-2 border-2 {{ $errors->has('no_wa') ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm" placeholder="081234567890">
+                @error('no_wa')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-user-friends mr-1"></i>Nama Ortu</label>
+                <input type="text" name="nama_ortu" value="{{ old('nama_ortu', $edit->nama_ortu ?? '') }}" minlength="3" maxlength="100" autocomplete="name" class="w-full px-4 py-2 border-2 {{ $errors->has('nama_ortu') ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                @error('nama_ortu')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-map-marker-alt mr-1"></i>Alamat</label>
+                <textarea name="alamat" minlength="10" maxlength="1000" rows="2" autocomplete="street-address" class="w-full px-4 py-2 border-2 {{ $errors->has('alamat') ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm resize-none">{{ old('alamat', $edit->alamat ?? '') }}</textarea>
+                @error('alamat')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+            </div>
         </div>
         <div class="mt-4 flex gap-3">
             <button type="submit" class="bg-[var(--color-primary)] text-white px-6 py-2 rounded-xl font-semibold hover:bg-[var(--color-primary-light)] transition text-sm"><i class="fas fa-save mr-1"></i> {{ $edit ? 'Update' : 'Simpan' }}</button>

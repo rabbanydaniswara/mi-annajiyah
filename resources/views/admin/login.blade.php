@@ -15,7 +15,7 @@
 
     <div class="relative z-10 w-full max-w-md mx-4">
         <div class="text-center mb-8 fade-up">
-            <img src="{{ asset('logo.png') }}" alt="Logo" class="w-20 h-20 rounded-full mx-auto border-4 border-[var(--color-accent)] shadow-xl mb-4">
+            <img src="{{ asset('logo-web.webp') }}" alt="Logo" class="w-20 h-20 rounded-full mx-auto border-4 border-[var(--color-accent)] shadow-xl mb-4" width="80" height="80" decoding="async">
             <h1 class="text-3xl font-black text-white">Admin Panel</h1>
             <p class="text-green-200 text-sm mt-1">MI Annajiyah</p>
         </div>

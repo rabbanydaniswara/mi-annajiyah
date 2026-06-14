@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('admin.dashboard');
         }
+
         return view('admin.login');
     }
 
@@ -26,9 +28,10 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $key = 'login.' . Str::lower($request->input('username')) . '.' . $request->ip();
+        $key = 'login.'.Str::lower($request->input('username')).'.'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
+
             return back()->withErrors(['login' => "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik."]);
         }
 
@@ -36,18 +39,29 @@ class AuthController extends Controller
         if (Auth::attempt(['username' => $credentials['username'], 'password' => $credentials['password']])) {
             RateLimiter::clear($key);
             $request->session()->regenerate();
+            $request->user()->forceFill([
+                'active_session_id' => $request->session()->getId(),
+            ])->save();
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
         RateLimiter::hit($key, 60);
+
         return back()->withErrors(['login' => 'Username atau password salah!']);
     }
 
     public function logout(Request $request)
     {
+        $user = $request->user();
+        if ($user && $user->active_session_id === $request->session()->getId()) {
+            $user->forceFill(['active_session_id' => null])->save();
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('admin.login');
     }
 
@@ -64,7 +78,7 @@ class AuthController extends Controller
         ]);
 
         $user = $request->user();
-        if (!Hash::check($validated['current_password'], $user->password)) {
+        if (! Hash::check($validated['current_password'], $user->password)) {
             return back()->withErrors([
                 'current_password' => 'Password lama tidak sesuai.',
             ])->onlyInput();
@@ -74,7 +88,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        \App\Helpers\ActivityLogger::log('change_password', $user, "Mengganti password akun {$user->username}");
+        ActivityLogger::log('change_password', $user, "Mengganti password akun {$user->username}");
 
         return redirect()->route('admin.password.edit')->with('success', 'Password berhasil diperbarui.');
     }

@@ -34,7 +34,7 @@ class AdminRouteSafetyTest extends TestCase
 
         $this->actingAs($admin)
             ->patch(route('admin.konten.toggleBanner', $banner))
-            ->assertRedirect(route('admin.konten'));
+            ->assertRedirect(route('admin.konten', ['tab' => 'banner']));
 
         $this->assertFalse($banner->fresh()->aktif);
     }

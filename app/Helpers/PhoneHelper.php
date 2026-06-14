@@ -22,10 +22,25 @@ class PhoneHelper
             return null;
         }
 
-        if (!preg_match('/^(08|628)[0-9]{8,13}$/', $number)) {
+        if (! preg_match('/^(?:08[0-9]{8,11}|628[0-9]{8,11})$/', $number)) {
             return null;
         }
 
         return $number;
+    }
+
+    public static function whatsappUrl(?string $value): ?string
+    {
+        $number = self::sanitizeIndonesianWhatsapp($value);
+
+        if ($number === null) {
+            return null;
+        }
+
+        if (str_starts_with($number, '08')) {
+            $number = '62'.substr($number, 1);
+        }
+
+        return 'https://wa.me/'.$number;
     }
 }

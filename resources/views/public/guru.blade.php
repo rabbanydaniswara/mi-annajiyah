@@ -31,14 +31,19 @@
         @if($kepsek)
         <div class="flex justify-center mb-12">
             <div class="w-full sm:w-1/2 lg:w-1/4">
-                <div class="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group cursor-pointer border-2 border-[var(--color-accent)]/30 fade-up"
+                <div class="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group cursor-pointer border-2 border-[var(--color-accent)]/30 fade-up focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)]"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Lihat profil {{ $kepsek->nama }}"
                      @@click="open(
                          '{{ $kepsek->foto ? asset(\App\Helpers\ImageHelper::getWebp($kepsek->foto)) : '' }}',
                          '{{ addslashes($kepsek->nama) }}',
                          'Kepala Sekolah',
                          '{{ addslashes($kepsek->mapel ?? '') }}',
                          '{{ addslashes($kepsek->nip ?? '') }}'
-                     )">
+                     )"
+                     @@keydown.enter.prevent="$el.click()"
+                     @@keydown.space.prevent="$el.click()">
                     <div class="p-4">
                         <div class="relative bg-gradient-to-br from-green-50 to-green-100 aspect-square rounded-2xl overflow-hidden shadow-inner">
                             @if($kepsek->foto)
@@ -81,14 +86,19 @@
         {{-- Teachers Grid --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($teachers as $guru)
-            <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 reveal reveal-zoom delay-{{ ($loop->index % 4) + 1 }} group cursor-pointer"
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 reveal reveal-zoom delay-{{ ($loop->index % 4) + 1 }} group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)]"
+                 role="button"
+                 tabindex="0"
+                 aria-label="Lihat profil {{ $guru->nama }}"
                  @@click="open(
                      '{{ $guru->foto ? asset(\App\Helpers\ImageHelper::getWebp($guru->foto)) : '' }}',
                      '{{ addslashes($guru->nama) }}',
                      '{{ addslashes($guru->jabatan ?? $guru->mapel) }}',
                      '{{ addslashes($guru->mapel) }}',
                      '{{ $guru->nip ?: '-' }}'
-                 )">
+                 )"
+                 @@keydown.enter.prevent="$el.click()"
+                 @@keydown.space.prevent="$el.click()">
                 {{-- Photo --}}
                 <div class="p-4">
                     <div class="relative bg-gradient-to-br from-green-50 to-green-100 aspect-square rounded-2xl overflow-hidden shadow-inner">
@@ -153,6 +163,9 @@
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
          @@keydown.escape.window="close()"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="guru-dialog-title"
          style="display:none;">
 
         {{-- Solid dark overlay --}}
@@ -172,7 +185,7 @@
             {{-- Photo --}}
             <div class="p-4">
                 <div class="relative bg-gray-50 aspect-square rounded-2xl overflow-hidden shadow-inner border border-gray-100">
-                    <img :src="currentImg || '{{ asset('logo.png') }}'" :alt="currentName"
+                    <img :src="currentImg || '{{ asset('logo-web.webp') }}'" :alt="currentName"
                          x-show="currentImg"
                          class="w-full h-full object-cover object-top"
                          onerror="this.style.display='none'">
@@ -186,7 +199,7 @@
             {{-- Detail Info --}}
             <div class="px-6 pb-6">
                 <div class="text-center mb-4">
-                    <h2 class="text-lg font-black text-[var(--color-primary)]" x-text="currentName"></h2>
+                    <h2 id="guru-dialog-title" class="text-lg font-black text-[var(--color-primary)]" x-text="currentName"></h2>
                     <p class="text-[var(--color-accent)] font-bold text-xs uppercase tracking-wider mt-1" x-text="currentJabatan"></p>
                 </div>
 
@@ -205,7 +218,7 @@
                     </div>
                 </div>
 
-                <button @@click="close()" class="w-full mt-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all">
+                <button type="button" @@click="close()" class="w-full mt-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all">
                     Tutup Profil
                 </button>
             </div>

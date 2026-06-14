@@ -51,6 +51,8 @@ Aturan penting:
   - Banyak card publik memakai gambar full-size, padahal thumbnail sudah tersedia.
   - Total media publik WebP cukup besar untuk pengguna internet lambat.
 - Query publik sudah dibuat lebih ringan dengan cache, `withCount`, dan pengurangan data yang tidak dipakai.
+- Audit lanjutan 2026-06-01 menemukan halaman publik sudah memakai varian `*_card.webp` dan `*_hero.webp`, tetapi admin PPDB masih memakai file dokumen asli untuk preview kecil.
+- Audit lanjutan 2026-06-01 juga menemukan dokumen PPDB lama masih direferensikan dari `public/uploads`; dokumen tersebut harus dipindahkan ke private storage.
 - Production caching sudah disiapkan secara teknis, tetapi konfigurasi `.env` production tetap dilakukan saat nanti benar-benar deploy.
 
 ## Target Optimasi
@@ -126,6 +128,7 @@ Target selesai:
 - `[x]` Ganti ikon brand footer publik menjadi SVG inline agar halaman publik tidak perlu memuat font brand.
 - `[x]` Batasi scan Tailwind publik ke view publik dan layout publik saja.
 - `[x]` Jalankan ulang `npm run build` dan cek ukuran asset.
+- `[x]` Buat `public/logo-web.webp` untuk pemakaian logo kecil di navigasi, footer, login, dan fallback modal tanpa mengubah tampilan.
 
 Target selesai:
 
@@ -138,6 +141,28 @@ Hasil build terakhir:
 - CSS admin: 145.74 KB raw / 33.46 KB gzip.
 - Halaman publik tidak mereferensikan `fa-brands-400`, `fa-regular-400`, atau `fa-v4compatibility`.
 - Jika nanti menambah ikon fasilitas publik di luar baseline, tambahkan mapping ke `resources/css/fontawesome-public.css` atau gunakan ikon yang sudah ada di subset.
+
+## Fase 4B - Optimasi Dokumen PPDB Admin
+
+- `[x]` Audit halaman admin PPDB: preview dokumen sebelumnya mengambil file asli lewat route `admin.ppdb.document`.
+- `[x]` Tambahkan thumbnail private dokumen PPDB di `storage/app/private/ppdb-thumbs`.
+- `[x]` Tambahkan route `admin.ppdb.document.thumbnail` agar preview tabel dan modal memakai thumbnail ringan, sementara klik dokumen tetap membuka file asli.
+- `[x]` Tambahkan command `php artisan ppdb:generate-document-thumbnails` untuk membuat ulang thumbnail dokumen image.
+- `[x]` Tambahkan command `php artisan ppdb:migrate-public-documents` untuk memindahkan referensi dokumen PPDB lama dari `public/uploads` ke `storage/app/private/ppdb`.
+- `[x]` Jalankan migrasi lokal dokumen PPDB lama: 16 referensi public dipindahkan ke private storage, termasuk kasus beberapa pendaftar memakai file lama yang sama.
+- `[x]` Pastikan tidak ada lagi path dokumen PPDB database yang menunjuk ke `uploads/...`.
+
+Target selesai:
+
+- Admin PPDB tidak memuat file dokumen asli hanya untuk preview kecil.
+- Dokumen PPDB sensitif tidak lagi tersedia sebagai file public upload.
+- Thumbnail dokumen tetap private dan hanya bisa diakses oleh admin/operator login.
+
+Catatan implementasi:
+
+- Helper utama: `DocumentHelper::ensureThumbnail()`, `DocumentHelper::thumbnailAbsolutePath()`, dan `DocumentHelper::migratePublicUploadToPrivate()`.
+- File thumbnail private tidak perlu di-commit.
+- File public media baseline non-dokumen belum dihapus massal karena aturan preservasi media tetap berlaku.
 
 ## Fase 5 - Production Readiness Saat Hosting
 
@@ -176,6 +201,10 @@ Catatan QA:
 - Halaman yang dicek: homepage, fasilitas, kegiatan, tenaga pendidik, dan kartu cetak pendaftaran.
 - Submit pendaftaran simulasi berhasil dan menghasilkan nomor `PPDB-2026-0013`.
 - Cek seeder preservatif: `konten_web`, `banner`, `guru`, `fasilitas`, `kegiatan_kategori`, `kegiatan_sekolah`, `jadwal`, dan `siswa` tidak berkurang setelah `php artisan db:seed`.
+- QA lanjutan 2026-06-01: `/`, `/fasilitas`, `/kegiatan`, `/tenaga-pendidik`, `/pendaftaran`, dan `/cek-pendaftaran` tidak memiliki visible broken image atau console error di browser in-app.
+- QA lanjutan 2026-06-01: halaman publik tidak merujuk JPG/PNG original besar pada image tag utama, dan logo kecil memakai `logo-web.webp`.
+- QA lanjutan 2026-06-01: `/admin/ppdb` memuat preview dokumen melalui URL `/thumbnail` dan tidak ada image tag dokumen asli untuk preview.
+- Verifikasi 2026-06-01: `php artisan test` lulus 42 test / 190 assertion; `npm.cmd run build`, `route:cache`, `config:cache`, dan `view:cache` berhasil.
 
 ## Catatan Eksekusi
 

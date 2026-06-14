@@ -1,4 +1,9 @@
 *.log
+~$*.doc
+~$*.docx
+Kel 4_LaporanAkhirRPL.docx
+Lampiran_Manual_Book_SPMB_MI_Annajiyah.docx
+start-spmb.bat
 .DS_Store
 .env
 .env.backup
@@ -34,6 +39,7 @@ public/uploads/guru/*
 public/uploads/kegiatan/*
 !/public/uploads/kegiatan/*_card.webp
 /scratch
+/test-results
 /storage/*.key
 /storage/framework/views/*
 !/storage/framework/views/.gitignore

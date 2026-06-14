@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Helpers\PpdbHelper;
 use App\Models\Banner;
 use App\Models\KontenWeb;
 use App\Models\User;
@@ -29,9 +30,11 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // Run additional seeders (kategori, fasilitas, guru, kegiatan)
         $this->call(NewFeaturesSeeder::class);
-        $this->call(JadwalSeeder::class);
+
+        if ($this->shouldSeedDemoData()) {
+            $this->call(JadwalSeeder::class);
+        }
     }
 
     private function kontenWeb(): array
@@ -87,11 +90,46 @@ class DatabaseSeeder extends Seeder
                 'urutan' => 7,
             ],
             [
+                'tipe' => 'wa',
+                'judul' => 'WhatsApp',
+                'konten' => '085174228000',
+                'gambar' => null,
+                'urutan' => 8,
+            ],
+            [
+                'tipe' => 'ig',
+                'judul' => 'Instagram',
+                'konten' => 'https://www.instagram.com/mi_annajiyah',
+                'gambar' => null,
+                'urutan' => 9,
+            ],
+            [
+                'tipe' => 'tiktok',
+                'judul' => 'TikTok',
+                'konten' => 'https://www.tiktok.com/@mis.annajiyah',
+                'gambar' => null,
+                'urutan' => 10,
+            ],
+            [
                 'tipe' => 'ppdb_tahun_ajaran',
                 'judul' => 'Tahun Ajaran PPDB Aktif',
-                'konten' => date('Y') . '/' . (date('Y') + 1),
+                'konten' => date('Y').'/'.(date('Y') + 1),
                 'gambar' => null,
                 'urutan' => 20,
+            ],
+            [
+                'tipe' => 'ppdb_status',
+                'judul' => 'Status Pendaftaran PPDB',
+                'konten' => 'open',
+                'gambar' => null,
+                'urutan' => 21,
+            ],
+            [
+                'tipe' => 'ppdb_pesan_tutup',
+                'judul' => 'Pesan Publik Saat PPDB Ditutup',
+                'konten' => PpdbHelper::DEFAULT_CLOSED_MESSAGE,
+                'gambar' => null,
+                'urutan' => 22,
             ],
         ];
     }
@@ -121,8 +159,9 @@ class DatabaseSeeder extends Seeder
         $username = env('INITIAL_ADMIN_USERNAME');
         $password = env('INITIAL_ADMIN_PASSWORD');
 
-        if (app()->environment('production') && (!$username || !$password)) {
+        if (app()->environment('production') && (! $username || ! $password)) {
             $this->command?->warn('Skipping initial admin seeder in production. Set INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD if needed.');
+
             return;
         }
 
@@ -140,5 +179,11 @@ class DatabaseSeeder extends Seeder
                 'role' => 'admin',
             ]
         );
+    }
+
+    private function shouldSeedDemoData(): bool
+    {
+        return ! app()->environment('production')
+            && filter_var(env('SEED_DEMO_DATA', false), FILTER_VALIDATE_BOOL);
     }
 }

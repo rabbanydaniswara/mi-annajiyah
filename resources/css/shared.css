@@ -1,5 +1,11 @@
 @import './fonts.css';
 
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --color-primary: #0b3b1e;

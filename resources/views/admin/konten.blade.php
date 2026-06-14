@@ -71,35 +71,42 @@
     <div class="lg:col-span-1 space-y-6">
         {{-- Form Tambah Kegiatan --}}
         <div class="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-plus mr-2"></i>Tambah Kegiatan</h3>
+            <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-{{ $editKegiatan ? 'edit' : 'plus' }} mr-2"></i>{{ $editKegiatan ? 'Edit Kegiatan' : 'Tambah Kegiatan' }}</h3>
             <form method="POST" action="{{ route('admin.konten.storeKegiatan') }}" enctype="multipart/form-data" class="space-y-3">
                 @csrf
+                @if($editKegiatan)<input type="hidden" name="id" value="{{ $editKegiatan->id }}">@endif
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Kegiatan *</label>
-                    <input type="text" name="judul" required placeholder="Judul kegiatan" class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                    <input type="text" name="judul" value="{{ old('judul', $editKegiatan->judul ?? '') }}" required placeholder="Judul kegiatan" class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal *</label>
-                    <input type="date" name="tanggal" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                    <input type="date" name="tanggal" value="{{ old('tanggal', $editKegiatan?->tanggal?->format('Y-m-d')) }}" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Kategori</label>
                     <select name="kategori_id" class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
                         <option value="">-- Tanpa Kategori --</option>
                         @foreach($kategoris as $kat)
-                        <option value="{{ $kat->id }}">{{ $kat->nama }}</option>
+                        <option value="{{ $kat->id }}" {{ (string) old('kategori_id', $editKegiatan->kategori_id ?? '') === (string) $kat->id ? 'selected' : '' }}>{{ $kat->nama }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Foto Kegiatan</label>
                     <input type="file" name="gambar_kegiatan" accept="image/*" class="w-full text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-[var(--color-accent)] file:text-[var(--color-primary)] file:font-semibold file:cursor-pointer">
+                    @if($editKegiatan?->gambar)
+                    <img src="{{ asset(\App\Helpers\ImageHelper::getThumbnail($editKegiatan->gambar)) }}" alt="" class="w-20 h-20 object-cover rounded-xl mt-2">
+                    @endif
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Deskripsi</label>
-                    <textarea name="deskripsi" rows="3" placeholder="Deskripsi singkat..." class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm resize-none"></textarea>
+                    <textarea name="deskripsi" rows="3" placeholder="Deskripsi singkat..." class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm resize-none">{{ old('deskripsi', $editKegiatan->deskripsi ?? '') }}</textarea>
                 </div>
-                <button type="submit" class="w-full bg-[var(--color-accent)] text-[var(--color-primary)] py-2 rounded-xl font-semibold hover:bg-[var(--color-accent-dark)] transition text-sm"><i class="fas fa-plus mr-1"></i> Tambah</button>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-[var(--color-accent)] text-[var(--color-primary)] py-2 rounded-xl font-semibold hover:bg-[var(--color-accent-dark)] transition text-sm"><i class="fas fa-{{ $editKegiatan ? 'save' : 'plus' }} mr-1"></i> {{ $editKegiatan ? 'Update' : 'Tambah' }}</button>
+                    @if($editKegiatan)<a href="{{ route('admin.konten', ['tab' => 'kegiatan']) }}" class="px-3 py-2 bg-gray-200 text-gray-600 rounded-xl text-sm font-semibold">Batal</a>@endif
+                </div>
             </form>
         </div>
 
@@ -108,13 +115,16 @@
             <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-tags mr-2"></i>Kategori Kegiatan</h3>
             <form method="POST" action="{{ route('admin.konten.storeKategori') }}" class="flex gap-2 mb-4">
                 @csrf
-                <input type="text" name="nama" required placeholder="Nama kategori" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
-                <button type="submit" class="bg-[var(--color-primary)] text-white px-3 py-2 rounded-xl font-semibold hover:bg-[var(--color-primary-light)] transition text-sm"><i class="fas fa-plus"></i></button>
+                @if($editKategori)<input type="hidden" name="id" value="{{ $editKategori->id }}">@endif
+                <input type="text" name="nama" value="{{ old('nama', $editKategori->nama ?? '') }}" required placeholder="Nama kategori" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                <button type="submit" class="bg-[var(--color-primary)] text-white px-3 py-2 rounded-xl font-semibold hover:bg-[var(--color-primary-light)] transition text-sm" title="{{ $editKategori ? 'Update kategori' : 'Tambah kategori' }}"><i class="fas fa-{{ $editKategori ? 'save' : 'plus' }}"></i></button>
+                @if($editKategori)<a href="{{ route('admin.konten', ['tab' => 'kegiatan']) }}" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-sm"><i class="fas fa-times"></i></a>@endif
             </form>
             @foreach($kategoris as $kat)
             <div class="flex items-center justify-between py-2 border-b border-gray-100">
                 <span class="text-sm font-medium text-gray-700">{{ $kat->nama }}</span>
                 <span class="text-xs text-gray-400 mr-auto ml-2">({{ $kat->kegiatan->count() }})</span>
+                <a href="{{ route('admin.konten', ['tab' => 'kegiatan', 'edit_kategori' => $kat->id]) }}" class="text-yellow-500 hover:text-yellow-700 transition text-xs mr-2" title="Edit kategori"><i class="fas fa-edit"></i></a>
                 <form method="POST" action="{{ route('admin.konten.destroyKategori', $kat->id) }}" class="inline" 
                       data-confirm="Yakin ingin menghapus kategori '{{ $kat->nama }}'?"
                       data-title="Hapus Kategori"
@@ -160,7 +170,9 @@
                         </div>
                         @if($kgt->deskripsi)<p class="text-gray-400 text-xs mt-1 truncate">{{ $kgt->deskripsi }}</p>@endif
                     </div>
-                    <form method="POST" action="{{ route('admin.konten.destroyKegiatan', $kgt->id) }}" class="shrink-0" 
+                    <div class="shrink-0 flex gap-1">
+                    <a href="{{ route('admin.konten', ['tab' => 'kegiatan', 'edit_kegiatan' => $kgt->id]) }}" class="w-8 h-8 bg-yellow-100 text-yellow-600 hover:bg-yellow-200 rounded-lg flex items-center justify-center transition text-xs" title="Edit kegiatan"><i class="fas fa-edit"></i></a>
+                    <form method="POST" action="{{ route('admin.konten.destroyKegiatan', $kgt->id) }}"
                           data-confirm="Yakin ingin menghapus kegiatan '{{ $kgt->judul }}'?"
                           data-title="Hapus Kegiatan"
                           data-button="Hapus"
@@ -168,6 +180,7 @@
                         @csrf @method('DELETE')
                         <button type="submit" class="w-8 h-8 bg-red-100 text-red-500 hover:bg-red-200 rounded-lg flex items-center justify-center transition text-xs"><i class="fas fa-trash"></i></button>
                     </form>
+                    </div>
                 </div>
                 @endforeach
             </div>
@@ -267,25 +280,69 @@
 </div>
 @endif
 @if($activeTab === 'ppdb')
-<div class="bg-white rounded-2xl p-6 shadow-sm animate-fade">
-    <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-user-graduate mr-2"></i>Pengaturan PPDB</h3>
-    <p class="text-xs text-gray-400 mb-6">Tahun ajaran aktif dipakai untuk pendaftar baru dan nomor pendaftaran. Data lama tetap mengikuti tahun ajaran saat pendaftaran dibuat.</p>
-
-    <form method="POST" action="{{ route('admin.konten.update') }}" class="space-y-4 max-w-xl">
-        @csrf
-        <input type="hidden" name="tipe" value="ppdb_settings">
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Tahun Ajaran Aktif</label>
-            <input type="text" name="tahun_ajaran" value="{{ old('tahun_ajaran', $ppdbTahunAjaran) }}" required pattern="\d{4}[/-]\d{4}" placeholder="2026/2027" class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
-            <p class="text-xs text-gray-400 mt-1">Format: 2026/2027. Nomor pendaftaran baru akan memakai awalan tahun pertama, misalnya PPDB-2026-0001.</p>
-            @error('tahun_ajaran')
-                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-            @enderror
+<div class="space-y-5 animate-fade">
+    <div class="rounded-2xl border p-5 flex flex-col sm:flex-row sm:items-center gap-4 {{ $ppdbSettings['is_open'] ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' }}">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center {{ $ppdbSettings['is_open'] ? 'bg-green-600 text-white' : 'bg-red-600 text-white' }}">
+            <i class="fas {{ $ppdbSettings['is_open'] ? 'fa-lock-open' : 'fa-lock' }}"></i>
         </div>
-        <button type="submit" class="bg-[var(--color-primary)] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[var(--color-primary-light)] transition shadow-md">
-            <i class="fas fa-save mr-2"></i> Simpan Pengaturan PPDB
-        </button>
-    </form>
+        <div>
+            <p class="text-xs font-black uppercase tracking-widest {{ $ppdbSettings['is_open'] ? 'text-green-600' : 'text-red-600' }}">Status Saat Ini</p>
+            <h3 class="text-xl font-black {{ $ppdbSettings['is_open'] ? 'text-green-800' : 'text-red-800' }}">
+                Pendaftaran PPDB {{ $ppdbSettings['is_open'] ? 'Dibuka' : 'Ditutup' }}
+            </h3>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-[var(--color-primary)] mb-4 border-l-4 border-[var(--color-accent)] pl-3"><i class="fas fa-user-graduate mr-2"></i>Pengaturan PPDB</h3>
+        <p class="text-xs text-gray-400 mb-6">Perubahan status langsung berlaku pada halaman publik dan endpoint pendaftaran. Data pendaftar yang sudah ada tetap aman.</p>
+
+        <form method="POST" action="{{ route('admin.konten.update') }}" class="space-y-5 max-w-2xl">
+            @csrf
+            <input type="hidden" name="tipe" value="ppdb_settings">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Status Pendaftaran</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="status_pendaftaran" value="open" class="peer sr-only" {{ old('status_pendaftaran', $ppdbSettings['is_open'] ? 'open' : 'closed') === 'open' ? 'checked' : '' }}>
+                        <span class="flex items-center gap-3 rounded-2xl border-2 border-gray-200 p-4 peer-checked:border-green-500 peer-checked:bg-green-50 transition">
+                            <i class="fas fa-lock-open text-green-600"></i>
+                            <span><strong class="block text-sm text-gray-800">Buka PPDB</strong><small class="text-gray-500">Form dapat diisi dan dikirim.</small></span>
+                        </span>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="status_pendaftaran" value="closed" class="peer sr-only" {{ old('status_pendaftaran', $ppdbSettings['is_open'] ? 'open' : 'closed') === 'closed' ? 'checked' : '' }}>
+                        <span class="flex items-center gap-3 rounded-2xl border-2 border-gray-200 p-4 peer-checked:border-red-500 peer-checked:bg-red-50 transition">
+                            <i class="fas fa-lock text-red-600"></i>
+                            <span><strong class="block text-sm text-gray-800">Tutup PPDB</strong><small class="text-gray-500">Form dan submit publik dinonaktifkan.</small></span>
+                        </span>
+                    </label>
+                </div>
+                @error('status_pendaftaran')
+                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Tahun Ajaran Aktif</label>
+                <input type="text" name="tahun_ajaran" value="{{ old('tahun_ajaran', $ppdbSettings['academic_year']) }}" required pattern="\d{4}[/-]\d{4}" placeholder="2026/2027" class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                <p class="text-xs text-gray-400 mt-1">Nomor pendaftaran baru memakai awalan tahun pertama, misalnya PPDB-2026-0001.</p>
+                @error('tahun_ajaran')
+                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Pesan Publik Saat Ditutup</label>
+                <textarea name="pesan_tutup" rows="4" maxlength="1000" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm resize-y" placeholder="Jelaskan status dan cara menghubungi panitia.">{{ old('pesan_tutup', $ppdbSettings['closed_message']) }}</textarea>
+                <p class="text-xs text-gray-400 mt-1">Pesan ini tampil pada halaman pendaftaran dan dikirim saat submit ditolak.</p>
+                @error('pesan_tutup')
+                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <button type="submit" class="bg-[var(--color-primary)] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[var(--color-primary-light)] transition shadow-md">
+                <i class="fas fa-save mr-2"></i> Simpan Pengaturan PPDB
+            </button>
+        </form>
+    </div>
 </div>
 @endif
 @if($activeTab === 'kontak')
@@ -295,13 +352,20 @@
     
     <form method="POST" action="{{ route('admin.konten.update') }}" class="space-y-4">
         @csrf
+        @if(session('contact_validation_failed') || $errors->any())
+        <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+            <p class="font-bold">Kontak belum tersimpan. Periksa field yang ditandai di bawah.</p>
+        </div>
+        @endif
         @php
             $kontakItems = [
                 'alamat' => ['label' => 'Alamat Lengkap', 'icon' => 'fa-map-marker-alt', 'type' => 'text'],
                 'telepon' => ['label' => 'Nomor Telepon', 'icon' => 'fa-phone', 'type' => 'text'],
                 'email' => ['label' => 'Email Sekolah', 'icon' => 'fa-envelope', 'type' => 'email'],
-                'ig' => ['label' => 'Link Instagram', 'icon' => 'fa-instagram', 'type' => 'url'],
-                'wa' => ['label' => 'Nomor WhatsApp (Format: 62812xxx)', 'icon' => 'fa-whatsapp', 'type' => 'text'],
+                'wa' => ['label' => 'Nomor WhatsApp', 'icon' => 'fa-whatsapp', 'type' => 'tel', 'placeholder' => '081234567890'],
+                'ig' => ['label' => 'Link Instagram', 'icon' => 'fa-instagram', 'type' => 'url', 'placeholder' => 'https://instagram.com/...'],
+                'tiktok' => ['label' => 'Link TikTok', 'icon' => 'fa-music', 'type' => 'url', 'placeholder' => 'https://tiktok.com/@...'],
+                'jam_op' => ['label' => 'Jam Operasional', 'icon' => 'fa-clock', 'type' => 'text', 'placeholder' => 'Senin - Jumat: 07.00 - 13.30 WIB'],
             ];
             $currentKonten = \App\Models\KontenWeb::all()->pluck('konten', 'tipe');
         @endphp
@@ -313,8 +377,12 @@
             </label>
             <div class="md:col-span-3">
                 <input type="{{ $item['type'] }}" name="konten_items[{{ $key }}]" 
-                       value="{{ $currentKonten[$key] ?? '' }}"
-                       class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                       value="{{ old("konten_items.$key", $currentKonten[$key] ?? '') }}"
+                       placeholder="{{ $item['placeholder'] ?? '' }}"
+                       class="w-full px-4 py-2 border-2 {{ $errors->has("konten_items.$key") ? 'border-red-500 bg-red-50' : 'border-gray-200' }} rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                @error("konten_items.$key")
+                    <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>
+                @enderror
             </div>
         </div>
         @endforeach

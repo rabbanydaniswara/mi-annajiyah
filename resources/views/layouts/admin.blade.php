@@ -8,7 +8,7 @@
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
     @stack('styles')
 </head>
-<body class="font-sans bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen" x-data="{ 
+<body class="font-sans bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen overflow-x-hidden" x-data="{
         sidebarOpen: false, 
         deleteModal: false, 
         deleteForm: null, 
@@ -20,12 +20,12 @@
     }">
     {{-- Mobile Menu Toggle --}}
     <div class="fixed top-4 left-4 z-[101] md:hidden">
-        <button @@click="sidebarOpen = !sidebarOpen" class="w-11 h-11 bg-[var(--color-primary)] text-white rounded-xl flex items-center justify-center shadow-lg">
+        <button @@click="sidebarOpen = !sidebarOpen" class="w-11 h-11 bg-[var(--color-primary)] text-white rounded-xl flex items-center justify-center shadow-lg" aria-label="Buka atau tutup menu admin" :aria-expanded="sidebarOpen.toString()">
             <i class="fas fa-bars"></i>
         </button>
     </div>
 
-    <div class="flex min-h-screen">
+    <div class="flex min-h-screen overflow-x-hidden">
         {{-- Sidebar --}}
         <aside class="admin-sidebar fixed w-[280px] h-screen overflow-y-auto z-[100] transition-transform duration-300"
                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
@@ -78,13 +78,13 @@
         <div x-show="sidebarOpen" @@click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-[99] md:hidden" x-transition></div>
 
         {{-- Main Content --}}
-        <main class="flex-1 ml-0 md:ml-[280px] p-4 md:p-6">
+        <main class="flex-1 min-w-0 ml-0 md:ml-[280px] p-4 md:p-6 overflow-x-hidden">
             {{-- Header --}}
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white rounded-2xl p-4 shadow-sm animate-fade">
-                <h2 class="text-xl font-bold text-[var(--color-primary)]">
+                <h1 class="text-xl font-bold text-[var(--color-primary)]">
                     <i class="fas fa-@yield('header_icon', 'home') text-[var(--color-accent)] mr-2"></i>
                     @yield('header_title', 'Dashboard')
-                </h2>
+                </h1>
                 <a href="{{ route('admin.password.edit') }}" class="flex items-center gap-3 bg-gray-100 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition">
                     <i class="fas fa-user-circle text-[var(--color-primary)]"></i>
                     <span class="font-medium text-gray-700">{{ Auth::user()->username }}</span>
@@ -170,7 +170,7 @@
                     <span class="font-bold text-sm leading-tight" x-text="toast.message"></span>
                 </div>
 
-                <button @@click="show = false" class="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition flex items-center justify-center">
+                <button @@click="show = false" class="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition flex items-center justify-center" aria-label="Tutup notifikasi">
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>

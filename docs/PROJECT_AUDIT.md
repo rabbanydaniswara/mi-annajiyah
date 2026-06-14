@@ -1,12 +1,22 @@
 # Audit Proyek SPMB Annajiyah
 
-Tanggal audit: 2026-05-28  
-Stack: Laravel 13, PHP 8.3, Blade, Vite 8, Tailwind 4, Alpine.js, FontAwesome  
+Tanggal audit awal: 2026-05-28
+Terakhir diperbarui: 2026-06-01
+Stack saat ini: Laravel 12, PHP `^8.2` (lokal teruji PHP 8.3), Blade, Vite 6, Tailwind 4, Alpine.js, FontAwesome
 Lingkup: `app`, `routes`, `database`, `resources`, `config`, `tests`, dependency PHP/Node, dan konfigurasi runtime lokal. Folder `vendor`, `node_modules`, `public/build`, dan aset upload tidak diaudit per file.
 
 ## Ringkasan
 
-Aplikasi sudah memiliki dasar yang cukup rapi: route admin terpisah, CSRF aktif di form, validasi upload ada, role `admin`/`operator` sudah mulai dipakai, dan build frontend berhasil. Risiko terbesar saat ini ada di privasi data pendaftar, penyimpanan dokumen sensitif, route yang mengubah state lewat GET, konfigurasi produksi, dependency security advisory, dan test suite yang belum siap.
+Aplikasi sudah memiliki dasar yang cukup rapi: route admin terpisah, CSRF aktif di form, validasi upload ada, role `admin`/`operator` sudah dipakai, dan build frontend berhasil. Beberapa risiko besar dari audit awal sudah ditangani, terutama token kartu pendaftaran, penyimpanan dokumen PPDB private, route state-changing dengan method aman, dependency audit, dan test suite.
+
+Status terbaru 2026-06-01:
+
+- Kartu pendaftaran publik memakai token acak.
+- Dokumen PPDB sensitif disimpan di `storage/app/private/ppdb`.
+- Toggle banner/fasilitas memakai method non-GET dengan CSRF.
+- Dependency diarahkan ke Laravel 12 + PHP `^8.2`; `composer audit` bersih.
+- `php artisan test` dan `npm run build` lulus pada audit terakhir.
+- Audit lanjutan dan rencana perbaikan terbaru ada di `docs/FULL_PROJECT_AUDIT_2026-06-01.md` dan `docs/AUDIT_FIX_PLAN_2026-06-01.md`.
 
 ## Temuan Prioritas Tinggi
 
@@ -21,6 +31,8 @@ Lokasi:
 Route `/pendaftaran/cetak/{id}` memanggil `Siswa::findOrFail($id)` tanpa token rahasia, ownership check, atau pembatasan akses. Karena ID database umumnya berurutan, pihak luar dapat menebak ID dan membuka kartu pendaftaran orang lain.
 
 Dampak: kebocoran nama anak, tanggal lahir, sekolah asal, nama orang tua, nomor WhatsApp, dan nomor pendaftaran.
+
+Status perbaikan 2026-06-01: selesai. Route cetak memakai token acak dan tidak lagi memakai ID berurutan sebagai akses publik.
 
 Rekomendasi:
 
@@ -43,6 +55,8 @@ File akte, KK, KTP orang tua, dan ijazah diupload ke path publik. Jika path file
 
 Dampak: kebocoran dokumen identitas keluarga.
 
+Status perbaikan 2026-06-01: selesai. Dokumen PPDB disimpan di private storage dan dibuka melalui route admin terproteksi.
+
 Rekomendasi:
 
 - Simpan dokumen pendaftar di disk private, misalnya `storage/app/private/ppdb`.
@@ -59,6 +73,8 @@ Lokasi:
 
 Route toggle banner dan fasilitas memakai GET. GET seharusnya idempotent/read-only. Karena route ini mengubah data, aksi bisa terpicu dari link, prefetch browser, crawler internal, atau CSRF-like link click.
 
+Status perbaikan 2026-06-01: selesai. Toggle sudah memakai `PATCH` dengan form CSRF.
+
 Rekomendasi:
 
 - Ubah menjadi `PATCH` atau `POST`.
@@ -67,7 +83,7 @@ Rekomendasi:
 
 ### 4. Dependency PHP memiliki security advisories
 
-Hasil `composer audit`: 8 advisory pada 6 package, termasuk `symfony/mime` high severity dan beberapa medium severity.
+Hasil audit awal `composer audit`: 8 advisory pada 6 package, termasuk `symfony/mime` high severity dan beberapa medium severity.
 
 Package terdampak:
 
@@ -83,6 +99,8 @@ Rekomendasi:
 - Jalankan `composer update` terkontrol.
 - Setelah update, jalankan `composer audit`, `php artisan test`, dan regression test manual alur PPDB/admin.
 - Prioritaskan advisory high severity lebih dulu.
+
+Status perbaikan 2026-06-01: selesai. Dependency sudah diarahkan ke Laravel 12 dan `composer audit` terakhir bersih.
 
 ### 5. Konfigurasi produksi masih berisiko bila dipakai apa adanya
 
@@ -130,6 +148,8 @@ Lokasi:
 - `phpunit.xml:26`
 
 `php artisan test` gagal. Test memakai SQLite memory, tetapi `RefreshDatabase` masih dikomentari sehingga tabel `banner` tidak ada ketika route `/` mengakses database.
+
+Status perbaikan 2026-06-01: selesai. Feature test memakai migrasi testing dan test suite lulus pada audit terakhir.
 
 Rekomendasi:
 
@@ -209,6 +229,8 @@ Rekomendasi:
 
 `git status` gagal karena folder ini tidak memiliki `.git`.
 
+Status perbaikan 2026-06-01: tidak berlaku untuk workspace saat ini. Folder kerja sekarang terhubung ke Git repository.
+
 Rekomendasi:
 
 - Inisialisasi git atau kerjakan dari clone repository utama.
@@ -217,13 +239,13 @@ Rekomendasi:
 ## Hasil Pemeriksaan Otomatis
 
 - `php -l` untuk `app`, `routes`, `database`, dan `config`: lulus, tidak ada syntax error.
-- `npm run build`: lulus, dengan warning font runtime.
+- `npm run build`: lulus.
 - `npm audit --audit-level=moderate`: lulus, 0 vulnerability.
 - `composer validate --strict`: lulus.
-- `composer audit`: gagal karena 8 security advisories.
+- `composer audit`: lulus, tidak ada advisory.
 - `php artisan route:list`: lulus, 47 route terdaftar.
-- `php artisan migrate:status`: gagal karena MySQL lokal tidak aktif/menolak koneksi.
-- `php artisan test`: gagal, 1 feature test gagal karena tabel `banner` tidak ada di SQLite memory.
+- `php artisan migrate`: lulus di database lokal pada 2026-06-01.
+- `php artisan test`: lulus pada audit terakhir.
 
 ## Prioritas Perbaikan
 

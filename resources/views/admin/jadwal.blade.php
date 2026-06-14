@@ -112,7 +112,7 @@
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                 <input type="text" x-model="searchQuery" placeholder="Cari Mapel atau Guru..." class="w-full pl-9 pr-4 py-2 border-2 border-gray-100 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
             </div>
-            <select x-model="classFilter" class="px-4 py-2 border-2 border-gray-100 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+            <select x-model="classFilter" class="px-4 py-2 border-2 border-gray-100 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm" aria-label="Filter kelas jadwal">
                 <option value="Semua">Semua Kelas</option>
                 @php
                     $classes = $jadwal->pluck('kelas')->unique()->sort();
@@ -166,7 +166,7 @@
                     <td class="p-4 text-gray-600 font-medium">
                         <div class="flex items-center gap-2">
                             @if($j->guru?->foto)
-                                <img src="{{ asset($j->guru->foto) }}" class="w-6 h-6 rounded-full object-cover">
+                                <img src="{{ asset(\App\Helpers\ImageHelper::getThumbnail($j->guru->foto)) }}" class="w-6 h-6 rounded-full object-cover" loading="lazy" decoding="async" alt="">
                             @else
                                 <div class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-[10px]"><i class="fas fa-user"></i></div>
                             @endif

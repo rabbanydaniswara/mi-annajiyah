@@ -14,6 +14,8 @@ Tujuan: merencanakan perbaikan proyek SPMB Annajiyah secara bertahap, menjaga ke
 
 Hosting belum menjadi target langsung. Fase teknis dasar, keamanan PPDB, route safety, test reliability, dan cleanup database sudah selesai. Mulai tahap berikutnya, prioritas kerja dialihkan ke peningkatan aplikasi/web sebelum deployment production.
 
+Pembaruan 2026-06-08: seluruh temuan P0/P1 audit final lokal telah diremediasi. Full test, Pint, build, dependency audit, migration check, dan browser QA lulus. Tahap berikutnya adalah konfigurasi provider/domain dan deployment terkontrol setelah ada instruksi user.
+
 Prioritas baru:
 
 1. Rapikan workflow PPDB agar lebih lengkap untuk operasional panitia.
@@ -27,17 +29,17 @@ Prioritas baru:
 Rekomendasi konservatif untuk target hosting umum seperti shared hosting/cPanel:
 
 - PHP: `^8.2` atau `^8.3`, dengan prioritas kompatibilitas hosting.
-- Laravel: pertimbangkan Laravel 12 jika ingin target paling aman untuk shared hosting yang belum merata PHP 8.3.
+- Laravel: gunakan Laravel 12 untuk target paling aman pada shared hosting yang belum merata PHP 8.3.
 - Node/Vite: build asset sebaiknya dilakukan di lokal/CI, lalu upload hasil `public/build`; hosting tidak wajib menjalankan Node.
 - Database: MySQL/MariaDB untuk production.
 - Document root: wajib mengarah ke folder `public`.
 
 Keputusan yang perlu diambil sebelum implementasi dependency:
 
-- `[ ]` Putuskan tetap Laravel 13 jika hosting final mendukung PHP 8.3/8.4, Composer, extension lengkap, dan SSH.
+- `[x]` ~~Putuskan tidak memakai major terbaru yang menuntut PHP lebih tinggi sampai hosting final jelas mendukung.~~
 - `[x]` Putuskan downgrade ke Laravel 12 jika target hosting lebih terbatas atau ingin kompatibilitas PHP 8.2.
 
-Rekomendasi saya: gunakan Laravel 12 + PHP 8.2/8.3 bila prioritasnya minim risiko deploy di hosting umum. Tetap Laravel 13 hanya jika paket hosting final sudah pasti mendukung PHP 8.3+ dengan baik.
+Rekomendasi saat ini: gunakan Laravel 12 + PHP 8.2/8.3 bila prioritasnya minim risiko deploy di hosting umum. Evaluasi major Laravel berikutnya hanya setelah paket hosting final sudah pasti mendukung kebutuhan PHP dan extension dengan baik.
 
 ## Fase 0 - Baseline dan Backup
 
@@ -68,7 +70,7 @@ Tujuan: memilih dependency yang aman sebelum menyentuh fitur.
 
 - `[x]` Tentukan jalur dependency.
   - Prioritas: P0
-  - Opsi A: tetap Laravel 13 jika PHP 8.3+ aman.
+  - Opsi A: gunakan major Laravel terbaru hanya jika PHP dan extension hosting sudah pasti aman.
   - Opsi B: downgrade ke Laravel 12 jika ingin target PHP 8.2 lebih aman.
   - Kriteria selesai: `composer.json` target disepakati.
   - Catatan: dipilih Laravel 12 + PHP `^8.2`.
@@ -99,7 +101,8 @@ Tujuan: menutup risiko terbesar sebelum aplikasi dipakai publik.
   - Prioritas: P0
   - Target file: `app/Helpers/ImageHelper.php` atau helper/service baru, `RegistrationController`, controller admin dokumen.
   - Kriteria selesai: akte/KK/KTP/ijazah tidak bisa diakses langsung lewat URL publik.
-  - Catatan: upload baru masuk ke disk `local` private melalui `DocumentHelper`; path lama di `public/uploads` masih didukung untuk transisi; direct URL `/storage/ppdb/...` sudah ditutup oleh test.
+  - Catatan: upload baru masuk ke disk `local` private melalui `DocumentHelper`; direct URL `/storage/ppdb/...` sudah ditutup oleh test.
+  - Catatan 2026-06-01: command `php artisan ppdb:migrate-public-documents` ditambahkan dan sudah dijalankan pada database lokal sehingga tidak ada lagi referensi dokumen PPDB ke `public/uploads`.
 
 - `[x]` Buat route khusus admin untuk melihat/mengunduh dokumen PPDB.
   - Prioritas: P0
@@ -242,7 +245,8 @@ Tujuan: membuat proses PPDB lebih enak dipakai panitia dan lebih jelas untuk wal
   - Prioritas: P2
   - Target area: admin PPDB, export.
   - Kriteria selesai: data bisa difilter berdasarkan status, tahun ajaran, tanggal daftar, dan kelas tujuan.
-  - Catatan: admin PPDB dan export mendukung filter status, tahun ajaran, kelas, rentang tanggal, dan pencarian nomor pendaftaran.
+  - Catatan: admin PPDB dan export mendukung filter status, tahun ajaran, kelas, rentang tanggal, pencarian nomor pendaftaran/NISN/NIS/WA/orang tua, dan export `.xlsx` asli.
+  - Catatan 2026-06-01: export lama berupa HTML table berekstensi `.xls` dan generator XLSX manual diganti menjadi workbook `.xlsx` asli melalui Laravel Excel/PhpSpreadsheet; kolom identitas/kontak dipaksa sebagai teks.
 
 ## Fase 7 - Admin Panel dan Operasional Sekolah
 
@@ -301,6 +305,7 @@ Tujuan: meningkatkan pengalaman wali murid dan membuat konten sekolah lebih muda
   - Prioritas: P3
   - Kriteria selesai: upload banner/guru/kegiatan/fasilitas memiliki validasi, thumbnail, dan penghapusan file yang konsisten.
   - Catatan: validasi dan helper thumbnail/penghapusan sudah dipakai di modul media utama; checklist perawatan media ditambahkan.
+  - Catatan 2026-06-01: preview dokumen PPDB admin memakai thumbnail private di `storage/app/private/ppdb-thumbs`; logo kecil web `public/logo-web.webp` ditambahkan; satu varian card guru yang kurang dibuat ulang dengan `php artisan media:generate-variants`.
 
 ## Fase 9 - Hardening Lanjutan dan Kualitas Kode
 

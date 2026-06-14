@@ -75,6 +75,21 @@ class AdminOperationalTest extends TestCase
             ->assertSee('Diterima');
     }
 
+    public function test_admin_dashboard_reports_zero_peak_when_there_are_no_recent_registrations(): void
+    {
+        $admin = User::create([
+            'username' => 'admin-dashboard-zero',
+            'password' => 'secret-password',
+            'role' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Puncak:')
+            ->assertSee('<strong class="text-[var(--color-primary)]">0</strong>', false);
+    }
+
     public function test_admin_activity_log_can_be_filtered(): void
     {
         $admin = User::create([

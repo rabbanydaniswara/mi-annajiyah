@@ -14,6 +14,8 @@
 
 Catatan: saat audit, `.env.example` memakai SQLite, sedangkan `.env` lokal memakai MySQL. Pilih salah satu sebagai standar tim agar setup tidak membingungkan.
 
+Catatan export Excel: PHP extension `zip` wajib aktif karena Laravel Excel/PhpSpreadsheet membutuhkannya untuk membuat file `.xlsx`.
+
 ## Perintah Harian
 
 - Route list: `php artisan route:list`
@@ -23,8 +25,19 @@ Catatan: saat audit, `.env.example` memakai SQLite, sedangkan `.env` lokal memak
 - Audit PHP dependency: `composer audit`
 - Audit Node dependency: `npm audit --audit-level=moderate`
 - Clear config cache: `php artisan config:clear`
-- Generate thumbnail: `php artisan thumbnails:generate`
-- Regenerate thumbnail: `php artisan thumbnails:regenerate`
+- Generate varian media publik: `php artisan media:generate-variants`
+- Generate thumbnail dokumen PPDB private: `php artisan ppdb:generate-document-thumbnails`
+- Migrasi dokumen PPDB lama dari public ke private: `php artisan ppdb:migrate-public-documents`
+
+## Catatan Export Admin
+
+Export default admin memakai `.xlsx` asli melalui `App\Exports\AdminDataExport` berbasis Laravel Excel/PhpSpreadsheet, bukan HTML table yang diberi ekstensi Excel. Saat mengubah export PPDB/siswa/guru, pastikan kolom identitas dan kontak tetap disimpan sebagai teks agar NISN, NIS, nomor pendaftaran, dan WhatsApp tidak berubah format.
+
+Verifikasi minimal perubahan export:
+
+- `php artisan test --filter=AdminExportTest`
+- Download `/admin/export/ppdb` dari sesi admin lokal dan pastikan content type workbook Excel modern, ekstensi `.xlsx`, serta file diawali byte `PK`.
+- Buka ulang file dengan PhpSpreadsheet/Excel dan pastikan NISN/WhatsApp tetap bertipe string.
 
 ## Standar Perubahan Backend
 
@@ -50,6 +63,7 @@ Prioritas test:
 6. Operator tidak bisa mengakses kelola admin.
 7. Admin bisa update status PPDB.
 8. Route toggle memakai PATCH/POST dan menolak GET setelah perbaikan.
+9. Export PPDB menghasilkan `.xlsx` asli dan menjaga nilai identitas/kontak sebagai teks.
 
 ## Deployment Checklist
 
@@ -59,14 +73,17 @@ Sebelum deploy:
 2. Pastikan `APP_DEBUG=false`.
 3. Pastikan `APP_URL` memakai domain final dan HTTPS.
 4. Pastikan `.env` tidak masuk repository.
-5. Jalankan `composer install --no-dev --optimize-autoloader`.
-6. Jalankan `npm ci` lalu `npm run build`, atau deploy hasil build yang valid.
-7. Jalankan `php artisan migrate --force`.
-8. Jalankan `php artisan config:cache`.
-9. Jalankan `php artisan route:cache` jika route closure sitemap sudah dipindah ke controller. Saat ini ada closure di `routes/web.php`, jadi route cache perlu diuji dulu.
-10. Pastikan scheduler/queue worker aktif jika fitur queue dipakai.
-11. Pastikan folder storage dan cache writable.
-12. Pastikan dokumen PPDB tidak berada di public path setelah perbaikan storage.
+5. Pastikan PHP extension `zip` aktif sebelum `composer install`.
+6. Jalankan `composer install --no-dev --optimize-autoloader`.
+7. Jalankan `npm ci` lalu `npm run build`, atau deploy hasil build yang valid.
+8. Jalankan `php artisan migrate --force`.
+9. Jalankan `php artisan config:cache`.
+10. Jalankan `php artisan route:cache`; sitemap sudah memakai controller dan route cache sudah diuji.
+11. Pastikan scheduler/queue worker aktif jika fitur queue dipakai.
+12. Pastikan folder storage dan cache writable.
+13. Jalankan `php artisan ppdb:migrate-public-documents` jika ada data lama yang masih menunjuk `public/uploads`.
+14. Jalankan `php artisan ppdb:generate-document-thumbnails`.
+15. Pastikan dokumen PPDB tidak berada di public path setelah perbaikan storage.
 
 ## Backlog Prioritas
 

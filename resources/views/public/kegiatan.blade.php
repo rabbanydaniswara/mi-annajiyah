@@ -34,21 +34,30 @@
 </div>
 
 {{-- Kegiatan Gallery Grid --}}
-<section class="py-12 bg-gray-50" x-data="lightbox()">
+<section id="daftar-kegiatan" class="py-12 bg-gray-50 scroll-mt-28" x-data="lightbox()">
     <div class="max-w-6xl mx-auto px-4">
         @if($kegiatan->count() > 0)
-        <p class="text-sm text-gray-400 mb-6">Menampilkan <strong class="text-[var(--color-primary)]">{{ $kegiatan->total() }}</strong> kegiatan</p>
+        <p class="text-sm text-gray-500 mb-6">
+            Menampilkan
+            <strong class="text-[var(--color-primary)]">{{ $kegiatan->firstItem() }}-{{ $kegiatan->lastItem() }}</strong>
+            dari <strong class="text-[var(--color-primary)]">{{ $kegiatan->total() }}</strong> kegiatan
+        </p>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             @foreach($kegiatan as $kgt)
-            <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer fade-up"
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer fade-up focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)]"
+                 role="button"
+                 tabindex="0"
+                 aria-label="Lihat detail kegiatan {{ $kgt->judul }}"
                  @@click="open(
                      '{{ $kgt->gambar ? asset(\App\Helpers\ImageHelper::getWebp($kgt->gambar)) : '' }}',
                      '{{ addslashes($kgt->judul) }}',
                      '{{ $kgt->tanggal ? $kgt->tanggal->format('d F Y') : '-' }}',
                      '{{ addslashes($kgt->kategori->nama ?? '') }}',
                      '{{ addslashes($kgt->deskripsi ?? '') }}'
-                 )">
+                 )"
+                 @@keydown.enter.prevent="$el.click()"
+                 @@keydown.space.prevent="$el.click()">
                 <div class="relative overflow-hidden h-44 bg-gradient-to-br from-green-50 to-green-100">
                     @if($kgt->gambar)
                     <img src="{{ asset(\App\Helpers\ImageHelper::getCard($kgt->gambar)) }}"
@@ -91,8 +100,8 @@
             @endforeach
         </div>
 
-        <div class="mt-10 flex justify-center">
-            {{ $kegiatan->appends(request()->query())->links() }}
+        <div class="mt-10">
+            {{ $kegiatan->links('public.components.pagination') }}
         </div>
         @else
         <div class="text-center py-20">
@@ -112,6 +121,9 @@
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
          @@keydown.escape.window="close()"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="kegiatan-dialog-title"
          style="display:none;">
 
         {{-- Solid dark overlay --}}
@@ -129,9 +141,11 @@
              style="z-index:1;">
 
             <div class="relative bg-black flex-shrink-0">
-                <img :src="currentImg || '{{ asset('logo.png') }}'" :alt="currentTitle"
+                <img :src="currentImg || '{{ asset('logo-web.webp') }}'" :alt="currentTitle"
                      class="w-full max-h-[55vh] object-contain">
                 <button @@click="close()"
+                        type="button"
+                        aria-label="Tutup detail kegiatan"
                         class="absolute top-3 right-3 w-10 h-10 bg-black/70 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition text-2xl font-bold leading-none">
                     &times;
                 </button>
@@ -141,7 +155,7 @@
             </div>
 
             <div class="p-6 overflow-y-auto">
-                <h2 class="text-xl font-black text-[var(--color-primary)] mb-2" x-text="currentTitle"></h2>
+                <h2 id="kegiatan-dialog-title" class="text-xl font-black text-[var(--color-primary)] mb-2" x-text="currentTitle"></h2>
                 <p class="text-sm text-[var(--color-accent)] font-semibold mb-3 flex items-center gap-2">
                     <i class="fas fa-calendar-alt"></i>
                     <span x-text="currentDate"></span>

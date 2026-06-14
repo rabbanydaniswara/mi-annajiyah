@@ -46,6 +46,6 @@ return new class extends Migration
     {
         $year = $date ? (int) substr($date, 0, 4) : (int) now()->format('Y');
 
-        return $year . '/' . ($year + 1);
+        return $year.'/'.($year + 1);
     }
 };

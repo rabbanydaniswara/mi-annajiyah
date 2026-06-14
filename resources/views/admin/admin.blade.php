@@ -55,21 +55,26 @@
             <form method="POST" action="{{ route('admin.admin.store') }}">
                 @csrf
                 @if($edit)<input type="hidden" name="id" value="{{ $edit->id }}">@endif
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-user mr-1"></i>Username *</label>
-                        <input type="text" name="username" value="{{ $edit->username ?? '' }}" required class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                        <input type="text" name="username" value="{{ old('username', $edit->username ?? '') }}" required class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
                         <small class="text-gray-400">Username harus unik</small>
                     </div>
                     <div>
                         <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-lock mr-1"></i>Password {{ $edit ? '(kosongkan jika tidak diubah)' : '*' }}</label>
                         <input type="password" name="password" {{ $edit ? '' : 'required' }} class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
+                        <small class="text-gray-400">Minimal 8 karakter</small>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-check-double mr-1"></i>Konfirmasi Password {{ $edit ? '' : '*' }}</label>
+                        <input type="password" name="password_confirmation" {{ $edit ? '' : 'required' }} class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
                     </div>
                     <div>
                         <label class="font-semibold text-sm text-[var(--color-primary)] block mb-1"><i class="fas fa-tag mr-1"></i>Role *</label>
                         <select name="role" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none transition text-sm">
-                            <option value="admin" {{ $edit && $edit->role === 'admin' ? 'selected' : '' }}>Admin (Akses penuh)</option>
-                            <option value="operator" {{ $edit && $edit->role === 'operator' ? 'selected' : '' }}>Operator (Akses terbatas)</option>
+                            <option value="admin" {{ old('role', $edit->role ?? '') === 'admin' ? 'selected' : '' }}>Admin (Akses penuh)</option>
+                            <option value="operator" {{ old('role', $edit->role ?? '') === 'operator' ? 'selected' : '' }}>Operator (Akses terbatas)</option>
                         </select>
                     </div>
                 </div>
@@ -100,16 +105,24 @@
                         <td class="p-3"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold"><i class="fas {{ $a->role === 'admin' ? 'fa-user-shield' : 'fa-user-clock' }} mr-1"></i>{{ ucfirst($a->role) }}</span></td>
                         <td class="p-3 text-xs">{{ $a->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
                         <td class="p-3">
+                            @php
+                                $isCurrentUser = $a->is(Auth::user());
+                                $isLastAdmin = $a->role === 'admin' && $admins->where('role', 'admin')->count() <= 1;
+                            @endphp
                             @if($a->username !== 'admin')
                             <a href="{{ route('admin.admin', ['edit' => $a->id]) }}" class="bg-[var(--color-accent)] text-[var(--color-primary)] px-2 py-1 rounded text-xs font-semibold"><i class="fas fa-edit"></i></a>
-                            <form method="POST" action="{{ route('admin.admin.destroy', $a->id) }}" class="inline" 
-                                  data-confirm="Yakin ingin menghapus admin {{ $a->username }}?"
-                                  data-title="Hapus Akun Admin"
-                                  data-button="Hapus"
-                                  data-type="danger">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i></button>
-                            </form>
+                                @if(!$isCurrentUser && !$isLastAdmin)
+                                <form method="POST" action="{{ route('admin.admin.destroy', $a->id) }}" class="inline"
+                                      data-confirm="Yakin ingin menghapus admin {{ $a->username }}?"
+                                      data-title="Hapus Akun Admin"
+                                      data-button="Hapus"
+                                      data-type="danger">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i></button>
+                                </form>
+                                @else
+                                <span class="text-gray-400 text-xs ml-1"><i class="fas fa-shield-alt mr-1"></i>Protected</span>
+                                @endif
                             @else<span class="text-gray-400 text-xs"><i class="fas fa-lock mr-1"></i>Protected</span>@endif
                         </td>
                     </tr>

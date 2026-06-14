@@ -49,7 +49,7 @@ class NewFeaturesSeeder extends Seeder
         // Data Guru sesuai daftar
         $guruData = [
             ['nama' => 'Marhali, S.Ag', 'mapel' => 'PAI (Pendidikan Agama Islam)', 'jabatan' => 'Guru PAI', 'foto' => 'uploads/guru/Marhali_S_Ag.webp', 'urutan' => 1],
-            ['nama' => 'Haikal Fikri', 'mapel' => 'PAI (Pendidikan Agama Islam)', 'jabatan' => 'Guru PAI', 'foto' => 'uploads/guru/Haikal_Fikri.webp', 'urutan' => 2],
+            ['nama' => 'Haikal Fikri', 'mapel' => 'PAI (Pendidikan Agama Islam)', 'jabatan' => 'Guru PAI', 'foto' => 'uploads/guru/guru_1780052278_0rdWF.webp', 'urutan' => 2],
             ['nama' => 'Mardiyah, S.Ag', 'mapel' => 'Guru Kelas 1', 'jabatan' => 'Wali Kelas 1', 'foto' => 'uploads/guru/Mardiyah_S_Ag.webp', 'urutan' => 3],
             ['nama' => 'Pilawati, S.Pd.I', 'mapel' => 'Guru Kelas 2', 'jabatan' => 'Wali Kelas 2', 'foto' => 'uploads/guru/Pilawati_S_Pd_I.webp', 'urutan' => 4],
             ['nama' => 'Nurjanah, S.Pd.I', 'mapel' => 'Guru Kelas 3', 'jabatan' => 'Wali Kelas 3', 'foto' => 'uploads/guru/Nurjanah_S_Pd_I.webp', 'urutan' => 5],
@@ -91,7 +91,7 @@ class NewFeaturesSeeder extends Seeder
             ['judul' => 'Pramuka - Pioneering',        'tanggal' => '2025-10-13', 'gambar' => 'uploads/kegiatan/Pramuka7.webp', 'kategori_id' => $kpr, 'deskripsi' => 'Praktik pioneering dengan tongkat dan tali untuk membangun struktur sederhana.'],
             ['judul' => 'Pramuka - Permainan Tim',     'tanggal' => '2025-10-20', 'gambar' => 'uploads/kegiatan/Pramuka8.webp', 'kategori_id' => $kpr, 'deskripsi' => 'Permainan kelompok yang membangun kekompakan dan strategi tim siswa.'],
             ['judul' => 'Pramuka - Yel-Yel',           'tanggal' => '2025-10-27', 'gambar' => 'uploads/kegiatan/Pramuka9.webp', 'kategori_id' => $kpr, 'deskripsi' => 'Latihan yel-yel kreatif untuk membangkitkan semangat dan kebersamaan regu.'],
-            ['judul' => 'Pramuka - Penutupan Latihan', 'tanggal' => '2025-11-03', 'gambar' => 'uploads/kegiatan/Pramuka10.webp','kategori_id' => $kpr, 'deskripsi' => 'Sesi penutupan latihan pramuka dengan evaluasi dan refleksi kegiatan siswa.'],
+            ['judul' => 'Pramuka - Penutupan Latihan', 'tanggal' => '2025-11-03', 'gambar' => 'uploads/kegiatan/Pramuka10.webp', 'kategori_id' => $kpr, 'deskripsi' => 'Sesi penutupan latihan pramuka dengan evaluasi dan refleksi kegiatan siswa.'],
             // Menari
             ['judul' => 'Latihan Tari Tradisional', 'tanggal' => '2025-08-01', 'gambar' => 'uploads/kegiatan/Ekskul_Menari.webp',  'kategori_id' => $km, 'deskripsi' => 'Latihan tari tradisional Nusantara untuk melestarikan budaya dan mengasah kreativitas seni siswa.'],
             ['judul' => 'Penampilan Tari Siswa',    'tanggal' => '2025-08-15', 'gambar' => 'uploads/kegiatan/Ekskul_Menari2.webp', 'kategori_id' => $km, 'deskripsi' => 'Penampilan tari oleh siswa pada acara madrasah, menampilkan kostum dan gerakan yang memukau.'],
@@ -119,12 +119,20 @@ class NewFeaturesSeeder extends Seeder
             );
         }
 
-        $this->seedDemoStudents();
+        if ($this->shouldSeedDemoData()) {
+            $this->seedDemoStudents();
+        }
+    }
+
+    private function shouldSeedDemoData(): bool
+    {
+        return ! app()->environment('production')
+            && filter_var(env('SEED_DEMO_DATA', false), FILTER_VALIDATE_BOOL);
     }
 
     private function seedDemoStudents(): void
     {
-        $tahunAjaran = date('Y') . '/' . (date('Y') + 1);
+        $tahunAjaran = date('Y').'/'.(date('Y') + 1);
         $students = [
             ['nama' => 'Ahmad Zidan Ramadhan', 'jenis_kelamin' => 'Laki-laki', 'kelas' => '1A', 'status_ppdb' => 'diterima', 'nisn' => '9900000001', 'nis' => 'SIM-001', 'no_wa' => '6285174228001'],
             ['nama' => 'Aisyah Putri Zahra', 'jenis_kelamin' => 'Perempuan', 'kelas' => '1A', 'status_ppdb' => 'daftar_ulang', 'nisn' => '9900000002', 'nis' => 'SIM-002', 'no_wa' => '6285174228002'],
@@ -147,7 +155,7 @@ class NewFeaturesSeeder extends Seeder
                     'tempat_lahir' => 'Tangerang Selatan',
                     'tanggal_lahir' => now()->subYears(7 + ($index % 5))->subMonths($index)->toDateString(),
                     'asal_sekolah' => 'TK/RA Sekitar Pondok Aren',
-                    'nama_ortu' => 'Wali ' . $student['nama'],
+                    'nama_ortu' => 'Wali '.$student['nama'],
                     'alamat' => 'Pondok Aren, Tangerang Selatan',
                     'tahun_ajaran' => $tahunAjaran,
                     'tanggal_daftar' => now()->subDays(12 - $index),

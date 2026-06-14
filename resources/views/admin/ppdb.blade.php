@@ -10,6 +10,7 @@
         detailStatus: 'pending',
         detailNote: '',
         documentRoute: '{{ route('admin.ppdb.document', ['siswa' => '__ID__', 'field' => '__FIELD__']) }}',
+        documentThumbnailRoute: '{{ route('admin.ppdb.document.thumbnail', ['siswa' => '__ID__', 'field' => '__FIELD__']) }}',
         filesMap: {
             'file_akte': 'Akte Kelahiran',
             'file_kk': 'Kartu Keluarga',
@@ -37,6 +38,10 @@
         getDocumentUrl(field) {
             if(!this.selected.id || !field) return '';
             return this.documentRoute.replace('__ID__', this.selected.id).replace('__FIELD__', field);
+        },
+        getDocumentThumbnailUrl(field) {
+            if(!this.selected.id || !field) return '';
+            return this.documentThumbnailRoute.replace('__ID__', this.selected.id).replace('__FIELD__', field);
         },
         whatsappUrl(noWa) {
             const digits = noWa ? noWa.replace(/\D/g, '') : '';
@@ -128,7 +133,7 @@
             <input type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" class="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:border-[var(--color-accent)] outline-none text-sm" title="Tanggal daftar sampai">
             <button type="submit" class="bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-[var(--color-accent-dark)] transition"><i class="fas fa-search mr-1"></i> Cari</button>
             <a href="{{ route('admin.ppdb') }}" class="bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition"><i class="fas fa-undo mr-1"></i> Reset</a>
-            <a href="{{ route('admin.export', array_filter(['type' => 'ppdb', 'tahun_ajaran' => request('tahun_ajaran'), 'kelas' => request('kelas'), 'status' => request('status'), 'tanggal_dari' => request('tanggal_dari'), 'tanggal_sampai' => request('tanggal_sampai')])) }}" class="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20 text-sm flex items-center gap-2 ml-auto">
+            <a href="{{ route('admin.export', array_filter(['type' => 'ppdb', 'q' => request('q'), 'tahun_ajaran' => request('tahun_ajaran'), 'kelas' => request('kelas'), 'status' => request('status'), 'tanggal_dari' => request('tanggal_dari'), 'tanggal_sampai' => request('tanggal_sampai')])) }}" class="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20 text-sm flex items-center gap-2 ml-auto">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
         </form>
@@ -165,7 +170,6 @@
                         <th class="p-4 text-left">Kontak WA</th>
                         <th class="p-4 text-left">Tgl Daftar</th>
                         <th class="p-4 text-left">Status</th>
-                        <th class="p-4 text-left">Dokumen</th>
                         <th class="p-4 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -173,7 +177,7 @@
                     @forelse($pendaftar as $p)
                     <tr class="hover:bg-yellow-50/30 transition group">
                         <td class="p-4">
-                            <input type="checkbox" name="ids[]" value="{{ $p->id }}" form="bulkStatusForm" class="w-4 h-4 rounded accent-[var(--color-accent)]">
+                            <input type="checkbox" name="ids[]" value="{{ $p->id }}" form="bulkStatusForm" class="w-4 h-4 rounded accent-[var(--color-accent)]" aria-label="Pilih {{ $p->nama }}">
                         </td>
                         <td class="p-4">
                             <div class="font-mono font-black text-[var(--color-primary)] text-xs">{{ $p->nomor_pendaftaran ?: '-' }}</div>
@@ -207,24 +211,6 @@
                                 };
                             @endphp
                             <span class="{{ $statusClass }} px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter">{{ \App\Helpers\PpdbHelper::statusLabel($p->status_ppdb) }}</span>
-                        </td>
-                        <td class="p-4">
-                            <div class="flex gap-1.5">
-                                @foreach(['file_akte' => 'Akte', 'file_kk' => 'KK', 'file_ktp_ortu' => 'KTP', 'file_ijazah' => 'Ijazah'] as $field => $label)
-                                    @if($p->$field)
-                                    <div class="group/file relative">
-                                        <a href="{{ route('admin.ppdb.document', ['siswa' => $p->id, 'field' => $field]) }}" target="_blank" rel="noopener noreferrer" class="block w-7 h-7 rounded-lg border border-gray-100 overflow-hidden hover:border-[var(--color-accent)] transition shadow-sm hover:scale-110 duration-200">
-                                            @php $ext = pathinfo($p->$field, PATHINFO_EXTENSION); @endphp
-                                            @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']))
-                                                <img src="{{ route('admin.ppdb.document', ['siswa' => $p->id, 'field' => $field]) }}" class="w-full h-full object-cover">
-                                            @else
-                                                <div class="w-full h-full bg-red-50 flex items-center justify-center text-[8px] text-red-500 font-black">PDF</div>
-                                            @endif
-                                        </a>
-                                    </div>
-                                    @endif
-                                @endforeach
-                            </div>
                         </td>
                         <td class="p-4">
                             <div class="flex gap-1.5 justify-center">
@@ -263,7 +249,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center py-20">
+                        <td colspan="8" class="text-center py-20">
                             <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5">
                                 <i class="fas fa-inbox text-3xl text-green-300"></i>
                             </div>
@@ -308,7 +294,7 @@
                         </div>
                     </div>
                 </div>
-                <button @@click="modalOpen = false" class="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 hover:bg-red-500 hover:text-white hover:rotate-90 transition-all duration-300 flex items-center justify-center shadow-inner">
+                <button @@click="modalOpen = false" class="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 hover:bg-red-500 hover:text-white hover:rotate-90 transition-all duration-300 flex items-center justify-center shadow-inner" aria-label="Tutup detail pendaftar">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
@@ -380,7 +366,7 @@
                                         </div>
                                         <a :href="getDocumentUrl(field)" target="_blank" rel="noopener noreferrer" class="relative block aspect-[4/3] rounded-2xl overflow-hidden border border-gray-50 bg-gray-50">
                                             <template x-if="isImage(selected[field])">
-                                                <img :src="getDocumentUrl(field)" class="w-full h-full object-cover group-hover/doc:scale-110 transition duration-700">
+                                                <img :src="getDocumentThumbnailUrl(field)" class="w-full h-full object-cover group-hover/doc:scale-110 transition duration-700" loading="lazy" decoding="async">
                                             </template>
                                             <template x-if="!isImage(selected[field])">
                                                 <div class="w-full h-full flex flex-col items-center justify-center text-red-500 gap-2">

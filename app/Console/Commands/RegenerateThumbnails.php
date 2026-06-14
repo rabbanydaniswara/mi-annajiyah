@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\ImageHelper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use App\Helpers\ImageHelper;
 
 class RegenerateThumbnails extends Command
 {
@@ -18,27 +18,27 @@ class RegenerateThumbnails extends Command
     public function handle()
     {
         $force = $this->option('force');
-        $this->info("Scanning public/uploads for webp images...");
-        
+        $this->info('Scanning public/uploads for webp images...');
+
         $files = File::allFiles(public_path('uploads'));
         $count = 0;
-        
+
         foreach ($files as $file) {
-            if ($file->getExtension() === 'webp' && !str_ends_with($file->getFilename(), '_thumb.webp')) {
-                $relativePath = 'uploads/' . $file->getRelativePathname();
-                $this->line("Processing: " . $relativePath);
-                
+            if ($file->getExtension() === 'webp' && ! str_ends_with($file->getFilename(), '_thumb.webp')) {
+                $relativePath = 'uploads/'.$file->getRelativePathname();
+                $this->line('Processing: '.$relativePath);
+
                 try {
                     $result = ImageHelper::generateThumbnailFor($relativePath, $force);
                     if ($result) {
                         $count++;
                     }
                 } catch (\Exception $e) {
-                    $this->error("Error processing {$relativePath}: " . $e->getMessage());
+                    $this->error("Error processing {$relativePath}: ".$e->getMessage());
                 }
             }
         }
-        
+
         $this->info("Done! Generated/checked {$count} thumbnails.");
     }
 }

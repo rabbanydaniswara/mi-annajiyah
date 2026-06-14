@@ -2,13 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Helpers\ImageHelper;
-use App\Models\{Guru, KegiatanSekolah, Banner, Fasilitas};
+use App\Models\Banner;
+use App\Models\Fasilitas;
+use App\Models\Guru;
+use App\Models\KegiatanSekolah;
+use Illuminate\Console\Command;
 
 class GenerateThumbnails extends Command
 {
     protected $signature = 'thumbnails:generate {--force : Regenerate even if thumb exists}';
+
     protected $description = 'Generate _thumb.webp variants for guru/kegiatan/banner/fasilitas images';
 
     public function handle(): int
@@ -17,18 +21,22 @@ class GenerateThumbnails extends Command
         $stats = ['ok' => 0, 'skip' => 0, 'fail' => 0];
 
         $sources = [
-            'guru'      => Guru::pluck('foto')->filter()->values(),
-            'kegiatan'  => KegiatanSekolah::pluck('gambar')->filter()->values(),
-            'banner'    => Banner::pluck('gambar')->filter()->values(),
+            'guru' => Guru::pluck('foto')->filter()->values(),
+            'kegiatan' => KegiatanSekolah::pluck('gambar')->filter()->values(),
+            'banner' => Banner::pluck('gambar')->filter()->values(),
             'fasilitas' => Fasilitas::pluck('gambar')->filter()->values(),
         ];
 
         foreach ($sources as $kind => $paths) {
-            $this->info("Processing {$kind} (" . $paths->count() . ")");
+            $this->info("Processing {$kind} (".$paths->count().')');
             foreach ($paths as $p) {
                 $thumb = preg_replace('/\.[^.]+$/', '_thumb.webp', ltrim($p, '/'));
                 $exists = file_exists(public_path($thumb));
-                if ($exists && !$force) { $stats['skip']++; continue; }
+                if ($exists && ! $force) {
+                    $stats['skip']++;
+
+                    continue;
+                }
 
                 $ok = ImageHelper::generateThumbnailFor($p, $force);
                 if ($ok) {
@@ -43,6 +51,7 @@ class GenerateThumbnails extends Command
 
         $this->newLine();
         $this->info("Done. Generated: {$stats['ok']}, Skipped: {$stats['skip']}, Failed: {$stats['fail']}");
+
         return self::SUCCESS;
     }
 }

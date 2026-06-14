@@ -3,12 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Helpers\ImageHelper;
-use App\Models\{Banner, Fasilitas, Guru, KegiatanSekolah};
+use App\Models\Banner;
+use App\Models\Fasilitas;
+use App\Models\Guru;
+use App\Models\KegiatanSekolah;
 use Illuminate\Console\Command;
 
 class GenerateMediaVariants extends Command
 {
     protected $signature = 'media:generate-variants {--force : Regenerate variants even if they already exist}';
+
     protected $description = 'Generate lightweight card and hero WebP variants for public media';
 
     public function handle(): int
@@ -50,22 +54,23 @@ class GenerateMediaVariants extends Command
         ];
 
         foreach ($groups as $label => $config) {
-            $this->info('Processing ' . $label . ' (' . $config['paths']->count() . ')');
+            $this->info('Processing '.$label.' ('.$config['paths']->count().')');
 
             foreach ($config['paths'] as $path) {
-                $variant = preg_replace('/\.[^.]+$/', '_' . $config['suffix'] . '.webp', ltrim($path, '/'));
-                if (!$force && file_exists(public_path($variant))) {
+                $variant = preg_replace('/\.[^.]+$/', '_'.$config['suffix'].'.webp', ltrim($path, '/'));
+                if (! $force && file_exists(public_path($variant))) {
                     $stats['skip']++;
+
                     continue;
                 }
 
                 $ok = ImageHelper::generateVariantFor($path, $config['suffix'], $config['width'], $config['quality'], $force);
                 if ($ok) {
                     $stats['ok']++;
-                    $this->line('  <fg=green>OK</> ' . $variant);
+                    $this->line('  <fg=green>OK</> '.$variant);
                 } else {
                     $stats['fail']++;
-                    $this->line('  <fg=red>FAIL</> ' . $path);
+                    $this->line('  <fg=red>FAIL</> '.$path);
                 }
             }
         }

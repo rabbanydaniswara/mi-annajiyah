@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Jadwal;
 use App\Models\Guru;
+use App\Models\Jadwal;
+use Illuminate\Database\Seeder;
 
 class JadwalSeeder extends Seeder
 {
@@ -21,8 +21,8 @@ class JadwalSeeder extends Seeder
 
         $hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         $mapels = [
-            'Bahasa Indonesia', 'Matematika', 'IPA', 'IPS', 'Al-Qur\'an Hadits', 
-            'Akidah Akhlak', 'Fiqih', 'SKI', 'Bahasa Arab', 'PJOK', 'Seni Budaya'
+            'Bahasa Indonesia', 'Matematika', 'IPA', 'IPS', 'Al-Qur\'an Hadits',
+            'Akidah Akhlak', 'Fiqih', 'SKI', 'Bahasa Arab', 'PJOK', 'Seni Budaya',
         ];
         $kelas = ['1A', '1B', '2A', '2B', '3A', '4A', '5A', '6A'];
 
@@ -30,12 +30,12 @@ class JadwalSeeder extends Seeder
             foreach ($kelas as $kelasIndex => $k) {
                 $startTime = 7; // Start at 07:00
                 $maxSessions = 4;
-                
+
                 for ($i = 0; $i < $maxSessions; $i++) {
                     $jamMulai = sprintf('%02d:00', $startTime);
                     $endTime = $startTime + 1; // 1 hour session
                     $jamSelesai = sprintf('%02d:00', $endTime);
-                    
+
                     Jadwal::create([
                         'hari' => $h,
                         'jam_mulai' => $jamMulai,
@@ -43,7 +43,7 @@ class JadwalSeeder extends Seeder
                         'mapel' => $mapels[($hariIndex + $kelasIndex + $i) % count($mapels)],
                         'id_guru' => $gurus[($hariIndex + $kelasIndex + $i) % $gurus->count()]->id,
                         'kelas' => $k,
-                        'ruangan' => 'Ruang ' . $k
+                        'ruangan' => 'Ruang '.$k,
                     ]);
 
                     $startTime = $endTime; // No gap or small gap

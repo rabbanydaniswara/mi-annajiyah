@@ -33,6 +33,8 @@ class DatabaseSeederSafetyTest extends TestCase
         $this->assertDatabaseMissing('users', [
             'username' => 'admin',
         ]);
+        $this->assertDatabaseCount('siswa', 0);
+        $this->assertDatabaseCount('jadwal', 0);
     }
 
     private function runDatabaseSeeder(): void

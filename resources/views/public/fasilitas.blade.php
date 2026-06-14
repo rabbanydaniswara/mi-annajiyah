@@ -63,7 +63,8 @@
         <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Ingin Bergabung Bersama Kami?</h2>
         <p class="text-green-200 mb-6">Daftarkan putra-putri Anda dan rasakan langsung fasilitas lengkap MI Annajiyah.</p>
         <a href="{{ route('pendaftaran') }}" class="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-primary)] px-8 py-3.5 rounded-full font-bold hover:bg-[var(--color-accent-dark)] transition transform hover:scale-105 shadow-lg">
-            <i class="fas fa-edit"></i> Daftar PPDB Sekarang
+            <i class="fas {{ $ppdbSettings['is_open'] ? 'fa-edit' : 'fa-info-circle' }}"></i>
+            {{ $ppdbSettings['is_open'] ? 'Daftar PPDB Sekarang' : 'Lihat Informasi PPDB' }}
         </a>
     </div>
 </section>

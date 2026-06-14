@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\PublicCacheHelper;
 use App\Helpers\PpdbHelper;
+use App\Helpers\PublicCacheHelper;
 use App\Models\Banner;
 use App\Models\Fasilitas;
 use App\Models\Guru;
-use App\Models\KegiatanSekolah;
 use App\Models\KegiatanKategori;
+use App\Models\KegiatanSekolah;
 use App\Models\KontenWeb;
 use App\Models\Siswa;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
@@ -37,7 +38,7 @@ class HomeController extends Controller
                 ->map(fn ($item) => $item->only(['tipe', 'judul', 'konten', 'gambar', 'urutan']));
 
             $kategoris = KegiatanKategori::get(['id', 'nama', 'warna']);
-            $kegiatan  = collect();
+            $kegiatan = collect();
             foreach ($kategoris as $kat) {
                 $items = KegiatanSekolah::with('kategori:id,nama,warna')
                     ->where('kategori_id', $kat->id)
@@ -102,8 +103,12 @@ class HomeController extends Controller
 
     public function pendaftaran()
     {
+        $ppdbSettings = PpdbHelper::settings();
+
         return view('public.pendaftaran', [
-            'ppdbTahunAjaran' => PpdbHelper::activeAcademicYear(),
+            'ppdbTahunAjaran' => $ppdbSettings['academic_year'],
+            'ppdbOpen' => $ppdbSettings['is_open'],
+            'ppdbClosedMessage' => $ppdbSettings['closed_message'],
         ]);
     }
 
@@ -148,12 +153,17 @@ class HomeController extends Controller
                 ->all();
         }));
 
-        $filterKategori = request('kategori');
+        $requestedCategory = request()->integer('kategori');
+        $filterKategori = $kategoris->contains(
+            fn ($category) => (int) $category->id === $requestedCategory
+        ) ? $requestedCategory : null;
 
         $kegiatan = KegiatanSekolah::with('kategori:id,nama,warna')
             ->when($filterKategori, fn ($query) => $query->where('kategori_id', $filterKategori))
             ->orderByDesc('tanggal')
-            ->paginate(12, ['id', 'judul', 'deskripsi', 'gambar', 'tanggal', 'kategori_id']);
+            ->paginate(12, ['id', 'judul', 'deskripsi', 'gambar', 'tanggal', 'kategori_id'])
+            ->appends($filterKategori ? ['kategori' => $filterKategori] : [])
+            ->fragment('daftar-kegiatan');
 
         return view('public.kegiatan', compact('kegiatan', 'kategoris', 'filterKategori'));
     }
@@ -201,7 +211,7 @@ class HomeController extends Controller
     {
         return collect($items)->map(function ($item) {
             $activity = (object) $item;
-            $activity->tanggal = $item['tanggal'] ? \Illuminate\Support\Carbon::parse($item['tanggal']) : null;
+            $activity->tanggal = $item['tanggal'] ? Carbon::parse($item['tanggal']) : null;
             $activity->kategori = $item['kategori'] ? (object) $item['kategori'] : null;
 
             return $activity;
